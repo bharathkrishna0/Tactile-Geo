@@ -17,11 +17,12 @@ function report(issues: QAIssue[]): QAReport {
 }
 
 describe('BLOCKING_QA_CHECKS', () => {
-  it('is exactly the four checks agreed with the backend policy', () => {
+  it('is exactly the checks agreed with the backend policy', () => {
     expect([...BLOCKING_QA_CHECKS].sort()).toEqual([
       'braille_on_line',
       'element_outside_printable_area',
       'feature_below_minimum_size',
+      'no_tactile_geometry',
       'stroke_width_out_of_bounds',
     ])
   })

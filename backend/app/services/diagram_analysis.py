@@ -147,7 +147,7 @@ def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[lis
         needs_review=confidence < 0.5,
         source="contour",
         bbox=bbox,
-        semantic_properties={"area": round(area, 2), "perimeter": round(perimeter, 2), "vertex_count": len(points)},
+        semantic_properties=_contour_properties(gtype, points, area, perimeter),
         provenance=f"Detected as {gtype.value} from contour of {len(points)} vertices with area {area:.0f}px and confidence {confidence:.2f}.",
     )
     relationships: list[ElementRelationship] = []
@@ -231,6 +231,16 @@ def _contour_confidence(points: list[tuple[int, int]], area: float, perimeter: f
     if area_fraction > 0.05:
         return min(0.99, 0.7 + boost)
     return min(0.95, 0.62 + boost)
+
+
+def _contour_properties(gtype: GeometryType, points: list[tuple[int, int]], area: float, perimeter: float) -> dict:
+    properties: dict = {"area": round(area, 2), "perimeter": round(perimeter, 2), "vertex_count": len(points)}
+    if gtype in (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON) and len(points) >= 3:
+        properties["interior_angles_deg"] = [
+            round(_angle_between_vectors(points[i - 1], points[i], points[(i + 1) % len(points)]), 1)
+            for i in range(len(points))
+        ]
+    return properties
 
 
 def _contour_geometry(gtype: GeometryType, points: list[tuple[int, int]], area: float) -> dict:

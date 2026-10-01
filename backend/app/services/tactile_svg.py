@@ -15,6 +15,13 @@ from app.services.tactile_rules import TACTILE_RULES
 # this declaration SVG renderers fall back to a font that shows hex boxes.
 BRAILLE_FONT_STACK = "'DejaVu Sans','Noto Sans Symbols 2','Segoe UI Symbol','Arial Unicode MS',sans-serif"
 BRAILLE_FONT_SIZE_PX = int(TACTILE_RULES.stroke_width_pt * 8)
+# Advance width of one braille cell in the font stack above (DejaVu Sans: 0.73em).
+BRAILLE_CELL_ADVANCE_EM = 0.75
+
+
+def braille_text_extent(braille: str) -> tuple[float, float]:
+    """Width and height in px of a braille string as rendered by the tactile SVG."""
+    return len(braille) * BRAILLE_CELL_ADVANCE_EM * BRAILLE_FONT_SIZE_PX, float(BRAILLE_FONT_SIZE_PX)
 
 _SCRIPT_TAG = re.compile(r"<\s*script", re.IGNORECASE)
 _FOREIGN_OBJECT = re.compile(r"<\s*foreignObject", re.IGNORECASE)

@@ -17,7 +17,8 @@ def _geometry_candidates(shapes: list[dict]) -> tuple[list[tuple[int, int]], lis
     vertices: list[tuple[int, int]] = []
     edges: list[tuple[tuple[int, int], tuple[int, int]]] = []
     for shape in shapes:
-        points = shape.get("points")
+        # Ellipses carry their outline as contour_points rather than points.
+        points = shape.get("points") or shape.get("contour_points")
         if not points:
             continue
         vertices.extend(points)

@@ -1,7 +1,7 @@
 import type { QAIssue, QAReport } from '../types'
 
 /**
- * The four QA checks that make tactile output physically unreadable, and therefore
+ * The QA checks that make tactile output physically unreadable, and therefore
  * block print-ready export. Mirrors `BLOCKING_CHECKS` in
  * `backend/app/services/tactile_qa.py`.
  */
@@ -10,6 +10,7 @@ export const BLOCKING_QA_CHECKS = [
   'braille_on_line',
   'element_outside_printable_area',
   'feature_below_minimum_size',
+  'no_tactile_geometry',
 ] as const
 
 const blockingChecks: ReadonlySet<string> = new Set(BLOCKING_QA_CHECKS)

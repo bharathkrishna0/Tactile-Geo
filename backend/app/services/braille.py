@@ -80,26 +80,35 @@ class LouisBindings(Protocol):
     def translateString(self, tables: list[str], text: str): ...
 
 
-# Liblouis emits 8-bit "ASCII braille" (characters 0x00-0xFF whose bit pattern is
-# the dot pattern) by default. The tactile SVG needs real Unicode braille cells
-# from the U+2800 block, and the two share an identical bit layout, so the
-# conversion is a constant offset per cell.
-ASCII_BRAILLE_OFFSET = 0x2800
-ASCII_BRAILLE_MAX = 0xFF
+# Liblouis emits North American Braille ASCII by default: each printable ASCII
+# character stands for one six-dot cell (",a" is capital-indicator + a). The
+# character's code is NOT the dot pattern, so cells are looked up in the standard
+# Braille ASCII table, indexed by dot bitmask (dot 1 = bit 0 ... dot 6 = bit 5).
+BRAILLE_ASCII = " A1B'K2L@CIF/MSP\"E3H9O6R^DJG>NTQ,*5<-U8V.%[$+X!&;:4\\0Z7(_?W]#Y)="
+UNICODE_BRAILLE_BASE = 0x2800
+_BRAILLE_ASCII_TO_DOTS = {char: dots for dots, char in enumerate(BRAILLE_ASCII)}
+# Liblouis writes the 0x40-0x5F cells in lowercase (0x60-0x7F), e.g. "~" for "^".
+_BRAILLE_ASCII_TO_DOTS.update({
+    chr(ord(char) + 0x20): dots for char, dots in list(_BRAILLE_ASCII_TO_DOTS.items()) if 0x40 <= ord(char) <= 0x5F
+})
 
 
 def to_unicode_braille(text: str) -> str:
-    """Convert Liblouis ASCII-braille output into Unicode braille cells.
+    """Convert Liblouis Braille-ASCII output into Unicode braille cells.
 
     Characters that are already in the U+2800 block are left alone, so this is
     safe to apply to output that has been converted upstream.
     """
-    if not text:
-        return text
-    return "".join(
-        chr(ASCII_BRAILLE_OFFSET + ord(char)) if ord(char) < ASCII_BRAILLE_MAX else char
-        for char in text
-    )
+    cells: list[str] = []
+    for char in text:
+        if UNICODE_BRAILLE_BASE <= ord(char) <= UNICODE_BRAILLE_BASE + 0xFF:
+            cells.append(char)
+            continue
+        dots = _BRAILLE_ASCII_TO_DOTS.get(char)
+        if dots is None:
+            raise ValueError(f"Liblouis returned {char!r}, which is not a Braille ASCII cell.")
+        cells.append(chr(UNICODE_BRAILLE_BASE + dots))
+    return "".join(cells)
 
 
 def resolve_tablepath() -> str | None:

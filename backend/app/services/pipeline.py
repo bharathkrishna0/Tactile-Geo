@@ -47,7 +47,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     for detection in detections:
         label = map_label_to_geometry(detection, shapes)
         mapped_labels.append({**label, "braille": translator.translate(detection.text)})
-    placed_labels = place_braille_markers(mapped_labels, shapes)
+    placed_labels = place_braille_markers(mapped_labels, shapes, bounds=(width, height))
     svg = shapes_to_svg(shapes, width, height)
     semantic = analyze_diagram(shapes, width, height, placed_labels)
     simplified = simplify_geometry(semantic)
@@ -80,4 +80,4 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     for detection in detections:
         label = map_label_to_geometry(detection, shapes)
         mapped_labels.append({**label, "braille": translator.translate(detection.text)})
-    return shapes_to_svg(shapes, width, height), shapes, place_braille_markers(mapped_labels, shapes)
+    return shapes_to_svg(shapes, width, height), shapes, place_braille_markers(mapped_labels, shapes, bounds=(width, height))

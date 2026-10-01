@@ -157,7 +157,10 @@ def test_configure_tablepath_sets_env_var_when_unset(tmp_path, monkeypatch):
     tables_dir = tmp_path / "tables"
     tables_dir.mkdir()
     (tables_dir / UEB_GRADE_2_TABLE).write_text("")
-    monkeypatch.delenv("LOUIS_TABLEPATH", raising=False)
+    # setenv first so monkeypatch restores the variable configure_tablepath() writes;
+    # a bare delenv on an unset variable records nothing and the fake path leaks.
+    monkeypatch.setenv("LOUIS_TABLEPATH", "")
+    monkeypatch.delenv("LOUIS_TABLEPATH")
     monkeypatch.setattr("app.services.braille._DEFAULT_TABLEPATHS", (tables_dir,))
 
     configure_tablepath()
@@ -218,18 +221,27 @@ def test_translator_converts_ascii_braille_to_unicode(tmp_path, monkeypatch):
 
     result = LouisBrailleTranslator(bindings=RecordingLouis(",a")).translate("A")
 
-    assert result == "\u282c\u2861"
+    # Capital indicator (dot 6) followed by the letter a (dot 1).
+    assert result == "\u2820\u2801"
 
 
 def test_to_unicode_braille_leaves_unicode_braille_untouched():
-    assert to_unicode_braille("\u282c\u2861") == "\u282c\u2861"
+    assert to_unicode_braille("\u2820\u2801") == "\u2820\u2801"
 
 
-def test_to_unicode_braille_maps_dot_patterns():
-    # ASCII braille bit 0..7 is the same layout as Unicode braille U+2800 + bits.
-    assert to_unicode_braille("\x01") == "\u2801"  # dot 1
-    assert to_unicode_braille("\x80") == "\u2880"  # dot 8
+def test_to_unicode_braille_maps_braille_ascii_cells():
+    assert to_unicode_braille("a") == "\u2801"  # dot 1
+    assert to_unicode_braille(",") == "\u2820"  # dot 6
+    assert to_unicode_braille("#") == "\u283c"  # dots 3-4-5-6, numeric indicator
+    assert to_unicode_braille("=") == "\u283f"  # all six dots
+    assert to_unicode_braille("~") == to_unicode_braille("^") == "\u2818"  # dots 4-5
+    assert to_unicode_braille(" ") == "\u2800"
     assert to_unicode_braille("") == ""
+
+
+def test_to_unicode_braille_rejects_non_braille_ascii():
+    with pytest.raises(ValueError):
+        to_unicode_braille("\x01")
 
 
 def test_real_liblouis_translates_ueb_grade_2():
@@ -241,4 +253,21 @@ def test_real_liblouis_translates_ueb_grade_2():
         pytest.skip(f"native Liblouis unavailable: {error}")
 
     # A capital A in UEB is the capital indicator followed by the letter a cell.
-    assert result == "\u282c\u2861"
+    assert result == "\u2820\u2801"
+
+
+@pytest.mark.parametrize("text", ["A", "B", "AB", "6 cm", "45\u00b0", "x = 3.5", "\u2220ABC", "r = 4 cm", "10 m\u00b2"])
+def test_real_liblouis_matches_unicode_display_table(text):
+    """The Braille-ASCII mapping must agree with Liblouis' own Unicode display table."""
+    table = resolve_table_file(UEB_GRADE_2_TABLE)
+    display = resolve_table_file("unicode.dis")
+    try:
+        import louis
+    except ImportError:  # pragma: no cover - depends on native install
+        pytest.skip("native Liblouis unavailable")
+    if not table or not display:  # pragma: no cover - depends on native install
+        pytest.skip("Liblouis tables unavailable")
+
+    expected = louis.translateString([display, table], text)
+
+    assert LouisBrailleTranslator().translate(text) == expected

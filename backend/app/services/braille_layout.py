@@ -3,11 +3,13 @@
 Reading order follows the top-to-bottom, left-to-right convention used in
 tactile graphics, so a learner scans markers in a natural sequence.
 """
+import math
 from math import hypot
 from typing import Any
 
 from app.models.geometry import DetectedElement, GeometryType
 from app.services.tactile_rules import TACTILE_RULES
+from app.services.tactile_svg import braille_text_extent
 
 
 def _point_to_segment_distance(point: tuple[int, int], start: tuple[int, int], end: tuple[int, int]) -> float:
@@ -32,8 +34,34 @@ def _line_segments(shapes: list[dict]) -> list[tuple[tuple[int, int], tuple[int,
     return segments
 
 
-def place_braille_markers(labels: list[dict], shapes: list[dict], minimum_clearance: int = None, **kwargs: Any) -> list[dict]:
-    """Move labels off geometry, apart from other markers, and add reading order."""
+def _on_page(position: tuple[float, float], braille: str, bounds: tuple[int, int] | None) -> bool:
+    if bounds is None:
+        return True
+    half_width, half_height = (value / 2 for value in braille_text_extent(braille))
+    return half_width <= position[0] <= bounds[0] - half_width and half_height <= position[1] <= bounds[1] - half_height
+
+
+def _clamp_to_page(position: tuple[int, int], braille: str, bounds: tuple[int, int] | None) -> tuple[int, int]:
+    if bounds is None:
+        return position
+    half_width, half_height = (value / 2 for value in braille_text_extent(braille))
+    x = min(max(position[0], math.ceil(half_width)), math.floor(bounds[0] - half_width))
+    y = min(max(position[1], math.ceil(half_height)), math.floor(bounds[1] - half_height))
+    return (x, y)
+
+
+def place_braille_markers(
+    labels: list[dict],
+    shapes: list[dict],
+    minimum_clearance: int = None,
+    bounds: tuple[int, int] | None = None,
+    **kwargs: Any,
+) -> list[dict]:
+    """Move labels off geometry, apart from other markers, and add reading order.
+
+    ``bounds`` is the page ``(width, height)``; when given, the whole rendered
+    braille string must fit on the page, so no cell is clipped at the edge.
+    """
     if minimum_clearance is None:
         minimum_clearance = int(TACTILE_RULES.braille_to_line_clearance_px)
     segments = _line_segments(shapes)
@@ -41,12 +69,15 @@ def place_braille_markers(labels: list[dict], shapes: list[dict], minimum_cleara
     candidates = [(0, 0), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
     for label in labels:
         desired = label["desired_position"]
-        position = desired
+        braille = str(label.get("braille") or label.get("text") or "")
+        position = _clamp_to_page(desired, braille, bounds)
         maximum_search = minimum_clearance * 5 + 1
         step = max(1, minimum_clearance // 2)
         for radius in range(0, maximum_search + 1, step):
             for direction_x, direction_y in candidates:
                 proposed = (desired[0] + direction_x * radius, desired[1] + direction_y * radius)
+                if not _on_page(proposed, braille, bounds):
+                    continue
                 clear_of_lines = all(_point_to_segment_distance(proposed, *segment) >= minimum_clearance for segment in segments)
                 clear_of_markers = all(hypot(proposed[0] - prior["position"][0], proposed[1] - prior["position"][1]) >= minimum_clearance for prior in positioned)
                 if clear_of_lines and clear_of_markers:
