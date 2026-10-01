@@ -125,6 +125,23 @@ describe('print-ready export interlock', () => {
   })
 })
 
+describe('status messages', () => {
+  beforeEach(() => {
+    vi.stubGlobal('URL', { ...URL, createObjectURL: vi.fn(() => 'blob:mock'), revokeObjectURL: vi.fn() })
+  })
+  afterEach(() => {
+    vi.clearAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  it('clears the previous result status when a new image is chosen', async () => {
+    const user = await runAnalysis(result([]))
+    expect(screen.getByRole('status')).toHaveTextContent(/ready/i)
+    await user.upload(screen.getByLabelText(/choose a worksheet image/i), new File([new Uint8Array([1])], 'next.png', { type: 'image/png' }))
+    expect(screen.queryByText(/ready: .* elements detected/i)).toBeNull()
+  })
+})
+
 describe('accessibility', () => {
   it('has no detectable accessibility violations in the uploaded state', async () => {
     const { container } = render(<App />)
