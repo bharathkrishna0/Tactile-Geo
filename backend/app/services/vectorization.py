@@ -3,7 +3,7 @@ import math
 import cv2
 import numpy as np
 
-from app.services.segment_geometry import normalize_segments
+from app.services.segment_geometry import normalize_segments, point_to_segment_distance
 from app.services.tactile_rules import TACTILE_RULES
 
 # Half of the simplification tolerance: raw Hough fragments of one drawn edge sit
@@ -90,6 +90,52 @@ def _stroke_half_width(binary_image: np.ndarray) -> float:
     return float(np.median(values)) if values.size else 1.0
 
 
+def _collapse_stroke_edges(segments, band_px: float):
+    """Merge Hough lines that trace the two edges of one wide (e.g. blurred) stroke.
+
+    Two segments whose endpoints each lie within one stroke width of the other
+    segment are the same drawn line; they are replaced by their mid-line.
+    """
+    kept: list = []
+    for segment in segments:
+        for index, existing in enumerate(kept):
+            near = all(point_to_segment_distance(p, *existing) <= band_px for p in segment) and all(
+                point_to_segment_distance(p, *segment) <= band_px for p in existing
+            )
+            if not near:
+                continue
+            a, b = segment
+            if math.dist(a, existing[0]) > math.dist(a, existing[1]):
+                a, b = b, a
+            kept[index] = (
+                (round((a[0] + existing[0][0]) / 2), round((a[1] + existing[0][1]) / 2)),
+                (round((b[0] + existing[1][0]) / 2), round((b[1] + existing[1][1]) / 2)),
+            )
+            break
+        else:
+            kept.append(segment)
+    return kept
+
+
+def _snap_shared_endpoints(segments, tolerance_px: float):
+    """Join line ends that meet at one vertex so corners neither gap nor overshoot."""
+    endpoints = [point for segment in segments for point in segment]
+    clusters: list[list[tuple[int, int]]] = []
+    for point in endpoints:
+        for cluster in clusters:
+            if math.dist(point, cluster[0]) <= tolerance_px:
+                cluster.append(point)
+                break
+        else:
+            clusters.append([point])
+    snapped = {}
+    for cluster in clusters:
+        centre = (round(sum(p[0] for p in cluster) / len(cluster)), round(sum(p[1] for p in cluster) / len(cluster)))
+        for point in cluster:
+            snapped[point] = centre
+    return [(snapped[a], snapped[b]) for a, b in segments if snapped[a] != snapped[b]]
+
+
 def _line_covered_by_outline(segment, outer: np.ndarray, band_px: float) -> bool:
     """True when the segment runs along the outline stroke rather than across it."""
     (x1, y1), (x2, y2) = segment
@@ -132,8 +178,11 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
     hole) is authoritative for the Hough lines that run along its stroke, and a
     stroke without a hole is left to the Hough lines that explain it.
     """
-    segments = _line_segments(binary_image, edge_sensitivity)
     stroke_half = _stroke_half_width(binary_image)
+    segments = _snap_shared_endpoints(
+        _collapse_stroke_edges(_line_segments(binary_image, edge_sensitivity), 2 * stroke_half + STROKE_BAND_TOLERANCE_PX),
+        2 * stroke_half + STROKE_BAND_TOLERANCE_PX,
+    )
     contours, hierarchy = cv2.findContours(binary_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     hierarchy = hierarchy[0] if hierarchy is not None else []
 

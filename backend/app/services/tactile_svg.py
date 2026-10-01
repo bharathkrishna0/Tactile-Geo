@@ -7,21 +7,87 @@ accessibility summary so teachers/experts can review before printing.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 from app.models.geometry import DetectedElement, GeometryType
 from app.services.tactile_rules import TACTILE_RULES
 
-# Unicode braille needs a font that actually contains the U+2800 block. Without
-# this declaration SVG renderers fall back to a font that shows hex boxes.
-BRAILLE_FONT_STACK = "'DejaVu Sans','Noto Sans Symbols 2','Segoe UI Symbol','Arial Unicode MS',sans-serif"
-BRAILLE_FONT_SIZE_PX = int(TACTILE_RULES.stroke_width_pt * 8)
-# Advance width of one braille cell in the font stack above (DejaVu Sans: 0.73em).
-BRAILLE_CELL_ADVANCE_EM = 0.75
+# Physical page. The tactile SVG keeps image pixels as its user units, so the
+# geometry coordinates stay traceable to the source, and maps them onto an A4
+# sheet (portrait or landscape, whichever fits the image better).
+A4_MM = (210.0, 297.0)
+PAGE_MARGIN_MM = 12.7
+MM_PER_PT = 25.4 / 72.0
+
+# Standard braille cell (BANA/Library of Congress specification 800):
+# 2.5 mm dot pitch within a cell, 6.0 mm cell-to-cell pitch, 1.5 mm dot base.
+BRAILLE_DOT_PITCH_MM = 2.5
+BRAILLE_CELL_PITCH_MM = 6.0
+BRAILLE_DOT_DIAMETER_MM = 1.5
+# Unicode braille dot bit -> (column, row) inside the cell.
+_BRAILLE_DOT_POSITIONS = ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (0, 3), (1, 3))
+UNICODE_BRAILLE_BASE = 0x2800
 
 
-def braille_text_extent(braille: str) -> tuple[float, float]:
-    """Width and height in px of a braille string as rendered by the tactile SVG."""
-    return len(braille) * BRAILLE_CELL_ADVANCE_EM * BRAILLE_FONT_SIZE_PX, float(BRAILLE_FONT_SIZE_PX)
+@dataclass(frozen=True)
+class PageLayout:
+    page_width_mm: float
+    page_height_mm: float
+    mm_per_px: float
+
+    @property
+    def view_box(self) -> tuple[float, float, float, float]:
+        """Page rectangle in image pixels, with the image centred on the sheet."""
+        width_px = self.page_width_mm / self.mm_per_px
+        height_px = self.page_height_mm / self.mm_per_px
+        return (0.0, 0.0, width_px, height_px)
+
+
+def page_layout(width: int, height: int) -> PageLayout:
+    """Fit a ``width`` x ``height`` px image into the printable area of an A4 sheet."""
+    short, long = A4_MM
+    page_width, page_height = (long, short) if width > height else (short, long)
+    mm_per_px = min(
+        (page_width - 2 * PAGE_MARGIN_MM) / max(width, 1),
+        (page_height - 2 * PAGE_MARGIN_MM) / max(height, 1),
+    )
+    return PageLayout(page_width, page_height, mm_per_px)
+
+
+def _braille_cells(braille: str) -> list[int]:
+    return [
+        ord(char) - UNICODE_BRAILLE_BASE if UNICODE_BRAILLE_BASE <= ord(char) <= UNICODE_BRAILLE_BASE + 0xFF else 0
+        for char in braille
+    ]
+
+
+def _braille_rows(braille: str) -> int:
+    return 4 if any(cell & 0xC0 for cell in _braille_cells(braille)) else 3
+
+
+def braille_text_extent(braille: str, width: int, height: int) -> tuple[float, float]:
+    """Width and height in image px of ``braille`` embossed at standard cell size."""
+    cells = max(len(braille), 1)
+    width_mm = (cells - 1) * BRAILLE_CELL_PITCH_MM + BRAILLE_DOT_PITCH_MM + BRAILLE_DOT_DIAMETER_MM
+    height_mm = (_braille_rows(braille) - 1) * BRAILLE_DOT_PITCH_MM + BRAILLE_DOT_DIAMETER_MM
+    mm_per_px = page_layout(width, height).mm_per_px
+    return width_mm / mm_per_px, height_mm / mm_per_px
+
+
+def _braille_dots(braille: str, centre: tuple[float, float], mm_per_px: float) -> list[tuple[float, float]]:
+    """Dot centres, in image px, for ``braille`` centred on ``centre``."""
+    pitch = BRAILLE_DOT_PITCH_MM / mm_per_px
+    cell_pitch = BRAILLE_CELL_PITCH_MM / mm_per_px
+    cells = _braille_cells(braille)
+    left = centre[0] - ((len(cells) - 1) * cell_pitch + pitch) / 2
+    top = centre[1] - (_braille_rows(braille) - 1) * pitch / 2
+    dots: list[tuple[float, float]] = []
+    for index, cell in enumerate(cells):
+        for bit, (column, row) in enumerate(_BRAILLE_DOT_POSITIONS):
+            if cell & (1 << bit):
+                dots.append((left + index * cell_pitch + column * pitch, top + row * pitch))
+    return dots
+
 
 _SCRIPT_TAG = re.compile(r"<\s*script", re.IGNORECASE)
 _FOREIGN_OBJECT = re.compile(r"<\s*foreignObject", re.IGNORECASE)
@@ -69,7 +135,10 @@ def _element_points(element: DetectedElement) -> list[tuple[float, float]]:
 
 
 def render_tactile_svg(elements: list[DetectedElement], width: int, height: int) -> str:
+    layout = page_layout(width, height)
     stroke = TACTILE_RULES.stroke_width_pt
+    # The configured stroke is in points on paper; convert to image-px user units.
+    stroke_user = stroke * MM_PER_PT / layout.mm_per_px
     glyphs: list[str] = []
     for element in elements:
         if element.type is GeometryType.TEXT_LABEL:
@@ -94,36 +163,42 @@ def render_tactile_svg(elements: list[DetectedElement], width: int, height: int)
         elif element.type is GeometryType.POINT:
             pos = geo.get("position")
             if pos:
-                glyphs.append(f'<circle {attr} cx="{pos[0]:.1f}" cy="{pos[1]:.1f}" r="{max(2.0, stroke)}"/>')
+                glyphs.append(f'<circle {attr} cx="{pos[0]:.1f}" cy="{pos[1]:.1f}" r="{max(2.0, stroke_user):.1f}"/>')
 
-    # Braille markers. The tactile output must carry the braille translation, not
-    # the plain OCR string: the printed sheet is read by touch, so emitting "A"
-    # instead of the braille cell meant the export was not actually tactile.
+    # Braille markers are embossed as dots at standard cell size, so the printed
+    # sheet does not depend on a braille font being installed or scaled right.
     braille_glyphs: list[str] = []
+    dot_radius = BRAILLE_DOT_DIAMETER_MM / 2 / layout.mm_per_px
     for element in elements:
         if element.type is not GeometryType.TEXT_LABEL:
             continue
         pos = element.geometry.get("position")
-        if not pos:
-            continue
         braille = str(element.geometry.get("braille") or "").strip()
-        label = braille or str(element.geometry.get("text") or "")
-        if not label:
+        if not pos or not braille:
             continue
+        text = str(element.geometry.get("text") or "")
+        dots = "".join(
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{dot_radius:.2f}"/>'
+            for x, y in _braille_dots(braille, (float(pos[0]), float(pos[1])), layout.mm_per_px)
+        )
         braille_glyphs.append(
-            f'<text data-element-id="{_escape(element.id)}" x="{pos[0]:.1f}" y="{pos[1]:.1f}" '
-            f'class="braille" aria-label="{_escape(str(element.geometry.get("text") or ""))}">'
-            f'{_escape(label)}</text>'
+            f'<g data-element-id="{_escape(element.id)}" class="braille" role="img" '
+            f'aria-label="{_escape(text)}" data-braille="{_escape(braille)}"><title>{_escape(text)}</title>{dots}</g>'
         )
 
     aria = f"Tactile representation of {sum(1 for e in elements if e.type is not GeometryType.TEXT_LABEL)} geometry features and {sum(1 for e in elements if e.type is GeometryType.TEXT_LABEL)} labels."
+    vx, vy, vw, vh = layout.view_box
+    offset_x = (vw - width) / 2
+    offset_y = (vh - height) / 2
     svg = (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" role="img" aria-label="{_escape(aria)}">'
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{vx - offset_x:.2f} {vy - offset_y:.2f} {vw:.2f} {vh:.2f}" '
+        f'width="{layout.page_width_mm:g}mm" height="{layout.page_height_mm:g}mm" '
+        f'data-mm-per-px="{layout.mm_per_px:.5f}" role="img" aria-label="{_escape(aria)}">'
         '<defs><style>'
-        f'.stroke {{ stroke:#000; stroke-width:{stroke:.1f}; stroke-linecap:round; stroke-linejoin:round; fill:none; }} '
-        f'.braille {{ font-family:{BRAILLE_FONT_STACK}; font-size:{BRAILLE_FONT_SIZE_PX}px; fill:#000; text-anchor:middle; dominant-baseline:middle; }}'
+        f'.stroke {{ stroke:#000; stroke-width:{stroke_user:.3f}; stroke-linecap:round; stroke-linejoin:round; fill:none; }} '
+        '.braille { fill:#000; stroke:none; }'
         '</style></defs>'
-        f'<rect width="100%" height="100%" fill="white"/>'
+        f'<rect x="{vx - offset_x:.2f}" y="{vy - offset_y:.2f}" width="{vw:.2f}" height="{vh:.2f}" fill="white"/>'
         f'<g class="stroke">{"" .join(glyphs)}</g>'
         f'<g class="tactile-braille">{"".join(braille_glyphs)}</g></svg>'
     )

@@ -4,6 +4,7 @@ import math
 from dataclasses import dataclass, field
 
 from app.models.geometry import DetectedElement, GeometryType
+from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.tactile_svg import braille_text_extent
 
@@ -197,7 +198,7 @@ def _distance_between_elements(a: DetectedElement, b: DetectedElement) -> float:
 
 
 def _min_point_distance(point: tuple[float, float], element: DetectedElement) -> float:
-    points = _element_points(element)
+    points = outline_points(element)
     if not points:
         return float("inf")
     return min(math.hypot(point[0] - p[0], point[1] - p[1]) for p in points)
@@ -282,7 +283,7 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
         braille = str(element.geometry.get("braille") or element.geometry.get("text") or "")
         if not position or not braille:
             continue
-        width, height = braille_text_extent(braille)
+        width, height = braille_text_extent(braille, image_width, image_height)
         x, y = float(position[0]), float(position[1])
         if x - width / 2 < 0 or y - height / 2 < 0 or x + width / 2 > image_width or y + height / 2 > image_height:
             collector.add(
@@ -331,19 +332,17 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
                 )
             checks += 1
 
-    # Isolated elements: a geometry feature with no label and no relationship is
-    # hard for a blind learner to interpret.
-    for element in elements:
-        if element.type is GeometryType.TEXT_LABEL:
-            continue
-        has_label = bool(element.associated_label_id)
-        if not has_label:
-            collector.add(
-                "isolated_element",
-                f"Element {element.id} has no associated label; consider adding a label for the learner.",
-                element_id=element.id,
-            )
-            checks += 1
+    # Unlabelled features are hard for a blind learner to interpret. One summary
+    # issue keeps a plain worksheet from drowning real problems in per-shape noise.
+    unlabelled = [e.id for e in elements if e.type is not GeometryType.TEXT_LABEL and not e.associated_label_id]
+    if unlabelled:
+        collector.add(
+            "isolated_element",
+            f"{len(unlabelled)} feature(s) have no label ({', '.join(unlabelled[:5])}"
+            f"{', ...' if len(unlabelled) > 5 else ''}); consider adding labels for the learner.",
+            element_id=unlabelled[0] if len(unlabelled) == 1 else None,
+        )
+        checks += 1
 
     # High/low confidence conflict: a low-confidence feature near high-confidence
     # geometry may be noise and can confuse the diagram.

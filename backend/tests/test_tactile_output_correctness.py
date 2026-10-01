@@ -5,6 +5,8 @@ they guard against (invented ellipses, double-struck edges, rotated ellipses,
 clipped braille, empty sheets marked ready) were invisible to synthetic tests.
 """
 import math
+import re
+from itertools import pairwise
 
 import cv2
 import numpy as np
@@ -14,11 +16,19 @@ from app.services.braille import LouisBrailleTranslator
 from app.services.braille_layout import place_braille_markers
 from app.services.diagram_analysis import analyze_diagram
 from app.services.image_preprocessing import preprocess_image
+from app.services.label_association import associate_label
 from app.services.label_mapping import map_label_to_geometry
 from app.services.ocr import EasyOcrProvider, OcrDetection
 from app.services.pipeline import build_full_analysis
 from app.services.tactile_qa import run_tactile_qa
-from app.services.tactile_svg import braille_text_extent
+from app.services.tactile_rules import TACTILE_RULES
+from app.services.tactile_svg import (
+    MM_PER_PT,
+    _braille_dots,
+    braille_text_extent,
+    page_layout,
+    render_tactile_svg,
+)
 from app.services.vectorization import extract_shapes
 
 
@@ -98,8 +108,14 @@ def test_open_angle_strokes_stay_lines():
 
     shapes = _shapes(image)
 
-    assert [shape["type"] for shape in shapes].count("line") == 2
+    lines = [shape["points"] for shape in shapes if shape["type"] == "line"]
+    assert len(lines) == 2
     assert not any(shape["type"] in {"contour", "ellipse"} for shape in shapes)
+    # Both arms meet at exactly one shared vertex near (50, 250).
+    shared = set(lines[0]) & set(lines[1])
+    assert len(shared) == 1
+    vertex = shared.pop()
+    assert math.dist(vertex, (50, 250)) <= 6
 
 
 def test_label_inside_triangle_bbox_does_not_delete_triangle(fixture_directory):
@@ -143,7 +159,7 @@ def test_braille_markers_stay_on_the_page():
     placed = place_braille_markers(labels, shapes, bounds=(240, 240))
 
     x, y = placed[0]["position"]
-    width, height = braille_text_extent("\u2820\u2801")
+    width, height = braille_text_extent("\u2820\u2801", 240, 240)
     assert x - width / 2 >= 0 and y - height / 2 >= 0
     assert x + width / 2 <= 240 and y + height / 2 <= 240
 
@@ -191,3 +207,40 @@ def test_dark_fixture_is_not_export_ready(fixture_directory):
 
     if not any(e.type is not GeometryType.TEXT_LABEL for e in result.simplified_geometry.elements):
         assert not result.qa_report.passes
+
+
+def test_tactile_svg_is_a4_with_physical_stroke_and_braille_dots():
+    label = _label((120, 60))
+    svg = render_tactile_svg([_segment(), label], 240, 240)
+
+    layout = page_layout(240, 240)
+    assert 'width="210mm" height="297mm"' in svg
+    stroke = float(re.search(r"stroke-width:([0-9.]+)", svg).group(1))
+    assert abs(stroke * layout.mm_per_px - TACTILE_RULES.stroke_width_pt * MM_PER_PT) < 0.01
+    # "A" is ⠠⠁: dot 6 then dot 1, i.e. two embossed dots and no font glyphs.
+    braille_group = re.search(r'<g data-element-id="lbl" class="braille".*?</g>', svg).group(0)
+    assert braille_group.count("<circle") == 2
+    assert "<text" not in svg
+
+
+def test_braille_dots_use_standard_cell_spacing():
+    layout = page_layout(240, 240)
+    dots = _braille_dots("\u283f\u283f", (120, 120), layout.mm_per_px)
+
+    xs = sorted({round(x * layout.mm_per_px, 2) for x, _ in dots})
+    ys = sorted({round(y * layout.mm_per_px, 2) for _, y in dots})
+    assert [round(b - a, 2) for a, b in pairwise(xs)] == [2.5, 3.5, 2.5]
+    assert [round(b - a, 2) for a, b in pairwise(ys)] == [2.5, 2.5]
+
+
+def test_label_beside_circle_rim_is_associated_not_dangling():
+    circle = DetectedElement(
+        id="c", type=GeometryType.CIRCLE, geometry={"center": [150, 150], "radius": 100},
+        confidence=0.95, confidence_level=ConfidenceLevel.HIGH, needs_review=False, source="contour",
+        bbox=(50, 50, 200, 200),
+    )
+    label = _label((150, 30))
+
+    assert associate_label(label, [circle])["target_id"] == "c"
+    report = run_tactile_qa([circle, _label((150, 25))], 300, 300)
+    assert not any(issue.check == "dangling_label" for issue in report.issues)

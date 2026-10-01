@@ -39,6 +39,35 @@ def _element_points(element: DetectedElement) -> list[tuple[float, float]]:
     return points
 
 
+OUTLINE_SAMPLES = 72
+
+
+def outline_points(element: DetectedElement) -> list[tuple[float, float]]:
+    """Points on the drawn outline of ``element``, for distance checks.
+
+    Circles and ellipses are sampled along their rim: a label beside the rim is
+    close to the shape even though it is far from the centre.
+    """
+    geo = element.geometry
+    if element.type is GeometryType.CIRCLE and geo.get("center") and geo.get("radius"):
+        cx, cy = (float(v) for v in geo["center"])
+        rx = ry = float(geo["radius"])
+        angle = 0.0
+    elif element.type is GeometryType.ELLIPSE and geo.get("center") and geo.get("semi_axes"):
+        cx, cy = (float(v) for v in geo["center"])
+        rx, ry = (float(v) for v in geo["semi_axes"])
+        angle = math.radians(float(geo.get("angle") or 0.0))
+    else:
+        return _element_points(element)
+    cos_a, sin_a = math.cos(angle), math.sin(angle)
+    points = []
+    for k in range(OUTLINE_SAMPLES):
+        t = 2 * math.pi * k / OUTLINE_SAMPLES
+        x, y = rx * math.cos(t), ry * math.sin(t)
+        points.append((cx + x * cos_a - y * sin_a, cy + x * sin_a + y * cos_a))
+    return points
+
+
 def _element_center(element: DetectedElement) -> tuple[float, float]:
     points = _element_points(element)
     if not points:
@@ -56,7 +85,7 @@ def _label_position(label: DetectedElement) -> tuple[float, float]:
 
 
 def _distance_to_element(point: tuple[float, float], element: DetectedElement) -> float:
-    points = _element_points(element)
+    points = outline_points(element)
     if not points:
         return float("inf")
     return min(math.hypot(point[0] - p[0], point[1] - p[1]) for p in points)

@@ -37,14 +37,14 @@ def _line_segments(shapes: list[dict]) -> list[tuple[tuple[int, int], tuple[int,
 def _on_page(position: tuple[float, float], braille: str, bounds: tuple[int, int] | None) -> bool:
     if bounds is None:
         return True
-    half_width, half_height = (value / 2 for value in braille_text_extent(braille))
+    half_width, half_height = (value / 2 for value in braille_text_extent(braille, *bounds))
     return half_width <= position[0] <= bounds[0] - half_width and half_height <= position[1] <= bounds[1] - half_height
 
 
 def _clamp_to_page(position: tuple[int, int], braille: str, bounds: tuple[int, int] | None) -> tuple[int, int]:
     if bounds is None:
         return position
-    half_width, half_height = (value / 2 for value in braille_text_extent(braille))
+    half_width, half_height = (value / 2 for value in braille_text_extent(braille, *bounds))
     x = min(max(position[0], math.ceil(half_width)), math.floor(bounds[0] - half_width))
     y = min(max(position[1], math.ceil(half_height)), math.floor(bounds[1] - half_height))
     return (x, y)

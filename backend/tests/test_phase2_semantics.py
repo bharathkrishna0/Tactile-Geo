@@ -156,4 +156,7 @@ def test_tactile_svg_renders_geometry_and_aria():
 def test_tactile_svg_uses_configured_stroke_width():
     triangle = _element("t1", GeometryType.TRIANGLE, {"points": [(50, 50), (150, 50), (100, 150)], "area": 3000})
     svg = tactile_svg.render_tactile_svg([triangle], 200, 200)
-    assert f"stroke-width:{TACTILE_RULES.stroke_width_max_pt:.1f}" in svg
+    # Strokes are in image-px user units; on paper they must measure the configured points.
+    mm_per_px = tactile_svg.page_layout(200, 200).mm_per_px
+    stroke_user = TACTILE_RULES.stroke_width_max_pt * tactile_svg.MM_PER_PT / mm_per_px
+    assert f"stroke-width:{stroke_user:.3f}" in svg
