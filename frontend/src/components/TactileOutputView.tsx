@@ -1,4 +1,5 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, useMemo } from 'react'
+import { sanitizeSvg } from '../lib/svgSafety'
 import type { QAReport, SimplifiedGeometry, TransformationExplanation } from '../types'
 
 interface TactileOutputViewProps {
@@ -14,6 +15,8 @@ export default function TactileOutputView({ tactileSvg, qa, simplified, explanat
   const critical = issues.filter(issue => issue.severity === 'error')
   const warnings = issues.filter(issue => issue.severity === 'warning')
   const notes = issues.filter(issue => issue.severity === 'info')
+  const safeSvg = useMemo(() => sanitizeSvg(tactileSvg), [tactileSvg])
+  const noGeometry = issues.some(issue => issue.check === 'no_tactile_geometry')
 
   return (
     <div className="view-panel" role="tabpanel" id="panel-tactile" aria-labelledby="tab-tactile">
@@ -29,8 +32,15 @@ export default function TactileOutputView({ tactileSvg, qa, simplified, explanat
 
       <section className="tactile-canvas">
         <h3>Tactile preview</h3>
-        <p className="muted">Thick tactile strokes, Braille markers, {simplified?.elements.length ?? 0} features after simplification.</p>
-        <div className="tactile-svg" dangerouslySetInnerHTML={{ __html: tactileSvg }} />
+        <p className="muted">Sized for an A4 sheet: thick raised lines, standard-size Braille, {simplified?.elements.length ?? 0} features after simplification.</p>
+        {noGeometry ? (
+          <div className="empty-state" role="status">
+            <p><strong>No lines or shapes were found in this image.</strong></p>
+            <p>Try a brighter, sharper photo taken straight above the page, or raise the edge sensitivity and process again.</p>
+          </div>
+        ) : (
+          <div className="tactile-svg" dangerouslySetInnerHTML={{ __html: safeSvg }} />
+        )}
       </section>
 
       {critical.length > 0 && (
