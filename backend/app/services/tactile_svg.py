@@ -6,6 +6,7 @@ accessibility summary so teachers/experts can review before printing.
 """
 from __future__ import annotations
 
+import math
 import re
 from dataclasses import dataclass
 
@@ -24,6 +25,10 @@ MM_PER_PT = 25.4 / 72.0
 BRAILLE_DOT_PITCH_MM = 2.5
 BRAILLE_CELL_PITCH_MM = 6.0
 BRAILLE_DOT_DIAMETER_MM = 1.5
+# Right-angle symbol: an open square of fixed physical size in the corner,
+# never more than this share of the shorter edge so it stays inside the angle.
+RIGHT_ANGLE_SYMBOL_MM = 6.0
+RIGHT_ANGLE_MAX_ARM_FRACTION = 0.4
 # Unicode braille dot bit -> (column, row) inside the cell.
 _BRAILLE_DOT_POSITIONS = ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (0, 3), (1, 3))
 UNICODE_BRAILLE_BASE = 0x2800
@@ -134,6 +139,27 @@ def _element_points(element: DetectedElement) -> list[tuple[float, float]]:
     return points
 
 
+def _right_angle_symbol(geo: dict, side: float) -> str | None:
+    vx, vy = (float(v) for v in geo["vertex"])
+    units = []
+    lengths = []
+    for arm in geo.get("arms") or []:
+        dx, dy = float(arm[0]) - vx, float(arm[1]) - vy
+        length = math.hypot(dx, dy)
+        if length == 0:
+            return None
+        units.append((dx / length, dy / length))
+        lengths.append(length)
+    if len(units) != 2:
+        return None
+    side = min(side, RIGHT_ANGLE_MAX_ARM_FRACTION * min(lengths))
+    (ax, ay), (bx, by) = units
+    p1 = (vx + ax * side, vy + ay * side)
+    p2 = (vx + bx * side, vy + by * side)
+    corner = (p1[0] + bx * side, p1[1] + by * side)
+    return " ".join(f"{x:.1f},{y:.1f}" for x, y in (p1, corner, p2))
+
+
 def render_tactile_svg(elements: list[DetectedElement], width: int, height: int) -> str:
     layout = page_layout(width, height)
     stroke = TACTILE_RULES.stroke_width_pt
@@ -160,6 +186,10 @@ def render_tactile_svg(elements: list[DetectedElement], width: int, height: int)
             semi_a, semi_b = geo["semi_axes"]
             angle = geo.get("angle", 0)
             glyphs.append(f'<ellipse {attr} cx="{cx:.1f}" cy="{cy:.1f}" rx="{semi_a:.1f}" ry="{semi_b:.1f}" transform="rotate({angle:.1f} {cx:.1f} {cy:.1f})"/>')
+        elif element.type is GeometryType.ANGLE and geo.get("right_angle_marker"):
+            symbol = _right_angle_symbol(geo, RIGHT_ANGLE_SYMBOL_MM / layout.mm_per_px)
+            if symbol:
+                glyphs.append(f'<polyline {attr} class="right-angle" points="{symbol}"/>')
         elif element.type is GeometryType.POINT:
             pos = geo.get("position")
             if pos:

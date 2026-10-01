@@ -55,3 +55,14 @@ def _estimate_noise(gray: np.ndarray) -> float:
     cropped = gray[h // 4:3 * h // 4, w // 4:3 * w // 4].astype(np.float64)
     laplacian = cv2.Laplacian(cropped, cv2.CV_64F)
     return float(np.std(laplacian))
+
+
+def ink_contrast_copy(image: np.ndarray) -> np.ndarray:
+    """Copy where coloured ink is as dark as black ink, for text recognition.
+
+    Taking the darkest channel turns light-blue or red textbook print into dark
+    strokes on white while leaving black-on-white input unchanged.
+    """
+    if len(image.shape) == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    return cv2.cvtColor(image.min(axis=2), cv2.COLOR_GRAY2BGR)

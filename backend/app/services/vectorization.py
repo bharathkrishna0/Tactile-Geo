@@ -82,7 +82,7 @@ def _centerline_points(outer: list[tuple[int, int]], inner: list[tuple[int, int]
     return centred
 
 
-def _stroke_half_width(binary_image: np.ndarray) -> float:
+def stroke_half_width(binary_image: np.ndarray) -> float:
     """Median half-width of the drawn strokes, from the distance-transform ridge."""
     distance = cv2.distanceTransform(binary_image, cv2.DIST_L2, 3)
     ridge = (distance > 0) & (distance >= cv2.dilate(distance, np.ones((3, 3), np.uint8)))
@@ -178,7 +178,7 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
     hole) is authoritative for the Hough lines that run along its stroke, and a
     stroke without a hole is left to the Hough lines that explain it.
     """
-    stroke_half = _stroke_half_width(binary_image)
+    stroke_half = stroke_half_width(binary_image)
     segments = _snap_shared_endpoints(
         _collapse_stroke_edges(_line_segments(binary_image, edge_sensitivity), 2 * stroke_half + STROKE_BAND_TOLERANCE_PX),
         2 * stroke_half + STROKE_BAND_TOLERANCE_PX,
@@ -214,9 +214,11 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
         inner_points = _approx_points(holes[0]) if len(holes) == 1 else None
         points = _centerline_points(outer_points, inner_points)
         ellipse = None
+        round_outline = False
         if len(outer_points) >= 5 and len(contour) >= 5:
             center, (a, b), angle = _ellipse_from_fit(cv2.fitEllipse(contour))
-            if _ellipse_fit_error(contour, center, (a, b), angle) <= ELLIPSE_FIT_MAX_ERROR:
+            round_outline = _ellipse_fit_error(contour, center, (a, b), angle) <= ELLIPSE_FIT_MAX_ERROR
+            if round_outline:
                 # The outer boundary sits half a stroke outside the drawn centreline.
                 a, b = max(a - stroke_half, 1.0), max(b - stroke_half, 1.0)
                 if b / a < ELLIPSE_MAX_ASPECT and math.pi * a * b > ELLIPSE_MIN_AREA:
@@ -228,6 +230,11 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
                         "area": round(math.pi * a * b, 2),
                         "contour_points": points,
                     }
+        if not round_outline and len(holes) > 1 and _contour_explained_by_lines(contour, segments, stroke_half):
+            # Several enclosed regions that the detected lines already trace form a
+            # line network (e.g. a figure built from triangles); keep the lines.
+            outlines.pop()
+            continue
         closed_shapes.append(ellipse or {"type": "contour", "points": points})
 
     band_px = 2 * stroke_half + STROKE_BAND_TOLERANCE_PX

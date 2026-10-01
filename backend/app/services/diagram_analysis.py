@@ -20,7 +20,7 @@ from app.services.tactile_rules import TACTILE_RULES
 MAX_ANGLE_ELEMENTS = TACTILE_RULES.complexity_threshold
 
 
-def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[dict]) -> SemanticGeometry:
+def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[dict], right_angles: list[dict] | None = None) -> SemanticGeometry:
     elements: list[DetectedElement] = []
     relationships: list[ElementRelationship] = []
     explanations: list[TransformationExplanation] = []
@@ -47,6 +47,16 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
     id_counter += len(point_elements)
     elements.extend(point_elements)
     explanations.extend(point_explanations)
+
+    # Right angles marked in the source keep their marker as a tactile symbol.
+    for marker in right_angles or []:
+        elements.append(_right_angle_element(marker, id_counter))
+        explanations.append(TransformationExplanation(
+            stage="diagram_analysis",
+            element_id=f"el_{id_counter}",
+            message=f"Detected a drawn right-angle marker at {tuple(marker['vertex'])}.",
+        ))
+        id_counter += 1
 
     # Detect angles where two connected segments meet.
     angle_elements, angle_explanations, extra_relationships = _detect_angles(elements, id_counter, relationships)
@@ -422,7 +432,9 @@ def _detect_angles(elements: list[DetectedElement], start_id: int, existing: lis
     angle_elements: list[DetectedElement] = []
     explanations: list[TransformationExplanation] = []
     extra_relationships: list[ElementRelationship] = []
-    claimed_vertices: list[tuple[int, int]] = []
+    claimed_vertices: list[tuple[int, int]] = [
+        _vertex_key(tuple(e.geometry["vertex"])) for e in elements if e.type is GeometryType.ANGLE
+    ]
     aid = start_id
 
     for _, common, a, b, other_a, other_b in candidates:
@@ -463,6 +475,32 @@ def _detect_angles(elements: list[DetectedElement], start_id: int, existing: lis
         ))
     return angle_elements, explanations, extra_relationships
 
+
+
+RIGHT_ANGLE_MARKER_CONFIDENCE = 0.85
+
+
+def _right_angle_element(marker: dict, index: int) -> DetectedElement:
+    vertex = [int(v) for v in marker["vertex"]]
+    size = int(marker["size"])
+    return DetectedElement(
+        id=f"el_{index}",
+        type=GeometryType.ANGLE,
+        geometry={
+            "vertex": vertex,
+            "arms": [[int(v) for v in arm] for arm in marker["arms"]],
+            "degrees": 90.0,
+            "right_angle_marker": True,
+            "marker_size": size,
+        },
+        confidence=RIGHT_ANGLE_MARKER_CONFIDENCE,
+        confidence_level=classify_confidence(RIGHT_ANGLE_MARKER_CONFIDENCE),
+        needs_review=False,
+        source="right_angle_marker",
+        bbox=(vertex[0] - size, vertex[1] - size, 2 * size, 2 * size),
+        semantic_properties={"degrees": 90.0, "right_angle": True},
+        provenance=f"Right-angle marker drawn at {tuple(vertex)}; measured corner {marker['degrees']} degrees.",
+    )
 
 
 def _associate_labels(elements: list[DetectedElement], relationships: list[ElementRelationship]) -> tuple[list[DetectedElement], list[TransformationExplanation]]:
