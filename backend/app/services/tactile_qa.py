@@ -4,7 +4,9 @@ import math
 from dataclasses import dataclass, field
 
 from app.models.geometry import DetectedElement, GeometryType
+from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
+from app.services.tactile_svg import braille_text_extent
 
 
 @dataclass
@@ -37,10 +39,10 @@ MIN_GEOMETRY_ELEMENTS = 2
 DUPLICATE_COINCIDENCE_TOLERANCE = 6.0
 
 # --- Severity policy -------------------------------------------------------
-# These four checks describe tactile output a blind user physically cannot read:
+# These checks describe tactile output a blind user physically cannot read:
 # a stroke embossed outside the BANA band, braille sitting on top of a line, a
-# feature running off the printable area, and a feature too small to resolve by
-# touch. They are blocking, so they alone decide whether print-ready export is
+# feature running off the printable area, a feature too small to resolve by
+# touch, and a sheet with no tactile geometry on it at all. They are blocking, so they alone decide whether print-ready export is
 # allowed. Every other check stays advisory (warning/info) and is surfaced to the
 # teacher without gating export.
 BLOCKING_CHECKS = frozenset({
@@ -48,6 +50,7 @@ BLOCKING_CHECKS = frozenset({
     "braille_on_line",
     "element_outside_printable_area",
     "feature_below_minimum_size",
+    "no_tactile_geometry",
 })
 DEFAULT_SEVERITY = "warning"
 
@@ -195,7 +198,7 @@ def _distance_between_elements(a: DetectedElement, b: DetectedElement) -> float:
 
 
 def _min_point_distance(point: tuple[float, float], element: DetectedElement) -> float:
-    points = _element_points(element)
+    points = outline_points(element)
     if not points:
         return float("inf")
     return min(math.hypot(point[0] - p[0], point[1] - p[1]) for p in points)
@@ -271,6 +274,25 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
                 )
         checks += 1
 
+    # The rendered braille string must sit wholly on the page; the OCR bbox above
+    # describes the printed source text, not the braille that replaces it.
+    for element in elements:
+        if element.type is not GeometryType.TEXT_LABEL:
+            continue
+        position = element.geometry.get("position")
+        braille = str(element.geometry.get("braille") or element.geometry.get("text") or "")
+        if not position or not braille:
+            continue
+        width, height = braille_text_extent(braille, image_width, image_height)
+        x, y = float(position[0]), float(position[1])
+        if x - width / 2 < 0 or y - height / 2 < 0 or x + width / 2 > image_width or y + height / 2 > image_height:
+            collector.add(
+                "element_outside_printable_area",
+                f"Braille for label {element.id} runs off the page and would be clipped when printed.",
+                element_id=element.id,
+            )
+        checks += 1
+
     # Spacing, overlap, and braille collision checks.
     for index, a in enumerate(elements):
         for b in elements[index + 1:]:
@@ -310,19 +332,17 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
                 )
             checks += 1
 
-    # Isolated elements: a geometry feature with no label and no relationship is
-    # hard for a blind learner to interpret.
-    for element in elements:
-        if element.type is GeometryType.TEXT_LABEL:
-            continue
-        has_label = bool(element.associated_label_id)
-        if not has_label:
-            collector.add(
-                "isolated_element",
-                f"Element {element.id} has no associated label; consider adding a label for the learner.",
-                element_id=element.id,
-            )
-            checks += 1
+    # Unlabelled features are hard for a blind learner to interpret. One summary
+    # issue keeps a plain worksheet from drowning real problems in per-shape noise.
+    unlabelled = [e.id for e in elements if e.type is not GeometryType.TEXT_LABEL and not e.associated_label_id]
+    if unlabelled:
+        collector.add(
+            "isolated_element",
+            f"{len(unlabelled)} feature(s) have no label ({', '.join(unlabelled[:5])}"
+            f"{', ...' if len(unlabelled) > 5 else ''}); consider adding labels for the learner.",
+            element_id=unlabelled[0] if len(unlabelled) == 1 else None,
+        )
+        checks += 1
 
     # High/low confidence conflict: a low-confidence feature near high-confidence
     # geometry may be noise and can confuse the diagram.
@@ -376,8 +396,15 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
             )
             checks += 1
 
+    if not geometry_non_label:
+        collector.add(
+            "no_tactile_geometry",
+            "No shapes or lines were found, so there is nothing to feel on the printed sheet. "
+            "Try a clearer, higher-contrast photo of the diagram.",
+        )
+        checks += 1
     # Sparse diagram: so little geometry that the image may not be a diagram.
-    if len(geometry_non_label) < MIN_GEOMETRY_ELEMENTS:
+    elif len(geometry_non_label) < MIN_GEOMETRY_ELEMENTS:
         collector.add(
             "sparse_diagram",
             "Very few geometry features were detected; confirm the image is a geometry worksheet.",

@@ -123,13 +123,12 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 .properties ul { margin: 6px 0; padding-left: 18px; font-size: 13px; }
 
 .tactile-svg svg { display: block; width: 100%; height: auto; border: 1px solid #e9e9e7; border-radius: 8px; }
-.tactile-svg .tactile-braille text { font-family: "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif; }
 
 .readiness-card { display: flex; gap: 16px; align-items: center; border: 1px solid #d9d9d6; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; }
 .score-ring { --score: 0; position: relative; width: 64px; height: 64px; flex: none; }
-.score-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, #1a5d38 var(--score), #e03131 var(--score)); }
+.score-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(from 0deg, #1a5d38 calc(var(--score) * 1%), #e03131 calc(var(--score) * 1%)); }
 .score-ring::after { content: ""; position: absolute; inset: 8px; border-radius: 50%; background: #fff; }
-.score-value { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 700; font-size: 16px; }
+.score-value { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; font-weight: 700; font-size: 16px; }
 .readiness-copy h3 { margin: 0 0 4px; font-size: 16px; }
 .readiness-copy p { margin: 4px 0 0; color: #3f3f3d; }
 
@@ -219,3 +218,6 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 .model-b-error { margin: 8px 0 0; color: #b42318; font-size: 14px; }
 .model-b-findings, .model-b-fusion { margin-top: 12px; }
 .model-b-fusion { padding-top: 8px; border-top: 1px solid #e9e9e7; }
+
+.empty-state { padding: 16px; border: 1px dashed #9b9a97; border-radius: 8px; background: #fbfbfa; }
+.empty-state p { margin: 4px 0; }
