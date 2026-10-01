@@ -64,3 +64,10 @@ describe('WCAG AA contrast', () => {
     expect(css).toMatch(/\.muted\s*\{[^}]*color:\s*var\(--color-text-secondary\)/)
   })
 })
+
+describe('readiness score ring', () => {
+  it('uses a percentage stop and keeps the number above the ring mask', () => {
+    expect(css).toMatch(/conic-gradient\([^;]*calc\(var\(--score\) \* 1%\)/)
+    expect(css).toMatch(/\.score-value \{[^}]*z-index: 1/)
+  })
+})

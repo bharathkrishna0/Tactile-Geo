@@ -3,6 +3,8 @@ import os
 
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
 UPLOAD_DIRECTORY = Path(os.getenv("UPLOAD_DIRECTORY", "uploads"))
+# Sessions and their uploaded images are deleted this long after upload. 0 keeps them.
+SESSION_TTL_SECONDS = float(os.getenv("SESSION_TTL_SECONDS", str(2 * 60 * 60)))
 ALLOWED_MEDIA_TYPES = {"image/png", "image/jpeg"}
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg"}
 CORS_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if origin.strip()]

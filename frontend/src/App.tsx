@@ -66,7 +66,7 @@ export default function App() {
   const relationships = semantic?.relationships ?? []
 
   function chooseFile(selected: File | undefined) {
-    setError(''); setAnalysis(null); setSelectedId(null); setActiveView('ai')
+    setError(''); setStatus(''); setAnalysis(null); setSelectedId(null); setActiveView('ai')
     if (fileUrl) URL.revokeObjectURL(fileUrl)
     if (!selected) { setFile(null); setFileUrl(null); return }
     if (!acceptedTypes.includes(selected.type)) { setFile(null); setFileUrl(null); setError('Choose a PNG, JPG, or JPEG image.'); return }

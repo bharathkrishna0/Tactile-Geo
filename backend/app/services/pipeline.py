@@ -2,14 +2,16 @@ from dataclasses import dataclass
 
 from app.models.geometry import SemanticGeometry
 from app.services.image_preprocessing import decode_image, preprocess_image
-from app.services.vectorization import drop_shapes_inside_text_regions, extract_shapes, shapes_to_svg
+from app.services.vectorization import drop_shapes_inside_text_regions, extract_shapes, shapes_to_svg, stroke_half_width
+from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
+from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
 from app.services.ocr import EasyOcrProvider, OcrProvider
-from app.services.ocr_postprocessing import postprocess_detections
+from app.services.ocr_postprocessing import postprocess_detections, restore_radicals
 from app.services.label_mapping import map_label_to_geometry
 from app.services.braille import LouisBrailleTranslator
 from app.services.braille_layout import place_braille_markers
 from app.services.image_quality import QualityReport, assess_image_quality
-from app.services.image_enhancement import enhance_copy
+from app.services.image_enhancement import enhance_copy, ink_contrast_copy
 from app.services.diagram_analysis import analyze_diagram
 from app.services.tactile_simplification import SimplifiedGeometry, simplify_geometry
 from app.services.tactile_qa import QAReport, run_tactile_qa
@@ -34,22 +36,30 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     # Enhance a working copy for CV/OCR; the original image is never modified.
     processing_image = enhance_copy(image)
     filtered = preprocess_image(processing_image, edge_sensitivity)
+    regions = find_diagram_regions(filtered, processing_image)
+    if regions:
+        filtered = mask_to_regions(filtered, regions)
     shapes = extract_shapes(filtered, edge_sensitivity)
     height, width = processing_image.shape[:2]
     provider = ocr_provider or EasyOcrProvider()
     translator = braille_translator or LouisBrailleTranslator()
-    raw_detections = provider.detect(processing_image)
-    detections = postprocess_detections(raw_detections)
+    ocr_image = ink_contrast_copy(processing_image)
+    raw_detections = provider.detect(ocr_image)
+    detections = restore_radicals(postprocess_detections(raw_detections), ocr_image[:, :, 0])
+    if regions:
+        detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     # OCR runs after vectorization, so text glyphs may already have been picked up
     # as small contours. Remove them so labels are not duplicated as geometry.
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
+    right_angles = detect_right_angle_markers(filtered, shapes, stroke_half_width(filtered))
+    shapes = drop_marker_strokes(shapes, right_angles)
     mapped_labels = []
     for detection in detections:
         label = map_label_to_geometry(detection, shapes)
         mapped_labels.append({**label, "braille": translator.translate(detection.text)})
-    placed_labels = place_braille_markers(mapped_labels, shapes)
+    placed_labels = place_braille_markers(mapped_labels, shapes, bounds=(width, height))
     svg = shapes_to_svg(shapes, width, height)
-    semantic = analyze_diagram(shapes, width, height, placed_labels)
+    semantic = analyze_diagram(shapes, width, height, placed_labels, right_angles=right_angles)
     simplified = simplify_geometry(semantic)
     qa_report = run_tactile_qa(simplified.elements, width, height)
     tactile_svg = render_tactile_svg(simplified.elements, width, height)
@@ -69,15 +79,21 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     image = decode_image(image_bytes)
     processing_image = enhance_copy(image)
     filtered = preprocess_image(processing_image, edge_sensitivity)
+    regions = find_diagram_regions(filtered, processing_image)
+    if regions:
+        filtered = mask_to_regions(filtered, regions)
     shapes = extract_shapes(filtered, edge_sensitivity)
     height, width = processing_image.shape[:2]
     provider = ocr_provider or EasyOcrProvider()
     translator = braille_translator or LouisBrailleTranslator()
-    raw_detections = provider.detect(processing_image)
-    detections = postprocess_detections(raw_detections)
+    ocr_image = ink_contrast_copy(processing_image)
+    raw_detections = provider.detect(ocr_image)
+    detections = restore_radicals(postprocess_detections(raw_detections), ocr_image[:, :, 0])
+    if regions:
+        detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
     mapped_labels = []
     for detection in detections:
         label = map_label_to_geometry(detection, shapes)
         mapped_labels.append({**label, "braille": translator.translate(detection.text)})
-    return shapes_to_svg(shapes, width, height), shapes, place_braille_markers(mapped_labels, shapes)
+    return shapes_to_svg(shapes, width, height), shapes, place_braille_markers(mapped_labels, shapes, bounds=(width, height))

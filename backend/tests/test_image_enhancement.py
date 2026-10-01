@@ -81,8 +81,10 @@ def test_enhanced_processing_still_detects_triangle(fixture_directory):
     filtered = preprocess_image(enhanced, edge_sensitivity=100)
     shapes = extract_shapes(filtered, edge_sensitivity=100)
 
-    assert sum(s["type"] == "line" for s in shapes) >= 3
-    assert any(s["type"] == "contour" and len(s["points"]) >= 3 for s in shapes)
+    # The closed outline is the single representation of the triangle; Hough
+    # lines along its stroke would double-strike the tactile edges.
+    assert [len(s["points"]) for s in shapes if s["type"] == "contour"] == [3]
+    assert not any(s["type"] == "line" for s in shapes)
 
 
 def test_enhanced_processing_detects_low_contrast(fixture_directory):
