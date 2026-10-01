@@ -4,6 +4,14 @@ import math
 from dataclasses import dataclass, field
 
 from app.models.geometry import ConfidenceLevel, DetectedElement, ElementRelationship, GeometryType, SemanticGeometry
+from app.services.segment_geometry import (
+    angle_diff as sg_angle_diff,
+    line_angle_deg as sg_line_angle_deg,
+    point_to_line_distance as sg_point_to_line_distance,
+    point_to_segment_distance as sg_point_to_segment_distance,
+    segments_overlap_or_touch as sg_segments_overlap_or_touch,
+    spanning_endpoints as sg_spanning_endpoints,
+)
 from app.services.tactile_rules import TACTILE_RULES
 
 NOISE_CONFIDENCE_THRESHOLD = 0.3
@@ -38,6 +46,8 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     actions: list[SimplificationAction] = []
     explanations: list[str] = []
     removed_count = 0
+    removed_ids: set[str] = set()
+    consumed_ids: set[str] = set()
 
     for element in semantic.elements:
         if element.type is GeometryType.TEXT_LABEL and TEXT_LABEL_ALWAYS_KEEP:
@@ -45,6 +55,7 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
             continue
         if element.confidence < NOISE_CONFIDENCE_THRESHOLD:
             removed_count += 1
+            removed_ids.add(element.id)
             actions.append(SimplificationAction(
                 element_id=element.id,
                 action="removed_noise",
@@ -61,9 +72,10 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
         kept.append(element)
 
     # Pass 2: merge duplicate collinear line segments into a single segment.
-    kept, merge_actions, merge_explanations, merged_count = _merge_collinear_segments(kept)
+    kept, merge_actions, merge_explanations, merged_count, merge_consumed = _merge_collinear_segments(kept)
     actions.extend(merge_actions)
     explanations.extend(merge_explanations)
+    consumed_ids |= merge_consumed
 
     # Pass 3: simplify contour polygons by dropping redundant collinear vertices.
     kept, simplify_actions, simplify_explanations = _simplify_contours(kept)
@@ -76,6 +88,23 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
         if set(rel.element_ids).issubset(kept_ids)
     ]
 
+    # Every input element must be either kept, removed as noise, or explicitly
+    # consumed by a merge. A silent drop means the teacher is told the diagram was
+    # simplified without being able to see what disappeared, so this is a hard
+    # invariant rather than a best-effort log.
+    unaccounted = [
+        element.id for element in semantic.elements
+        if element.id not in kept_ids and element.id not in removed_ids and element.id not in consumed_ids
+    ]
+    for element_id in unaccounted:
+        actions.append(SimplificationAction(
+            element_id=element_id,
+            action="dropped_unexplained",
+            detail="Element was not present after simplification and no action explains why.",
+        ))
+        explanations.append(f"Element {element_id} was dropped without a recorded reason; flagged for teacher review.")
+    removed_count += len(unaccounted)
+
     return SimplifiedGeometry(
         elements=kept,
         relationships=kept_relationships,
@@ -86,12 +115,13 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     )
 
 
-def _merge_collinear_segments(elements: list[DetectedElement]) -> tuple[list[DetectedElement], list[SimplificationAction], list[str], int]:
+def _merge_collinear_segments(elements: list[DetectedElement]) -> tuple[list[DetectedElement], list[SimplificationAction], list[str], int, set[str]]:
     segments = [e for e in elements if e.type is GeometryType.LINE_SEGMENT]
     others = [e for e in elements if e.type is not GeometryType.LINE_SEGMENT]
     kept: list[DetectedElement] = []
     used: set[int] = set()
     merged_count = 0
+    consumed: set[str] = set()
     actions: list[SimplificationAction] = []
     explanations: list[str] = []
     tolerance = TACTILE_RULES.collinear_merge_tolerance_px
@@ -116,10 +146,6 @@ def _merge_collinear_segments(elements: list[DetectedElement]) -> tuple[list[Det
                 continue
             if not _overlap_or_touch(a0, a1, b0, b1):
                 continue
-            # Keep exact duplicates untouched; only merge genuinely distinct
-            # collinear fragments (their endpooints differ).
-            if _exact_duplicate_segment((a0, a1), (b0, b1)):
-                continue
             merged_into_a.append(b)
             used.add(j)
         if len(merged_into_a) > 1:
@@ -138,19 +164,38 @@ def _merge_collinear_segments(elements: list[DetectedElement]) -> tuple[list[Det
                     source=a.source,
                     bbox=(min(start[0], end[0]), min(start[1], end[1]), abs(end[0] - start[0]), abs(end[1] - start[1])),
                     semantic_properties={"merged_from": [seg.id for seg in merged_into_a], "length": round(math.hypot(end[0] - start[0], end[1] - start[1]), 2)},
+                    provenance=f"Merged {len(merged_into_a)} collinear segments ({', '.join(seg.id for seg in merged_into_a)}) into one.",
                 )
                 merged_count += len(merged_into_a) - 1
+                consumed.update(seg.id for seg in merged_into_a if seg is not a)
+                absorbed_ids = [seg.id for seg in merged_into_a if seg is not a]
                 actions.append(SimplificationAction(
                     element_id=a.id,
                     action="merged_collinear",
-                    detail=f"Merged {len(merged_into_a)} collinear segments into one.",
+                    detail=f"Merged {len(merged_into_a)} collinear segments ({', '.join(seg.id for seg in merged_into_a)}) into one.",
                 ))
-                explanations.append(f"Merged {len(merged_into_a)} collinear segments into {a.id}.")
+                explanations.append(
+                    f"Merged collinear segments {', '.join(absorbed_ids)} into {a.id}."
+                )
                 kept.append(merged)
                 continue
+            # The cluster's spanning endpoints are identical to `a`, i.e. the other
+            # segments were coincident duplicates. Previously this fell through and
+            # `b` was marked used but never kept or reported, so elements vanished
+            # with no SimplificationAction. Record the removal explicitly instead.
+            absorbed = [seg for seg in merged_into_a if seg is not a]
+            for seg in absorbed:
+                actions.append(SimplificationAction(
+                    element_id=seg.id,
+                    action="removed_duplicate",
+                    detail=f"Duplicate collinear segment coincident with {a.id}; removed without changing geometry.",
+                ))
+                explanations.append(f"Removed duplicate segment {seg.id} coincident with {a.id}.")
+            consumed.update(seg.id for seg in absorbed)
+            merged_count += len(absorbed)
         kept.append(a)
 
-    return kept + others, actions, explanations, merged_count
+    return kept + others, actions, explanations, merged_count, consumed
 
 
 def _simplify_contours(elements: list[DetectedElement]) -> tuple[list[DetectedElement], list[SimplificationAction], list[str]]:
@@ -181,6 +226,7 @@ def _simplify_contours(elements: list[DetectedElement]) -> tuple[list[DetectedEl
                 bbox=element.bbox,
                 semantic_properties={**element.semantic_properties},
                 associated_label_id=element.associated_label_id,
+                provenance=(element.provenance or "") + f" Simplified by removing {len(points) - len(simplified)} redundant collinear vertices.",
             )
             kept.append(new_element)
             actions.append(SimplificationAction(
@@ -195,62 +241,36 @@ def _simplify_contours(elements: list[DetectedElement]) -> tuple[list[DetectedEl
 
 
 # --- geometry helpers -------------------------------------------------------
+# Collinearity logic is shared with vectorization via segment_geometry so the
+# "normalize before angle generation" and "merge collinear segments" rules cannot
+# drift apart. The thin wrappers below keep the existing private call sites.
 
 def _line_angle_deg(start: tuple, end: tuple) -> float:
-    return math.degrees(math.atan2(end[1] - start[1], end[0] - start[0]))
+    return sg_line_angle_deg(start, end)
 
 
 def _angle_diff(a: float, b: float) -> float:
-    return abs((a - b + 180) % 360 - 180)
+    return sg_angle_diff(a, b)
 
 
 def _point_to_segment_distance(point: tuple, start: tuple, end: tuple) -> float:
-    dx, dy = end[0] - start[0], end[1] - start[1]
-    denom = dx * dx + dy * dy
-    if denom == 0:
-        return math.hypot(point[0] - start[0], point[1] - start[1])
-    ratio = max(0.0, min(1.0, ((point[0] - start[0]) * dx + (point[1] - start[1]) * dy) / denom))
-    return math.hypot(point[0] - (start[0] + ratio * dx), point[1] - (start[1] + ratio * dy))
+    return sg_point_to_segment_distance(point, start, end)
 
 
 def _on_extended_line(a0: tuple, a1: tuple, point: tuple, tolerance: float) -> bool:
-    # Distance from point to the (extended) line through a0-a1.
-    dx, dy = a1[0] - a0[0], a1[1] - a0[1]
-    denom = math.hypot(dx, dy)
-    if denom == 0:
-        return math.hypot(point[0] - a0[0], point[1] - a0[1]) <= tolerance
-    distance = abs(dy * (point[0] - a0[0]) - dx * (point[1] - a0[1])) / denom
-    return distance <= tolerance
+    return sg_point_to_line_distance(a0, a1, point) <= tolerance
 
 
 def _segments_overlap(a0: tuple, a1: tuple, b0: tuple, b1: tuple, tolerance: float = 0.0) -> bool:
-    def project(t: tuple) -> float:
-        dx, dy = a1[0] - a0[0], a1[1] - a0[1]
-        return (t[0] - a0[0]) * dx + (t[1] - a0[1]) * dy
-
-    pa0, pa1 = 0.0, project(a1)
-    pb0, pb1 = project(b0), project(b1)
-    if pa1 < pa0:
-        pa0, pa1 = pa1, pa0
-    lo = max(min(pb0, pb1), pa0)
-    hi = min(max(pb0, pb1), pa1)
-    # Parametric gap must be within tolerance-ish; use raw overlap for touch.
-    return hi >= lo - tolerance
+    return sg_segments_overlap_or_touch(a0, a1, b0, b1, tolerance)
 
 
 def _overlap_or_touch(a0: tuple, a1: tuple, b0: tuple, b1: tuple) -> bool:
     return _segments_overlap(a0, a1, b0, b1, tolerance=1.0)
 
 
-def _exact_duplicate_segment(a: tuple, b: tuple) -> bool:
-    return (a[0] == b[0] and a[1] == b[1]) or (a[0] == b[1] and a[1] == b[0])
-
-
 def _spanning_endpoints(endpoints: list[tuple]) -> tuple[tuple, tuple]:
-    anchor = endpoints[0]
-    far = max(endpoints, key=lambda p: math.hypot(p[0] - anchor[0], p[1] - anchor[1]))
-    farthest_from_far = max(endpoints, key=lambda p: math.hypot(p[0] - far[0], p[1] - far[1]))
-    return tuple(far), tuple(farthest_from_far)
+    return sg_spanning_endpoints(endpoints)
 
 
 def _drop_redundant_vertices(points: list[tuple], tolerance: float) -> list[tuple]:

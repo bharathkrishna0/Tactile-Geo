@@ -42,6 +42,11 @@ def create_fixtures() -> None:
         cv2.circle(complex_image, (cx, cy), 45, (0, 0, 0), thickness=3)
     cv2.imwrite(str(FIXTURE_DIRECTORY / "complex_worksheet.png"), complex_image)
 
+    ellipse_image = np.full((300, 400, 3), 255, dtype=np.uint8)
+    cv2.ellipse(ellipse_image, (200, 150), (120, 60), 0, 0, 360, (0, 0, 0), thickness=3)
+    cv2.putText(ellipse_image, "E", (190, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2, cv2.LINE_AA)
+    cv2.imwrite(str(FIXTURE_DIRECTORY / "ellipse_worksheet.png"), ellipse_image)
+
 
 if __name__ == "__main__":
     create_fixtures()

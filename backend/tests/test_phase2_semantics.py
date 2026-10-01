@@ -138,7 +138,9 @@ def test_qa_flags_label_collision_with_geometry():
     line = _line("l1", (100, 100), (200, 100))
     label = _element("lb", GeometryType.TEXT_LABEL, {"text": "A", "position": [105, 100]})
     report = run_tactile_qa([line, label], 300, 300)
-    assert any(issue.check == "braille_collision" for issue in report.issues)
+    # Braille sitting on a line is one of the four blocking checks.
+    assert any(issue.check == "braille_on_line" for issue in report.issues)
+    assert not report.passes
 
 
 # --- tactile SVG ------------------------------------------------------------

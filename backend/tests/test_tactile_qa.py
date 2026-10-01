@@ -51,7 +51,7 @@ def test_qa_flags_small_elements():
 
     report = run_tactile_qa(elements, 200, 200)
 
-    assert any(issue.check == "small_geometry" for issue in report.issues)
+    assert any(issue.check == "feature_below_minimum_size" for issue in report.issues)
 
 
 def test_qa_flags_crowded_geometry():

@@ -26,6 +26,7 @@ export interface DetectedElement {
   bbox?: number[] | null
   semantic_properties?: Record<string, unknown>
   associated_label_id?: string | null
+  provenance?: string | null
 }
 
 export interface Relationship {
@@ -88,7 +89,10 @@ export interface QAReport {
 
 export interface DetectedShape {
   type: string
-  points: number[][]
+  points?: number[][]
+  center?: number[]
+  semi_axes?: number[]
+  angle?: number | null
 }
 
 export interface DetectedLabel {

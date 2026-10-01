@@ -17,6 +17,11 @@ class TactileRules:
     stroke_width_min_pt: float = 1.5
     stroke_width_max_pt: float = 2.0
 
+    # The stroke width actually used when rendering, i.e. the teacher-adjustable
+    # value. Kept separate from the BANA band above so QA can genuinely validate
+    # the rendered value against the band instead of validating itself.
+    stroke_width_pt: float = 2.0
+
     # Minimum separation (pixels) between independent tactile features.
     minimum_feature_spacing_px: float = 18.0
 

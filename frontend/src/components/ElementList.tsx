@@ -5,6 +5,7 @@ const TYPE_LABEL: Record<string, string> = {
   line_segment: 'Segment',
   ray: 'Ray',
   circle: 'Circle',
+  ellipse: 'Ellipse',
   arc: 'Arc',
   triangle: 'Triangle',
   rectangle: 'Rectangle',

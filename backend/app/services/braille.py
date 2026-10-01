@@ -7,17 +7,99 @@ from app.core.config import LOUIS_TABLEPATH
 
 UEB_GRADE_2_TABLE = "en-ueb-g2.ctb"
 
+# Where this file lives: backend/app/services/braille.py
+_BACKEND_ROOT = Path(__file__).resolve().parents[2]
+
 # Common locations where Liblouis table files ship on various installs.
 # Used only when LOUIS_TABLEPATH is not explicitly configured.
 _DEFAULT_TABLEPATHS = (
     Path("/usr/share/liblouis/tables"),          # Debian/Ubuntu (apt), Docker
     Path("/usr/local/share/liblouis/tables"),    # Liblouis built from source
     Path("/usr/share/liblouis"),                 # some distro layouts
+    # Windows: the native build vendored into this repo under backend/.native.
+    # Resolved relative to the package so no machine-specific path is hardcoded.
+    _BACKEND_ROOT / ".native" / "win64" / "share" / "liblouis" / "tables",
+    _BACKEND_ROOT / ".native" / "win64" / "share" / "liblouis",
 )
+
+
+def _bundled_source_tablepath() -> Path | None:
+    """Locate tables inside the vendored liblouis *source* tree, if present."""
+    source_root = _BACKEND_ROOT / ".native" / "source"
+    if not source_root.is_dir():
+        return None
+    candidates = sorted(source_root.glob("liblouis-*/tables"))
+    return candidates[-1] if candidates else None
+
+
+def _loaded_library_tablepath() -> Path | None:
+    """Locate tables shipped alongside the native liblouis binary in use.
+
+    Some liblouis builds (notably 3.39 on Windows) ignore LOUIS_TABLEPATH and
+    resolve tables relative to the running executable instead, so the search path
+    cannot be relied on. Distributions place the tables at
+    ``<prefix>/share/liblouis/tables`` next to the loaded binary, so derive the
+    candidate from the binary itself instead of hardcoding a machine-specific path.
+    """
+    try:
+        import louis
+    except ImportError:
+        return None
+    library = getattr(louis, "liblouis", None)
+    library_path = getattr(library, "_name", None)
+    if not library_path:
+        return None
+    bin_dir = Path(library_path).resolve().parent
+    for relative in (Path("..") / "share" / "liblouis" / "tables", Path("..") / "share" / "liblouis"):
+        candidate = (bin_dir / relative).resolve()
+        if (candidate / UEB_GRADE_2_TABLE).is_file():
+            return candidate
+    return None
+
+
+def resolve_table_file(table: str = UEB_GRADE_2_TABLE) -> str | None:
+    """Return an absolute path to a Liblouis table file, or None if not found.
+
+    Passing an explicit file path to ``translateString`` removes the dependency on
+    liblouis honouring LOUIS_TABLEPATH, which not every build does.
+    """
+    candidates: list[Path] = []
+    tablepath = resolve_tablepath()
+    if tablepath:
+        candidates.append(Path(tablepath) / table)
+    for root in (*_DEFAULT_TABLEPATHS, _bundled_source_tablepath(), _loaded_library_tablepath()):
+        if root is not None:
+            candidates.append(root / table)
+    for candidate in candidates:
+        if candidate.is_file():
+            return str(candidate)
+    return None
 
 
 class LouisBindings(Protocol):
     def translateString(self, tables: list[str], text: str): ...
+
+
+# Liblouis emits 8-bit "ASCII braille" (characters 0x00-0xFF whose bit pattern is
+# the dot pattern) by default. The tactile SVG needs real Unicode braille cells
+# from the U+2800 block, and the two share an identical bit layout, so the
+# conversion is a constant offset per cell.
+ASCII_BRAILLE_OFFSET = 0x2800
+ASCII_BRAILLE_MAX = 0xFF
+
+
+def to_unicode_braille(text: str) -> str:
+    """Convert Liblouis ASCII-braille output into Unicode braille cells.
+
+    Characters that are already in the U+2800 block are left alone, so this is
+    safe to apply to output that has been converted upstream.
+    """
+    if not text:
+        return text
+    return "".join(
+        chr(ASCII_BRAILLE_OFFSET + ord(char)) if ord(char) < ASCII_BRAILLE_MAX else char
+        for char in text
+    )
 
 
 def resolve_tablepath() -> str | None:
@@ -35,6 +117,9 @@ def resolve_tablepath() -> str | None:
     for candidate in _DEFAULT_TABLEPATHS:
         if (candidate / UEB_GRADE_2_TABLE).is_file():
             return str(candidate)
+    bundled = _bundled_source_tablepath()
+    if bundled is not None and (bundled / UEB_GRADE_2_TABLE).is_file():
+        return str(bundled)
     return None
 
 
@@ -59,9 +144,15 @@ class LouisBrailleTranslator:
 
     def translate(self, text: str) -> str:
         bindings = self._bindings or self._load_bindings()
-        translated = bindings.translateString([self.table], text)
+        # Prefer an absolute path to the table file: liblouis resolves bare table
+        # names through a search path that several builds (including the 3.39
+        # Windows build) ignore, which made every real translation fail with
+        # "Can't translate: tables ['en-ueb-g2.ctb']".
+        table = resolve_table_file(self.table) or self.table
+        translated = bindings.translateString([table], text)
         # Liblouis versions expose either a string or a tuple whose first item is the translation.
-        return translated[0] if isinstance(translated, tuple) else translated
+        result = translated[0] if isinstance(translated, tuple) else translated
+        return to_unicode_braille(result)
 
     def _load_bindings(self) -> LouisBindings:
         configure_tablepath()

@@ -2,26 +2,53 @@ import os
 from math import hypot
 
 import cv2
+import pytest
 
 from app.services.braille import (
     LouisBrailleTranslator,
     UEB_GRADE_2_TABLE,
     configure_tablepath,
+    resolve_table_file,
     resolve_tablepath,
+    to_unicode_braille,
 )
 from app.services.braille_layout import place_braille_markers
 from app.services.label_mapping import map_label_to_geometry
 from app.services.ocr import EasyOcrProvider, OcrDetection
 from app.services.pipeline import build_preview
 
+# Native pixel size of tests/fixtures/labelled_triangle_worksheet.png.
+FIXTURE_SIZE = (240, 240)
+
 
 class FakeReader:
-    def readtext(self, image, detail, paragraph):
+    """Stands in for easyocr.Reader.
+
+    The provider upscales small images before recognition, so a faithful fake
+    must report boxes in the coordinate space of the image it was handed. The
+    provider is then responsible for mapping them back to original-image space.
+    """
+
+    detections = [
+        ([[112, 8], [128, 8], [128, 28], [112, 28]], "A", 0.98),
+        ([[8, 202], [25, 202], [25, 222], [8, 222]], "B", 0.97),
+        ([[205, 202], [224, 202], [224, 222], [205, 222]], "C", 0.96),
+    ]
+    base_size: tuple[int, int] | None = None
+    received_size: tuple[int, int] | None = None
+
+    def readtext(self, image, detail=1, paragraph=False):
+        self.received_size = (image.shape[1], image.shape[0])
+        self.base_size = FIXTURE_SIZE
+        width, height = self.received_size
+        base_width, base_height = FIXTURE_SIZE
+        scale_x = width / base_width
+        scale_y = height / base_height
         return [
-            ([[112, 8], [128, 8], [128, 28], [112, 28]], "A", 0.98),
-            ([[8, 202], [25, 202], [25, 222], [8, 222]], "B", 0.97),
-            ([[205, 202], [224, 202], [224, 222], [205, 222]], "C", 0.96),
+            ([[x * scale_x, y * scale_y] for x, y in box], text, confidence)
+            for box, text, confidence in self.detections
         ]
+
 
 
 class FakeLouis:
@@ -68,7 +95,10 @@ def test_liblouis_translator_uses_ueb_table_for_capitals_and_numbers():
 
     assert translator.translate("A") == "⠠⠁"
     assert translator.translate("12") == "⠼⠁⠃"
-    assert bindings.calls == [([UEB_GRADE_2_TABLE], "A"), ([UEB_GRADE_2_TABLE], "12")]
+    # The table argument must be something liblouis can actually open: a resolved
+    # absolute path when one is available, otherwise the bare UEB table name.
+    expected = resolve_table_file(UEB_GRADE_2_TABLE) or UEB_GRADE_2_TABLE
+    assert bindings.calls == [([expected], "A"), ([expected], "12")]
 
 
 def test_collision_layout_moves_markers_off_lines_and_apart():
@@ -141,3 +171,74 @@ def test_configure_tablepath_does_not_override_existing_env(monkeypatch):
     configure_tablepath()
 
     assert os.environ["LOUIS_TABLEPATH"] == "C:/already/set"
+
+
+# --- table resolution and output encoding ----------------------------------
+
+class RecordingLouis:
+    def __init__(self, result="abc"):
+        self.result = result
+        self.calls = []
+
+    def translateString(self, tables, text):
+        self.calls.append((list(tables), text))
+        return self.result
+
+
+def test_resolve_table_file_returns_existing_file(tmp_path, monkeypatch):
+    tables_dir = tmp_path / "tables"
+    tables_dir.mkdir()
+    table_file = tables_dir / UEB_GRADE_2_TABLE
+    table_file.write_text("")
+    monkeypatch.setenv("LOUIS_TABLEPATH", str(tables_dir))
+    monkeypatch.setattr("app.services.braille._DEFAULT_TABLEPATHS", ())
+
+    assert resolve_table_file() == str(table_file)
+
+
+def test_translator_passes_absolute_table_path(tmp_path, monkeypatch):
+    # A bare table name only works when liblouis honours LOUIS_TABLEPATH, which the
+    # 3.39 Windows build does not. The translator must hand over a real file path.
+    tables_dir = tmp_path / "tables"
+    tables_dir.mkdir()
+    (tables_dir / UEB_GRADE_2_TABLE).write_text("")
+    monkeypatch.setenv("LOUIS_TABLEPATH", str(tables_dir))
+    monkeypatch.setattr("app.services.braille._DEFAULT_TABLEPATHS", ())
+    bindings = RecordingLouis()
+
+    LouisBrailleTranslator(bindings=bindings).translate("A")
+
+    (tables, text), = bindings.calls
+    assert tables == [str(tables_dir / UEB_GRADE_2_TABLE)]
+    assert text == "A"
+
+
+def test_translator_converts_ascii_braille_to_unicode(tmp_path, monkeypatch):
+    monkeypatch.setattr("app.services.braille.resolve_table_file", lambda table=None: None)
+
+    result = LouisBrailleTranslator(bindings=RecordingLouis(",a")).translate("A")
+
+    assert result == "\u282c\u2861"
+
+
+def test_to_unicode_braille_leaves_unicode_braille_untouched():
+    assert to_unicode_braille("\u282c\u2861") == "\u282c\u2861"
+
+
+def test_to_unicode_braille_maps_dot_patterns():
+    # ASCII braille bit 0..7 is the same layout as Unicode braille U+2800 + bits.
+    assert to_unicode_braille("\x01") == "\u2801"  # dot 1
+    assert to_unicode_braille("\x80") == "\u2880"  # dot 8
+    assert to_unicode_braille("") == ""
+
+
+def test_real_liblouis_translates_ueb_grade_2():
+    translator = LouisBrailleTranslator()
+
+    try:
+        result = translator.translate("A")
+    except Exception as error:  # pragma: no cover - depends on native install
+        pytest.skip(f"native Liblouis unavailable: {error}")
+
+    # A capital A in UEB is the capital indicator followed by the letter a cell.
+    assert result == "\u282c\u2861"

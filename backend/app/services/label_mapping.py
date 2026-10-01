@@ -17,7 +17,9 @@ def _geometry_candidates(shapes: list[dict]) -> tuple[list[tuple[int, int]], lis
     vertices: list[tuple[int, int]] = []
     edges: list[tuple[tuple[int, int], tuple[int, int]]] = []
     for shape in shapes:
-        points = shape["points"]
+        points = shape.get("points")
+        if not points:
+            continue
         vertices.extend(points)
         if shape["type"] == "line":
             edges.append((points[0], points[1]))

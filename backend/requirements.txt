@@ -4,3 +4,11 @@ python-multipart==0.0.20
 opencv-python-headless>=4.10,<5
 numpy>=1.26,<3
 easyocr==1.7.2
+
+# Model B needs no provider SDK.
+#
+# Model B is reached over HTTPS through OpenRouter's OpenAI-compatible API,
+# implemented on `urllib.request` in `app/model_b/client.py`. That is deliberate:
+# with no SDK in the dependency tree there is no vendor package to patch, audit,
+# or accidentally break, and Model A cannot be affected by a provider library
+# changing underneath it.

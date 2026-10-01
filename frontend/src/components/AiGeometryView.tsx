@@ -36,6 +36,13 @@ function renderGeometry(element: DetectedElement) {
   }
   const center = coords(geo.center)
   const radius = geo.radius
+  if (element.type === 'ellipse' && center.length >= 2) {
+    const semiAxes = coords(geo.semi_axes)
+    const angle = asNumber(geo.angle)
+    if (semiAxes.length >= 2) {
+      return <ellipse cx={center[0]} cy={center[1]} rx={semiAxes[0]} ry={semiAxes[1]} transform={`rotate(${angle} ${center[0]} ${center[1]})`} className="layer" />
+    }
+  }
   if (center.length >= 2) {
     return <circle cx={center[0]} cy={center[1]} r={asNumber(radius)} className="layer" />
   }

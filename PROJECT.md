@@ -344,3 +344,661 @@ All responses are JSON except the SVG download itself. All endpoints require HTT
 ---
 
 *End of PRD. Build order: Section 5 (architecture) → Section 6 (pipeline) → Section 10–11 (data/API) → Section 9 (UI) → Section 8 (accessibility, woven in throughout, not bolted on at the end) → Section 12 (roadmap milestones), with CI accessibility and offline-network tests wired in from Milestone 1 onward.*
+
+
+# TactileGeo — Gemini Dual-Architecture Integration
+
+## Purpose
+
+TactileGeo currently contains a deterministic/structured visual-to-tactile
+processing pipeline.
+
+A previous Gemini-based prototype also exists separately.
+
+The objective of this phase is NOT to replace the existing TactileGeo
+pipeline.
+
+Instead, the existing Gemini prototype will be studied, reconstructed where
+necessary, and integrated as an optional second interpretation path
+(Model B) using a new provider API key.
+
+The existing TactileGeo pipeline remains Model A and remains the controlled
+source for final tactile geometry and SVG generation.
+
+---
+
+# 1. Existing Architecture — Model A
+
+Model A is the current TactileGeo processing pipeline.
+
+High-level flow:
+
+Image Upload
+    ↓
+Image Preprocessing
+    ↓
+Geometry / Shape Detection
+    ↓
+OCR
+    ↓
+Semantic Geometry
+    ↓
+Label Association
+    ↓
+Braille Translation
+    ↓
+Tactile Simplification
+    ↓
+Braille Layout
+    ↓
+Tactile QA
+    ↓
+SVG Generation
+
+Model A is responsible for:
+- geometric accuracy
+- coordinates
+- detected shapes
+- detected lines
+- OCR results
+- semantic relationships
+- Braille conversion
+- tactile simplification
+- spatial layout
+- tactile QA
+- final SVG generation
+
+Model A must remain functional independently of Model B.
+
+---
+
+# 2. Gemini Prototype — Model B
+
+A previous Gemini prototype exists separately from the current
+production TactileGeo implementation.
+
+The prototype must be inspected before integration.
+
+Do not assume that its implementation is correct or production-ready.
+
+The following must be extracted from the prototype:
+
+- Gemini model used
+- Gemini API invocation method
+- prompt structure
+- system instructions
+- image encoding method
+- request payload
+- response format
+- structured output/schema, if any
+- detected entities
+- detected relationships
+- detected text
+- detected geometry
+- confidence information
+- error handling
+- API key handling
+- frontend/backend responsibilities
+- dependencies
+- limitations
+
+The prototype is a reference implementation, not automatically a production
+component.
+
+---
+
+# 3. Provider API Key
+
+The provider API key used for the integrated implementation MUST be different
+from any key that may have existed in the original prototype.
+
+The key must NEVER be hardcoded in:
+- React source code
+- TypeScript source
+- Python source
+- Git history
+- PROJECT.md
+- README.md
+- screenshots
+- client-side JavaScript
+
+The key must be stored using environment configuration.
+
+For example:
+
+OPENROUTER_API_KEY=<secret>
+
+The frontend must never receive the provider API key.
+
+All provider API requests must originate from the backend.
+
+---
+
+# 4. Dual Architecture
+
+The intended architecture is:
+
+                    Worksheet Image
+                           |
+                           |
+                 Image Preprocessing
+                           |
+             +-------------+-------------+
+             |                           |
+             v                           v
+       MODEL A                       MODEL B
+    TactileGeo CV                OpenRouter API
+       Pipeline                    Interpretation
+             |                           |
+             |                           |
+             v                           v
+    Structured Geometry          AI Interpretation
+             |                           |
+             +-------------+-------------+
+                           |
+                           v
+                    Normalization Layer
+                           |
+                           v
+                   Comparison / Fusion
+                           |
+                           v
+                  Semantic Representation
+                           |
+                           v
+                 Tactile Optimization
+                           |
+                           v
+                    Braille + QA
+                           |
+                           v
+                      SVG Output
+
+Model B is optional.
+
+If the provider is unavailable, Model A must continue to work.
+
+---
+
+# 5. Model B Responsibilities
+
+Model B should primarily provide higher-level visual interpretation.
+
+Potential outputs include:
+
+- diagram type
+- geometric entities
+- labels
+- spatial relationships
+- semantic interpretation
+- contextual understanding
+- ambiguous or difficult-to-detect relationships
+- possible missing entities
+- possible corrections to Model A
+
+Model B must NOT directly generate the final tactile SVG.
+
+Model B output must pass through validation and normalization.
+
+---
+
+# 6. Model A Responsibilities
+
+Model A remains responsible for deterministic geometric processing.
+
+The following should not be replaced merely because Model B can describe them:
+
+- exact coordinates
+- geometric primitives
+- line positions
+- shape boundaries
+- tactile stroke generation
+- Braille positioning
+- collision avoidance
+- tactile spacing
+- QA constraints
+- SVG generation
+
+---
+
+# 7. Normalized Representation
+
+Model A and Model B should not communicate using arbitrary independent
+structures.
+
+Both should be converted into a common internal representation.
+
+Example:
+
+{
+  "elements": [
+    {
+      "id": "shape_001",
+      "type": "triangle",
+      "geometry": {},
+      "label": "ABC",
+      "confidence": 0.94,
+      "source": "model_a"
+    }
+  ],
+  "relationships": [
+    {
+      "type": "parallel",
+      "source": "line_001",
+      "target": "line_002",
+      "confidence": 0.88,
+      "source": "model_b"
+    }
+  ]
+}
+
+The exact schema must be determined after inspecting the existing code.
+
+Do NOT introduce this exact schema blindly.
+
+---
+
+# 8. Comparison / Fusion
+
+Model A and Model B outputs must be compared.
+
+Possible cases:
+
+### Agreement
+
+Model A:
+    Triangle ABC
+
+Model B:
+    Triangle ABC
+
+→ Increased confidence.
+
+### Partial agreement
+
+Model A:
+    Triangle ABC
+
+Model B:
+    Triangle ABC + angle marker
+
+→ Preserve both if geometrically valid.
+
+### Disagreement
+
+Model A:
+    Triangle
+
+Model B:
+    Quadrilateral
+
+→ Flag for review rather than silently choosing one.
+
+### Model B provider unavailable
+
+Model B:
+    unavailable
+
+→ Continue using Model A.
+
+### Model A unavailable
+
+Model B:
+    available
+
+→ Do NOT automatically generate final tactile geometry unless the
+implementation explicitly validates that the required geometric data exists.
+
+---
+
+# 9. Teacher-in-the-Loop
+
+The teacher remains the final reviewer.
+
+The system should expose model disagreement or low-confidence interpretation
+rather than silently making potentially incorrect changes.
+
+The UI may show:
+
+- Model A interpretation
+- Model B interpretation
+- agreement/disagreement
+- confidence
+- suggested interpretation
+- teacher correction
+
+Teacher corrections should be applied to the canonical semantic representation,
+not permanently modify either model.
+
+---
+
+# 10. Failure Isolation
+
+Model B must be treated as an optional external dependency.
+
+Possible failures:
+
+- API timeout
+- invalid API key
+- quota exceeded
+- rate limit
+- network failure
+- malformed provider response
+- unexpected schema
+- safety/filter response
+- unavailable model
+
+None of these failures should prevent Model A from functioning.
+
+---
+
+# 11. Security
+
+Never expose OPENROUTER_API_KEY to the browser.
+
+The architecture must be:
+
+Frontend
+   ↓
+TactileGeo Backend
+   ↓
+OpenRouter API
+
+NOT:
+
+Frontend
+   ↓
+OpenRouter API
+
+API keys must be loaded through environment variables or the deployment
+platform's secret-management system.
+
+---
+
+# 12. Performance
+
+Model B should not unnecessarily duplicate expensive processing already
+performed by Model A.
+
+The integration should investigate:
+
+- image resizing
+- request size
+- prompt size
+- response size
+- model latency
+- timeout
+- caching
+- whether Model B should run synchronously or asynchronously
+- whether Model B should be enabled only when needed
+
+The existing TactileGeo performance targets should not be degraded without
+measurement.
+
+---
+
+# 13. Observability
+
+For development/debugging, record:
+
+- Model A execution time
+- Model B execution time
+- provider success/failure
+- response validation status
+- agreement/disagreement
+- fusion result
+- teacher correction
+
+Do not log:
+- API keys
+- sensitive credentials
+- unnecessary image data
+- raw confidential provider responses in production
+
+---
+
+# 14. Testing
+
+The Model B integration must have independent tests.
+
+Required categories:
+
+1. provider API request construction
+2. API response parsing
+3. malformed response handling
+4. timeout handling
+5. invalid API key handling
+6. rate-limit handling
+7. Model A-only operation
+8. Model B-only interpretation
+9. Model A + Model B agreement
+10. Model A + Model B disagreement
+11. teacher correction after disagreement
+12. final tactile output remains valid
+13. regression tests for existing pipeline
+
+Existing Model A tests must continue to pass.
+
+---
+
+# 15. Integration Principle
+
+The Model B integration must be additive.
+
+DO NOT:
+
+- replace Model A
+- rewrite the existing CV pipeline
+- make Model B mandatory
+- move provider API calls to the frontend
+- hardcode API keys
+- allow unvalidated Model B output to directly control SVG generation
+- remove existing QA
+- remove teacher review
+- duplicate existing services unnecessarily
+
+The desired result is:
+
+Model A = geometric/control pipeline
+
+Model B = semantic/AI interpretation
+
+Fusion = controlled reconciliation
+
+Teacher = final reviewer
+
+Tactile engine = final authority for tactile output
+
+---
+
+# 16. Development Rule
+
+Before modifying code:
+
+1. Inspect current TactileGeo repository.
+2. Inspect Gemini prototype.
+3. Map both architectures.
+4. Identify reusable prototype components.
+5. Identify incompatible components.
+6. Identify dependencies.
+7. Identify security risks.
+8. Identify API integration points.
+9. Propose normalized schemas.
+10. Propose fusion strategy.
+11. Propose test strategy.
+
+No implementation should begin until this analysis is complete.
+---
+
+# 17. Implemented Architecture (as built)
+
+This section describes what is actually implemented, as distinct from the
+sections above, which state requirements.
+
+## Model A — deterministic geometry authority
+
+`backend/app/services/pipeline.py` is the only producer of the geometry that is
+embossed on the page. It is deterministic, structured, and independent of any
+external service:
+
+    image -> OpenCV contour/Hough detection -> OCR -> semantic normalisation
+          -> simplified geometry -> tactile QA -> sanitised SVG
+
+Model A owns exact pixel coordinates, line endpoints, radii, Braille placement,
+stroke widths, printable-area checks, the final SVG, and the pass/fail decision
+on whether a page is print-ready. Model A runs with no network access and no
+credentials. It is not modified by anything described in this section.
+
+## Model B — vision-language interpretation layer (optional, advisory)
+
+Model B adds interpretation, not geometry:
+
+    image -> prepared frame -> OpenRouter (one call, structured output)
+          -> parse -> validate against the Model B contract -> normalise
+          -> advisory regions, relationships, text, uncertainty
+
+Model B may contribute: entity suggestions, geometry *type* suggestions,
+normalised bounding regions, labels, relationships, diagram relations such as
+tangency or right-angle markers, contextual interpretation, uncertainty, and
+confidence with provenance.
+
+Model B must never become the authority for exact pixel coordinates, line
+endpoints, radii, angles, final tactile geometry, Braille placement, stroke
+width, printable area, or the final SVG. Model B returns **regions and types
+only**; it deliberately emits no point, radius, centre, or angle, so there is
+no value it could supply that would be mistaken for a measurement.
+
+## The boundary
+
+| Concern | Authority |
+| --- | --- |
+| Exact coordinates, endpoints, radii, angles | Model A |
+| Braille, stroke width, printable area, final SVG | Model A |
+| Blocking QA and export decision | Model A |
+| Relationship and contextual interpretation | Model B (advisory) |
+| Uncertainty and ambiguity reporting | Model B (advisory) |
+| Region/type suggestions for teacher review | Model B (advisory) |
+
+Reconciliation is read-only and lives in `backend/app/model_b/fusion.py`. It
+produces agreements, candidate additions (each requiring teacher approval), and
+explicit disagreements. It cannot mutate Model A geometry, ids, QA severity, or
+export state, and a test asserts those invariants on every fusion.
+
+## Structured output
+
+The response contract is defined once, as Pydantic models in
+`backend/app/model_b/schema.py`. The JSON Schema is *derived* from those models by
+`backend/app/model_b/json_schema.py`, so there is exactly one source of truth and
+no second competing schema. The schema is sent on every request via
+`response_format.json_schema` with `strict: true`.
+
+Responses are rejected, not repaired, when they violate the contract: malformed
+JSON, a missing required field, an invalid enum value, an impossible bounding
+region, or an invalid confidence band all fail the job with a typed error. The
+raw model output is never allowed to reach geometry or the browser.
+
+## Security
+
+`OPENROUTER_API_KEY` is read from the backend environment only. It is never sent
+to the browser, never written to source, tests, documentation, prompts, or logs,
+and never included in an error message. The frontend learns only whether Model B
+is usable, via `GET /api/model-b/status`, which returns a boolean, a
+human-readable reason, the provider name, and the configured model or router id
+— never a key or quota information.
+
+A credential must never be stored in a `.env` file that reaches the frontend, or
+in a `VITE_*` variable: Vite inlines those into the shipped bundle, which would
+publish the key. `backend/tests/test_model_b_live_boundary.py` fails the build if
+a credential-shaped literal or a Vite-exposed key read appears anywhere in
+`frontend/src`.
+
+The supported architecture is:
+
+    Frontend  ->  TactileGeo backend  ->  OpenRouter API
+
+The frontend never calls the provider directly. The model or router is configurable
+through `OPENROUTER_MODEL`; no model name is hardcoded in business logic. The
+default is `openrouter/free`, which selects a different model on each call, so
+the configured id and the model that actually served a request are recorded and
+reported separately — a result is always attributable to a real model.
+
+## Failure behaviour
+
+Model B is an optional external dependency. Every failure mode — missing key,
+invalid key, authentication failure, permission denied, quota exceeded, rate
+limit, timeout, network error, provider unavailable, malformed output, schema
+validation failure, empty result — is mapped to a distinct typed error and an
+HTTP status the teacher can act on. Retryability is reported explicitly so the
+UI can offer a retry only when retrying can help.
+
+**A Model B failure never prevents Model A from functioning.** Model A requires
+no key, no network, and no Model B code path. `MODEL_B_ENABLED` defaults to
+false, and a missing or unusable key degrades to an unavailable advisory panel
+rather than an error state.
+
+---
+
+# 18. Measured Status and Known Gaps
+
+Recorded from the implementation as built. Timings are from an idle Windows
+workstation running the backend venv directly, using the generated
+`triangle_worksheet` fixture.
+
+## Performance: the section 13 target is not met
+
+Section 13 sets a target of under 8 seconds for upload to first preview,
+including network latency. Measured Model A execution time:
+
+| Run | Wall clock |
+| --- | --- |
+| Cold start (first request, includes EasyOCR/Torch model load) | ~42 s |
+| Steady state (requests 2-5) | ~15-18 s |
+
+Steady state is roughly **2x over the 8 s target**, and cold start is over 5x
+over. This is a real gap, not a measurement artifact: the figures were taken
+with no other load on the machine, and a full 442-test backend run completed in
+4 minutes on the same host. The section 13 Model A execution-time logging added
+in this implementation is what made the gap measurable; before it, the cost was
+invisible.
+
+Optimising this is a separate piece of work. The likely candidates, in rough
+order of expected payoff, are:
+
+1. Loading the OCR model once at process start rather than per request, which
+   should remove most of the cold-start cost.
+2. Caching the compiled regex tables and lookup structures in the Braille and
+   semantic-normalisation services, which are rebuilt per call.
+3. Reducing redundant geometry passes in `build_full_analysis`, which currently
+   recomputes derived structures across stage boundaries.
+
+Until that work is done, the 8 s figure in section 13 should be read as a target
+rather than a description of current behaviour, and stakeholder-facing material
+should not claim it.
+
+## Section 13 observability coverage
+
+| Required signal | Status |
+| --- | --- |
+| Model A execution time | Recorded in `app/api/sessions.py` and `app/api/demo.py` |
+| Model B execution time | Recorded in `app/api/model_b.py` |
+| Provider success/failure | Recorded, with HTTP status and typed error, never the message body |
+| Response validation status | Recorded, plus the count of validation warnings |
+| Agreement/disagreement | Recorded, plus fusion candidate and review counts |
+| Fusion result | Recorded |
+| Teacher correction | Not instrumented; corrections are persisted on the session but not separately counted in operational logs |
+
+## Live provider status
+
+The request path is implemented and exercised against the real gateway, and
+every automated test uses a faked transport, so the suite needs no key, no
+network, and costs nothing. One real call remains opt-in and separate:
+`scripts/model_b_live_smoke.py`, which refuses to run without a key and without
+`MODEL_B_ENABLED=true`, never prints the key, generates its worksheet in memory
+rather than writing it to disk, and prints only aggregate counts and short quoted
+statements. It runs the full `image -> prepare -> OpenRouter -> structured JSON
+-> validate -> normalise` path and deliberately does not touch Model A.
+
+The typed error mapping, the status-code classification, the retry bounds, and
+the redaction behaviour are verified with a mocked transport; the live script
+supplies the one thing a mock cannot, which is evidence that a real model
+returns a document this contract accepts.

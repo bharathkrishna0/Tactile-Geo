@@ -2,11 +2,11 @@ import { ChangeEvent, KeyboardEvent } from 'react'
 import type { DetectedElement, ElementEdit, Relationship } from '../types'
 
 const GEOMETRY_TYPES = [
-  'point', 'line_segment', 'ray', 'circle', 'arc', 'triangle', 'rectangle', 'polygon', 'angle', 'axes', 'arrow',
+  'point', 'line_segment', 'ray', 'circle', 'ellipse', 'arc', 'triangle', 'rectangle', 'polygon', 'angle', 'axes', 'arrow',
 ]
 
 const TYPE_LABEL: Record<string, string> = {
-  point: 'Point', line_segment: 'Segment', ray: 'Ray', circle: 'Circle', arc: 'Arc',
+  point: 'Point', line_segment: 'Segment', ray: 'Ray', circle: 'Circle', ellipse: 'Ellipse', arc: 'Arc',
   triangle: 'Triangle', rectangle: 'Rectangle', polygon: 'Polygon', angle: 'Angle',
   axes: 'Axes', arrow: 'Arrow', text_label: 'Label',
 }
@@ -42,6 +42,7 @@ export default function Inspector({ element, elements, relationships, onEdit, bu
         <div><dt>Element</dt><dd>{element.id}</dd></div>
         <div><dt>Detected as</dt><dd>{TYPE_LABEL[element.type] ?? element.type}</dd></div>
         <div><dt>Confidence</dt><dd><span className={`confidence-badge ${element.confidence_level}`}>{element.confidence_level}</span> ({Math.round(element.confidence * 100)}%)</dd></div>
+        {element.provenance && <div className="inspector-provenance"><dt>Why</dt><dd>{element.provenance}</dd></div>}
       </dl>
 
       <label className="field" htmlFor="inspector-type">

@@ -22,7 +22,9 @@ def _point_to_segment_distance(point: tuple[int, int], start: tuple[int, int], e
 def _line_segments(shapes: list[dict]) -> list[tuple[tuple[int, int], tuple[int, int]]]:
     segments = []
     for shape in shapes:
-        points = shape["points"]
+        points = shape.get("points")
+        if not points:
+            continue
         if shape["type"] == "line":
             segments.append((points[0], points[1]))
         elif len(points) > 1:

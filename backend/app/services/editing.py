@@ -40,6 +40,7 @@ def semantic_from_dict(data: dict) -> SemanticGeometry:
             bbox=_coerce_bbox(item.get("bbox")),
             semantic_properties=dict(item.get("semantic_properties") or {}),
             associated_label_id=item.get("associated_label_id"),
+            provenance=item.get("provenance"),
         )
         for item in data.get("elements", [])
     ]

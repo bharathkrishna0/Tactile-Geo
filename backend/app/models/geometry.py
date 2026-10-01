@@ -9,6 +9,7 @@ class GeometryType(str, Enum):
     LINE_SEGMENT = "line_segment"
     RAY = "ray"
     CIRCLE = "circle"
+    ELLIPSE = "ellipse"
     ARC = "arc"
     TRIANGLE = "triangle"
     RECTANGLE = "rectangle"
@@ -62,6 +63,7 @@ class DetectedElement:
     bbox: tuple[int, int, int, int] | None = None
     semantic_properties: dict[str, object] = field(default_factory=dict)
     associated_label_id: str | None = None
+    provenance: str | None = None
 
 
 @dataclass

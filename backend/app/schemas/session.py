@@ -11,8 +11,11 @@ class ProcessingParams(BaseModel):
     edge_sensitivity: int = Field(default=50, ge=0, le=100)
 
 class DetectedShape(BaseModel):
-    type: Literal["line", "contour"]
-    points: list[tuple[int, int]]
+    type: Literal["line", "contour", "ellipse"]
+    points: list[tuple[int, int]] | None = None
+    center: tuple[int, int] | None = None
+    semi_axes: tuple[int, int] | None = None
+    angle: float | None = None
 
 class DetectedLabel(BaseModel):
     text: str
@@ -56,6 +59,7 @@ class DetectedElementSchema(BaseModel):
     bbox: tuple[int, int, int, int] | None = None
     semantic_properties: dict = Field(default_factory=dict)
     associated_label_id: str | None = None
+    provenance: str | None = None
 
 class ElementRelationshipSchema(BaseModel):
     id: str

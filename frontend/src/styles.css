@@ -1,3 +1,14 @@
+/*
+  Design tokens.
+  --color-text-secondary is the old #787774, which measured 4.48:1 on white and
+  therefore failed WCAG AA (4.5:1) for the secondary/meta text it is used on.
+  #6E6D6B is the same neutral hue darkened to 5.17:1. Guarded by a regression
+  test in src/styles.test.ts.
+*/
+:root {
+  --color-text-secondary: #6e6d6b;
+}
+
 :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #191919; background: #fff; }
 * { box-sizing: border-box; }
 body { margin: 0; }
@@ -15,7 +26,7 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 
 .drop-zone { display: grid; justify-items: center; gap: 12px; margin-top: 28px; padding: 40px 24px; border: 2px dashed #c9c9c5; border-radius: 8px; text-align: center; }
 .drop-zone p { margin: 0; font-size: 18px; font-weight: 600; }
-.drop-zone span, .drop-zone small { color: #787774; }
+.drop-zone span, .drop-zone small { color: var(--color-text-secondary); }
 .selected-file { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 18px; padding: 16px; border: 1px solid #e9e9e7; border-radius: 8px; }
 .selected-file span { overflow-wrap: anywhere; }
 .status { color: #3f3f3d; }
@@ -84,6 +95,9 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 .inspector-meta div { display: grid; grid-template-columns: 1fr auto; gap: 4px; }
 .inspector-meta dt { color: #5f5f5b; font-size: 13px; }
 .inspector-meta dd { margin: 0; }
+.inspector-meta .inspector-provenance { display: block; grid-column: 1 / -1; margin-top: 6px; padding-top: 6px; border-top: 1px solid #e5e5e2; }
+.inspector-meta .inspector-provenance dt { margin-bottom: 2px; }
+.inspector-meta .inspector-provenance dd { font-size: 13px; line-height: 1.4; color: #444; }
 
 .field { display: grid; gap: 4px; margin: 10px 0; }
 .field span { font-size: 13px; color: #5f5f5b; font-weight: 600; }
@@ -134,7 +148,7 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 .explanations h3 { margin: 0 0 8px; font-size: 15px; }
 .explanations ul { margin: 0; padding-left: 18px; }
 .explanations li { margin: 4px 0; font-size: 14px; line-height: 1.45; }
-.muted { color: #787774; font-size: 14px; }
+.muted { color: var(--color-text-secondary); font-size: 14px; }
 .meta-list { margin: 10px 0 0; display: grid; grid-template-columns: auto auto; gap: 4px 16px; }
 .meta-list dt { color: #5f5f5b; font-size: 13px; }
 .meta-list dd { margin: 0; }
@@ -159,3 +173,49 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
   .selected-file { align-items: stretch; flex-direction: column; }
   .view-tab { flex: 1 1 100%; }
 }
+/* --- Model B advisory panel ------------------------------------------- */
+/* Deliberately quieter than the Model A panels. Model B is a second opinion,
+   not a correction, and it should not compete visually with the output the
+   student actually receives. */
+.model-b-panel {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border: 1px dashed #d9d9d6;
+  border-radius: 8px;
+  background: #fbfbfa;
+}
+.model-b-panel h2 { margin: 0 0 6px; font-size: 16px; }
+.model-b-panel h3 { margin: 14px 0 6px; font-size: 14px; }
+.model-b-panel h4 { margin: 12px 0 4px; font-size: 13px; }
+.model-b-panel ul { margin: 4px 0; padding-left: 20px; }
+.model-b-panel li { margin-bottom: 4px; font-size: 14px; }
+.model-b-note { margin: 6px 0; color: var(--color-text-secondary); font-size: 13px; }
+.model-b-status { margin: 8px 0 0; font-size: 14px; }
+.model-b-evidence { color: var(--color-text-secondary); }
+.model-b-action {
+  margin-top: 8px;
+  padding: 8px 14px;
+  border: 1px solid #1a5d8a;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a5d8a;
+  font-size: 14px;
+  cursor: pointer;
+}
+.model-b-action:hover:not(:disabled) { background: #f0f6fa; }
+.model-b-action:disabled { opacity: 0.55; cursor: not-allowed; }
+.model-b-cancel {
+  margin-top: 8px;
+  margin-left: 8px;
+  padding: 8px 14px;
+  border: 1px solid #b42318;
+  border-radius: 6px;
+  background: #fff;
+  color: #b42318;
+  font-size: 14px;
+  cursor: pointer;
+}
+.model-b-warning { margin: 8px 0 0; color: #8a5a00; font-size: 13px; }
+.model-b-error { margin: 8px 0 0; color: #b42318; font-size: 14px; }
+.model-b-findings, .model-b-fusion { margin-top: 12px; }
+.model-b-fusion { padding-top: 8px; border-top: 1px solid #e9e9e7; }

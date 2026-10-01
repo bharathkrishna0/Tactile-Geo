@@ -1,6 +1,9 @@
 from pathlib import Path
 from uuid import uuid4
 
+import logging
+import time
+
 from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile, status
 
 from app.core.config import ALLOWED_EXTENSIONS, ALLOWED_MEDIA_TYPES, MAX_UPLOAD_BYTES, UPLOAD_DIRECTORY
@@ -35,6 +38,8 @@ from app.services.tactile_simplification import SimplifiedGeometry
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
+logger = logging.getLogger(__name__)
+
 
 def get_braille_translator() -> LouisBrailleTranslator:
     """Dependency so tests can substitute a fake Liblouis translator."""
@@ -47,7 +52,7 @@ def _session_response(session: ConversionSession) -> EnhancedProcessedSession:
     return EnhancedProcessedSession(
         session_id=session.session_id,
         preview_svg=session.preview_svg or "",
-        detected_shapes=[DetectedShape(**shape) for shape in session.detected_shapes],
+        detected_shapes=[DetectedShape(**{k: v for k, v in shape.items() if k in DetectedShape.model_fields}) for shape in session.detected_shapes],
         detected_labels=[DetectedLabel(**label) for label in session.detected_labels],
         processing_params=params,
         quality_report=QualityReportSchema(**session.quality_report) if session.quality_report else None,
@@ -97,6 +102,7 @@ def _element_schema(element: DetectedElement) -> DetectedElementSchema:
         bbox=element.bbox,
         semantic_properties=element.semantic_properties,
         associated_label_id=element.associated_label_id,
+        provenance=element.provenance,
     )
 
 
@@ -168,6 +174,7 @@ def _element_to_dict(element: DetectedElement) -> dict:
         "bbox": list(element.bbox) if element.bbox else None,
         "semantic_properties": element.semantic_properties,
         "associated_label_id": element.associated_label_id,
+        "provenance": element.provenance,
     }
 
 
@@ -286,10 +293,18 @@ async def process_session(session_id: str, params: ProcessingParams | None = Non
     if session is None:
         raise HTTPException(status_code=404, detail="Session not found. Upload the image again.")
     processing_params = params or ProcessingParams()
+    # PROJECT.md section 13 observability: record Model A execution time. The
+    # per-stage breakdown comes from the result itself; only timings and counts
+    # are logged, never image data or student-identifying content.
+    started = time.perf_counter()
     try:
         result = build_full_analysis(session.original_image_path.read_bytes(), processing_params.edge_sensitivity)
     except ValueError as error:
+        logger.warning("Model A process failed for session %s after %.0fms: %s", session_id, (time.perf_counter() - started) * 1000, error)
         raise HTTPException(status_code=422, detail=str(error)) from error
+    except Exception as error:
+        logger.exception("Unexpected Model A failure for session %s after %.0fms", session_id, (time.perf_counter() - started) * 1000)
+        raise HTTPException(status_code=500, detail="Processing failed. Try a different image.") from error
     session.processing_params = processing_params.model_dump()
     session.detected_shapes = result.shapes
     session.detected_labels = result.labels
@@ -299,6 +314,15 @@ async def process_session(session_id: str, params: ProcessingParams | None = Non
     session.semantic_geometry = _semantic_to_dict(result.semantic_geometry)
     session.simplified_geometry = _simplified_to_dict(result.simplified_geometry)
     session.qa_report = _qa_to_dict(result.qa_report)
+    logger.info(
+        "Model A processed session %s in %.0fms: %d shapes, %d labels, %d elements, %d QA issues",
+        session_id,
+        (time.perf_counter() - started) * 1000,
+        len(result.shapes),
+        len(result.labels),
+        len(result.semantic_geometry.elements),
+        len(result.qa_report.issues),
+    )
     return _session_response(session)
 
 

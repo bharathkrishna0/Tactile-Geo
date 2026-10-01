@@ -13,6 +13,11 @@ from app.models.geometry import (
     classify_confidence,
 )
 from app.services.geometry_relations import infer_relationships
+from app.services.tactile_rules import TACTILE_RULES
+
+# Hard ceiling on heuristic angles. With one angle per vertex the count is already
+# bounded by the vertex count; this is a second guard against pathological input.
+MAX_ANGLE_ELEMENTS = TACTILE_RULES.complexity_threshold
 
 
 def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[dict]) -> SemanticGeometry:
@@ -32,6 +37,10 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             id_counter += 1
             elements.extend(element)
             relationships.extend(rels)
+        elif shape["type"] == "ellipse":
+            element = _analyze_ellipse(shape, id_counter)
+            id_counter += 1
+            elements.append(element)
 
     # Detect significant points (shared line endpoints, shape vertices).
     point_elements, point_explanations = _detect_points(elements, id_counter)
@@ -60,6 +69,7 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             needs_review=float(label.get("confidence", 0.9)) < 0.5,
             source="ocr",
             bbox=_labels_bbox(label),
+            provenance=f"OCR detected text {label.get('text', '')!r} with confidence {float(label.get('confidence', 0.9)):.2f}.",
         )
         id_counter += 1
         elements.append(element)
@@ -106,8 +116,14 @@ def _analyze_line(shape: dict, id: int) -> tuple[list[DetectedElement], list[Ele
         source="hough",
         bbox=(min(start[0], end[0]), min(start[1], end[1]), abs(end[0] - start[0]), abs(end[1] - start[1])),
         semantic_properties={"length": round(length, 2)},
+        provenance=_line_provenance(length, start, end, confidence),
     )
     return [element], []
+
+
+def _line_provenance(length: float, start, end, confidence: float) -> str:
+    reason = "long enough to be a confident segment" if length > 20 else "short; may be a fragment or noise"
+    return f"Detected line segment from ({start[0]},{start[1]}) to ({end[0]},{end[1]}) of length {length:.0f}px ({reason}); confidence {confidence:.2f}."
 
 
 def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[list[DetectedElement], list[ElementRelationship]]:
@@ -132,6 +148,7 @@ def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[lis
         source="contour",
         bbox=bbox,
         semantic_properties={"area": round(area, 2), "perimeter": round(perimeter, 2), "vertex_count": len(points)},
+        provenance=f"Detected as {gtype.value} from contour of {len(points)} vertices with area {area:.0f}px and confidence {confidence:.2f}.",
     )
     relationships: list[ElementRelationship] = []
     if gtype is GeometryType.CIRCLE and "center" in geometry:
@@ -146,6 +163,26 @@ def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[lis
     return [element], relationships
 
 
+def _analyze_ellipse(shape: dict, id: int) -> DetectedElement:
+    center = shape["center"]
+    semi_a, semi_b = shape["semi_axes"]
+    angle = shape.get("angle", 0.0)
+    area = shape.get("area", math.pi * semi_a * semi_b)
+    confidence = 0.88 if area > 500 else 0.65
+    return DetectedElement(
+        id=f"el_{id}",
+        type=GeometryType.ELLIPSE,
+        geometry={"center": center, "semi_axes": [semi_a, semi_b], "angle": angle, "area": round(area, 2)},
+        confidence=confidence,
+        confidence_level=classify_confidence(confidence),
+        needs_review=confidence < 0.5,
+        source="contour",
+        bbox=(center[0] - semi_a, center[1] - semi_b, semi_a * 2, semi_b * 2),
+        semantic_properties={"area": round(area, 2), "aspect_ratio": round(min(semi_a, semi_b) / max(semi_a, semi_b), 3) if semi_a > 0 else 0, "rotation_deg": angle},
+        provenance=f"Detected as ellipse (semi-axes {semi_a} x {semi_b}, rotated {angle} deg) with confidence {confidence:.2f}.",
+    )
+
+
 def _classify_contour(points: list[tuple[int, int]], area: float, perimeter: float, circularity: float) -> tuple[GeometryType, float]:
     n = len(points)
     if n == 3:
@@ -154,8 +191,10 @@ def _classify_contour(points: list[tuple[int, int]], area: float, perimeter: flo
         if _is_rectangle(points):
             return GeometryType.RECTANGLE, 0.15
         return GeometryType.POLYGON, 0.08
-    if n >= 5 and circularity > 0.7:
+    if n >= 5 and circularity > 0.85:
         return GeometryType.CIRCLE, 0.15
+    if n >= 5 and circularity > 0.6:
+        return GeometryType.POLYGON, 0.05
     return GeometryType.POLYGON, 0.02
 
 
@@ -278,6 +317,7 @@ def _detect_points(elements: list[DetectedElement], start_id: int) -> tuple[list
                 source="heuristic",
                 bbox=(coord[0] - 3, coord[1] - 3, 6, 6),
                 semantic_properties={"shared_by": count},
+                provenance=f"Heuristically detected point at ({coord[0]},{coord[1]}) shared by {count} features.",
             )
             pid += 1
             point_elements.append(element)
@@ -289,67 +329,28 @@ def _detect_points(elements: list[DetectedElement], start_id: int) -> tuple[list
     return point_elements, explanations
 
 
-def _detect_angles(elements: list[DetectedElement], start_id: int, existing: list[ElementRelationship]) -> tuple[list[DetectedElement], list[TransformationExplanation], list[ElementRelationship]]:
-    """Detect angle elements where two connected line segments meet."""
-    segments = [e for e in elements if e.type is GeometryType.LINE_SEGMENT]
-    angle_elements: list[DetectedElement] = []
-    explanations: list[TransformationExplanation] = []
-    extra_relationships: list[ElementRelationship] = []
-    aid = start_id
-    used: set[tuple] = set()
+MIN_ARM_LENGTH_PX = 12.0
+MIN_ANGLE_DEGREES = 5.0
+MAX_ANGLE_DEGREES = 175.0
+VERTEX_MERGE_TOLERANCE_PX = 8.0
+ANGLE_RELATIONSHIP_CONFIDENCE = 0.6
 
-    for i, a in enumerate(segments):
-        for b in segments[i + 1:]:
-            a0, a1 = a.geometry["start"], a.geometry["end"]
-            b0, b1 = b.geometry["start"], b.geometry["end"]
-            # Find the common vertex.
-            common = None
-            for pa in (a0, a1):
-                for pb in (b0, b1):
-                    if _endpoint_near(tuple(pa), tuple(pb), tolerance=8.0):
-                        common = tuple(pa)
-                        break
-                if common:
-                    break
-            if common is None:
-                continue
-            other_a = a1 if tuple(a0) == common else a0
-            other_b = b1 if tuple(b0) == common else b0
-            angle = _angle_between_vectors(other_a, common, other_b)
-            if angle < 5.0 or angle > 175.0:
-                continue
-            key = tuple(sorted([a.id, b.id]))
-            if key in used:
-                continue
-            used.add(key)
-            element = DetectedElement(
-                id=f"el_{aid}",
-                type=GeometryType.ANGLE,
-                geometry={"vertex": list(common), "arms": [list(other_a), list(other_b)], "degrees": round(angle, 1)},
-                confidence=0.6,
-                confidence_level=ConfidenceLevel.MEDIUM,
-                needs_review=True,
-                source="heuristic",
-                bbox=(common[0] - 5, common[1] - 5, 10, 10),
-                semantic_properties={"degrees": round(angle, 1)},
-            )
-            aid += 1
-            angle_elements.append(element)
-            extra_relationships.append(ElementRelationship(
-                id=f"rel_{a.id}_{b.id}_angle",
-                type=RelationshipType.ANGLE_BETWEEN,
-                element_ids=[a.id, b.id],
-                confidence=0.6,
-                confidence_level=ConfidenceLevel.MEDIUM,
-                needs_review=True,
-                explanation=f"Segments {a.id} and {b.id} form an angle of about {angle:.0f} degrees.",
-            ))
-            explanations.append(TransformationExplanation(
-                stage="diagram_analysis",
-                element_id=element.id,
-                message=f"Detected angle of ~{angle:.0f} degrees at {common}.",
-            ))
-    return angle_elements, explanations, extra_relationships
+
+def _vertex_key(coord: tuple[int, int]) -> tuple[int, int]:
+    return (int(coord[0]), int(coord[1]))
+
+
+def _far_endpoint_from(element: DetectedElement, common: tuple) -> tuple:
+    """The endpoint of ``element`` that is furthest from ``common``.
+
+    Picking by equality with the shared vertex is wrong whenever two segments meet
+    start-to-start or end-to-end: the "other" endpoint would then be the one that
+    is nearly coincident with the vertex, giving a zero-length arm.
+    """
+    e0, e1 = element.geometry["start"], element.geometry["end"]
+    d0 = math.hypot(e0[0] - common[0], e0[1] - common[1])
+    d1 = math.hypot(e1[0] - common[0], e1[1] - common[1])
+    return e0 if d0 >= d1 else e1
 
 
 def _angle_between_vectors(a: tuple, vertex: tuple, b: tuple) -> float:
@@ -362,6 +363,96 @@ def _angle_between_vectors(a: tuple, vertex: tuple, b: tuple) -> float:
         return 0.0
     cos_angle = dot / (la * lb)
     return math.degrees(math.acos(max(-1.0, min(1.0, cos_angle))))
+
+
+def _detect_angles(elements: list[DetectedElement], start_id: int, existing: list[ElementRelationship]) -> tuple[list[DetectedElement], list[TransformationExplanation], list[ElementRelationship]]:
+    """Detect angle elements where two connected line segments meet.
+
+    Gate rationale: the pairwise loop is O(n^2) over line segments, so unfiltered
+    it turns every duplicated or fragmented edge into many candidate angles. Two
+    rules keep it meaningful and bounded:
+
+    1. both arms must be real edges (long enough to be geometry, not Hough noise);
+    2. at most one angle per vertex, choosing the pair with the longest arms.
+
+    Rule 2 is what removes the combinatorial explosion — the number of angles can
+    never exceed the number of distinct vertices.
+    """
+    segments = [e for e in elements if e.type is GeometryType.LINE_SEGMENT]
+    candidates: list[tuple[float, tuple, DetectedElement, DetectedElement, tuple, tuple]] = []
+
+    for i, a in enumerate(segments):
+        for b in segments[i + 1:]:
+            a0, a1 = a.geometry["start"], a.geometry["end"]
+            b0, b1 = b.geometry["start"], b.geometry["end"]
+            common = None
+            for pa in (a0, a1):
+                for pb in (b0, b1):
+                    if _endpoint_near(tuple(pa), tuple(pb), tolerance=VERTEX_MERGE_TOLERANCE_PX):
+                        common = tuple(pa)
+                        break
+                if common:
+                    break
+            if common is None:
+                continue
+            other_a = _far_endpoint_from(a, common)
+            other_b = _far_endpoint_from(b, common)
+            arm_a = math.hypot(other_a[0] - common[0], other_a[1] - common[1])
+            arm_b = math.hypot(other_b[0] - common[0], other_b[1] - common[1])
+            # Rule 1: reject stub arms and coincident segments.
+            if arm_a < MIN_ARM_LENGTH_PX or arm_b < MIN_ARM_LENGTH_PX:
+                continue
+            angle = _angle_between_vectors(other_a, common, other_b)
+            if angle < MIN_ANGLE_DEGREES or angle > MAX_ANGLE_DEGREES:
+                continue
+            candidates.append((arm_a * arm_b, common, a, b, other_a, other_b))
+
+    # Rule 2: strongest arms win, and only the first claim on a vertex counts.
+    candidates.sort(key=lambda item: -item[0])
+    angle_elements: list[DetectedElement] = []
+    explanations: list[TransformationExplanation] = []
+    extra_relationships: list[ElementRelationship] = []
+    claimed_vertices: list[tuple[int, int]] = []
+    aid = start_id
+
+    for _, common, a, b, other_a, other_b in candidates:
+        if len(angle_elements) >= MAX_ANGLE_ELEMENTS:
+            break
+        vertex = _vertex_key(common)
+        if any(math.hypot(vertex[0] - taken[0], vertex[1] - taken[1]) <= VERTEX_MERGE_TOLERANCE_PX for taken in claimed_vertices):
+            continue
+        claimed_vertices.append(vertex)
+        angle = _angle_between_vectors(other_a, common, other_b)
+        element = DetectedElement(
+            id=f"el_{aid}",
+            type=GeometryType.ANGLE,
+            geometry={"vertex": list(common), "arms": [list(other_a), list(other_b)], "degrees": round(angle, 1)},
+            confidence=ANGLE_RELATIONSHIP_CONFIDENCE,
+            confidence_level=ConfidenceLevel.MEDIUM,
+            needs_review=True,
+            source="heuristic",
+            bbox=(common[0] - 5, common[1] - 5, 10, 10),
+            semantic_properties={"degrees": round(angle, 1)},
+            provenance=f"Heuristically detected angle of about {angle:.0f} degrees at {common} where segments {a.id} and {b.id} meet.",
+        )
+        aid += 1
+        angle_elements.append(element)
+        extra_relationships.append(ElementRelationship(
+            id=f"rel_{a.id}_{b.id}_angle",
+            type=RelationshipType.ANGLE_BETWEEN,
+            element_ids=[a.id, b.id],
+            confidence=ANGLE_RELATIONSHIP_CONFIDENCE,
+            confidence_level=ConfidenceLevel.MEDIUM,
+            needs_review=True,
+            explanation=f"Segments {a.id} and {b.id} form an angle of about {angle:.0f} degrees.",
+        ))
+        explanations.append(TransformationExplanation(
+            stage="diagram_analysis",
+            element_id=element.id,
+            message=f"Detected angle of ~{angle:.0f} degrees at {common}.",
+        ))
+    return angle_elements, explanations, extra_relationships
+
 
 
 def _associate_labels(elements: list[DetectedElement], relationships: list[ElementRelationship]) -> tuple[list[DetectedElement], list[TransformationExplanation]]:
