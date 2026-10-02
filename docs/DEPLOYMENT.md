@@ -99,6 +99,8 @@ host rewrite `/api/*` to the backend. On Vercel the second option is a
 { "rewrites": [{ "source": "/api/:path*", "destination": "https://tactilegeo-api.example.org/api/:path*" }] }
 ```
 
+Step-by-step Vercel + Render + Supabase instructions are in `docs/VERCEL.md`.
+
 `VITE_API_BASE_URL` is public (Vite inlines it into the bundle); it must only
 ever hold a URL, never a key.
 
