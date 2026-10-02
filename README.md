@@ -15,7 +15,7 @@ The tactile compiler constructs. QA verifies. SVG delivers.
   can change types, label attachment and confirmation on Model A elements, never
   coordinates, before the tactile output is regenerated.
 
-See `docs/DEPLOYMENT.md` for production deployment, `docs/FINAL_REPORT.md` for
+See `docs/VERCEL.md` for hosting on Vercel + Render + Supabase, `docs/DEPLOYMENT.md` for production deployment, `docs/FINAL_REPORT.md` for
 the architecture and measured results, and `AGENTS.md` for Model B configuration.
 
 ## Backend

@@ -1,0 +1,30 @@
+# Render Blueprint for the TactileGeo backend (FastAPI container).
+# The frontend is deployed separately on Vercel; see docs/VERCEL.md.
+services:
+  - type: web
+    name: tactilegeo-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # 2 CPU / 4 GB. Peak memory is ~4 GB on dense images (EasyOCR + OpenCV);
+    # 1c-2g runs out of memory on those.
+    plan: 2c-4g
+    branch: main
+    healthCheckPath: /api/health
+    envVars:
+      - key: CORS_ORIGINS
+        sync: false # Your Vercel production URL, e.g. https://tactilegeo.vercel.app
+      - key: DATABASE_URL
+        sync: false # Supabase session pooler connection string (port 5432)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: WEB_CONCURRENCY
+        value: "1"
+      - key: MODEL_B_ENABLED
+        value: "false" # Set to true and add OPENROUTER_API_KEY to enable Model B
+      - key: OPENROUTER_MODEL
+        value: dots-studio/dots-3-note-preview:free
+      - key: MODEL_B_TIMEOUT_S
+        value: "150"
