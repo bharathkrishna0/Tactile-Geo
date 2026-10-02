@@ -186,3 +186,48 @@ def normalize_segments(
     angles and the semantic graph explodes.
     """
     return merge_collinear(deduplicate_segments(segments), angle_tolerance_deg, distance_tolerance_px)
+
+
+# --- rectangle distances ----------------------------------------------------
+# Braille is embossed as a rectangular cell block, so clearance is measured from
+# that block rather than from the label's centre point.
+Rect = tuple[float, float, float, float]  # (x_min, y_min, x_max, y_max)
+
+
+def rect_around(centre: Point, width: float, height: float) -> Rect:
+    return (centre[0] - width / 2, centre[1] - height / 2, centre[0] + width / 2, centre[1] + height / 2)
+
+
+def point_to_rect_distance(point: Point, rect: Rect) -> float:
+    dx = max(rect[0] - point[0], 0.0, point[0] - rect[2])
+    dy = max(rect[1] - point[1], 0.0, point[1] - rect[3])
+    return math.hypot(dx, dy)
+
+
+def _segments_intersect(a0: Point, a1: Point, b0: Point, b1: Point) -> bool:
+    def orient(p: Point, q: Point, r: Point) -> float:
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    d1, d2 = orient(b0, b1, a0), orient(b0, b1, a1)
+    d3, d4 = orient(a0, a1, b0), orient(a0, a1, b1)
+    return (d1 * d2 < 0) and (d3 * d4 < 0)
+
+
+def segment_to_rect_distance(start: Point, end: Point, rect: Rect) -> float:
+    if point_to_rect_distance(start, rect) == 0 or point_to_rect_distance(end, rect) == 0:
+        return 0.0
+    corners = [(rect[0], rect[1]), (rect[2], rect[1]), (rect[2], rect[3]), (rect[0], rect[3])]
+    edges = list(zip(corners, corners[1:] + corners[:1]))
+    if any(_segments_intersect(start, end, c0, c1) for c0, c1 in edges):
+        return 0.0
+    return min(
+        point_to_rect_distance(start, rect),
+        point_to_rect_distance(end, rect),
+        *(point_to_segment_distance(corner, start, end) for corner in corners),
+    )
+
+
+def rect_gap(a: Rect, b: Rect) -> float:
+    dx = max(b[0] - a[2], 0.0, a[0] - b[2])
+    dy = max(b[1] - a[3], 0.0, a[1] - b[3])
+    return math.hypot(dx, dy)

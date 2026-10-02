@@ -20,7 +20,9 @@ describe('BLOCKING_QA_CHECKS', () => {
   it('is exactly the checks agreed with the backend policy', () => {
     expect([...BLOCKING_QA_CHECKS].sort()).toEqual([
       'braille_on_line',
+      'density_reduction_requires_review',
       'element_outside_printable_area',
+      'exceeds_tactile_density',
       'feature_below_minimum_size',
       'no_tactile_geometry',
       'stroke_width_out_of_bounds',

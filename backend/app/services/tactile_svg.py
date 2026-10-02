@@ -160,6 +160,15 @@ def _right_angle_symbol(geo: dict, side: float) -> str | None:
     return " ".join(f"{x:.1f},{y:.1f}" for x, y in (p1, corner, p2))
 
 
+def is_embossed_geometry(element: DetectedElement) -> bool:
+    """True for elements the compiler embosses as a tactile line, shape or dot."""
+    if element.type is GeometryType.TEXT_LABEL:
+        return False
+    if element.type is GeometryType.ANGLE:
+        return bool(element.geometry.get("right_angle_marker"))
+    return element.type is not GeometryType.ARC
+
+
 def render_tactile_svg(elements: list[DetectedElement], width: int, height: int) -> str:
     layout = page_layout(width, height)
     stroke = TACTILE_RULES.stroke_width_pt

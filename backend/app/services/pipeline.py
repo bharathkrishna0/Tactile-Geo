@@ -13,7 +13,7 @@ from app.services.braille_layout import place_braille_markers
 from app.services.image_quality import QualityReport, assess_image_quality
 from app.services.image_enhancement import enhance_copy, ink_contrast_copy
 from app.services.diagram_analysis import analyze_diagram
-from app.services.tactile_simplification import SimplifiedGeometry, simplify_geometry
+from app.services.tactile_simplification import SimplifiedGeometry, density_removed_count, simplify_geometry
 from app.services.tactile_qa import QAReport, run_tactile_qa
 from app.services.tactile_svg import render_tactile_svg
 
@@ -61,7 +61,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     svg = shapes_to_svg(shapes, width, height)
     semantic = analyze_diagram(shapes, width, height, placed_labels, right_angles=right_angles)
     simplified = simplify_geometry(semantic)
-    qa_report = run_tactile_qa(simplified.elements, width, height)
+    qa_report = run_tactile_qa(simplified.elements, width, height, density_removed=density_removed_count(simplified))
     tactile_svg = render_tactile_svg(simplified.elements, width, height)
     return PipelineResult(
         preview_svg=svg,

@@ -12,7 +12,9 @@ from app.services.segment_geometry import (
     segments_overlap_or_touch as sg_segments_overlap_or_touch,
     spanning_endpoints as sg_spanning_endpoints,
 )
+from app.services.tactile_qa import element_extent
 from app.services.tactile_rules import TACTILE_RULES
+from app.services.tactile_svg import is_embossed_geometry, page_layout
 
 NOISE_CONFIDENCE_THRESHOLD = 0.3
 TEXT_LABEL_ALWAYS_KEEP = True
@@ -82,6 +84,15 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     actions.extend(simplify_actions)
     explanations.extend(simplify_explanations)
 
+    # Pass 4: fit the sheet to what can be explored by touch on one A4 page.
+    kept, budget_actions, budget_explanations, budget_removed = _fit_tactile_budget(
+        kept, semantic.image_width, semantic.image_height,
+    )
+    actions.extend(budget_actions)
+    explanations.extend(budget_explanations)
+    removed_ids |= budget_removed
+    removed_count += len(budget_removed)
+
     kept_ids = {element.id for element in kept}
     kept_relationships = [
         rel for rel in semantic.relationships
@@ -113,6 +124,72 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
         merged_count=merged_count,
         explanations=explanations,
     )
+
+
+def density_removed_count(simplified: SimplifiedGeometry) -> int:
+    return sum(1 for action in simplified.actions if action.action == "removed_density_budget")
+
+
+def is_protected(element: DetectedElement) -> bool:
+    """Elements simplification must never drop to meet the tactile budget.
+
+    Labelled features carry meaning, a drawn right-angle marker is a deliberate
+    symbol, and a feature the teacher accepted is the teacher's decision.
+    """
+    if element.associated_label_id:
+        return True
+    if element.geometry.get("right_angle_marker"):
+        return True
+    return element.source == "teacher_override" and element.confidence >= TACTILE_RULES.high_confidence_threshold
+
+
+def _budget_priority(element: DetectedElement, mm_per_px: float) -> tuple[int, float, float]:
+    # Lowest first: unlabelled junction dots, then low-confidence, then small features.
+    return (0 if element.type is GeometryType.POINT else 1, element.confidence, element_extent(element) * mm_per_px)
+
+
+def _fit_tactile_budget(
+    elements: list[DetectedElement], image_width: int, image_height: int,
+) -> tuple[list[DetectedElement], list[SimplificationAction], list[str], set[str]]:
+    if image_width <= 0 or image_height <= 0:
+        return elements, [], [], set()
+    mm_per_px = page_layout(image_width, image_height).mm_per_px
+    minimum_mm = TACTILE_RULES.minimum_feature_size_mm
+    actions: list[SimplificationAction] = []
+    explanations: list[str] = []
+    removed: set[str] = set()
+
+    for element in elements:
+        if not is_embossed_geometry(element) or is_protected(element):
+            continue
+        extent_mm = element_extent(element) * mm_per_px
+        if 0 < extent_mm < minimum_mm:
+            removed.add(element.id)
+            actions.append(SimplificationAction(
+                element_id=element.id,
+                action="removed_below_tactile_size",
+                detail=f"Unlabelled feature is {extent_mm:.1f}mm on the printed sheet, below the {minimum_mm:g}mm touch minimum.",
+            ))
+            explanations.append(f"Removed {element.id}: {extent_mm:.1f}mm is too small to feel.")
+
+    target = TACTILE_RULES.tactile_feature_target
+    embossed = [e for e in elements if is_embossed_geometry(e) and e.id not in removed]
+    excess = len(embossed) - target
+    if excess > 0:
+        candidates = sorted((e for e in embossed if not is_protected(e)), key=lambda e: _budget_priority(e, mm_per_px))
+        for element in candidates[:excess]:
+            removed.add(element.id)
+            actions.append(SimplificationAction(
+                element_id=element.id,
+                action="removed_density_budget",
+                detail=(
+                    f"Lowest-priority unlabelled feature removed so the sheet stays within {target} embossed "
+                    "features; accept it in the editor to keep it."
+                ),
+            ))
+            explanations.append(f"Removed {element.id} to keep the sheet within the {target}-feature tactile budget.")
+
+    return [e for e in elements if e.id not in removed], actions, explanations, removed
 
 
 def _merge_collinear_segments(elements: list[DetectedElement]) -> tuple[list[DetectedElement], list[SimplificationAction], list[str], int, set[str]]:

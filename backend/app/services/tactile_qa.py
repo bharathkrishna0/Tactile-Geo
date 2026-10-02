@@ -6,7 +6,8 @@ from dataclasses import dataclass, field
 from app.models.geometry import DetectedElement, GeometryType
 from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
-from app.services.tactile_svg import braille_text_extent
+from app.services.segment_geometry import Rect, rect_around, rect_gap, segment_to_rect_distance
+from app.services.tactile_svg import braille_text_extent, is_embossed_geometry, page_layout
 
 
 @dataclass
@@ -26,15 +27,19 @@ class QAReport:
     score_0_100: int = 0
 
 
-MIN_FEATURE_SPACING = TACTILE_RULES.minimum_feature_spacing_px
+# Spatial thresholds are physical millimetres on the printed A4 sheet; image
+# distances are converted with the compiler's page layout before comparison.
+MIN_FEATURE_SPACING = TACTILE_RULES.minimum_feature_spacing_mm
 STROKE_WIDTH_MIN = TACTILE_RULES.stroke_width_min_pt
 STROKE_WIDTH_MAX = TACTILE_RULES.stroke_width_max_pt
-SMALL_ELEMENT_THRESHOLD = TACTILE_RULES.tiny_feature_px
-COMPLEXITY_THRESHOLD = TACTILE_RULES.complexity_threshold
+SMALL_ELEMENT_THRESHOLD = TACTILE_RULES.minimum_feature_size_mm
+OVERLAP_TOLERANCE = TACTILE_RULES.overlap_tolerance_mm
 PRINTABLE_MARGIN_FRACTION = TACTILE_RULES.printable_margin_fraction
-BRAILLE_CLEARANCE = TACTILE_RULES.braille_to_line_clearance_px
-BRAILLE_SPACING = TACTILE_RULES.braille_to_braille_spacing_px
-MAX_LABEL_ISOLATION_DISTANCE = 120.0
+BRAILLE_CLEARANCE = TACTILE_RULES.braille_to_line_clearance_mm
+BRAILLE_SPACING = TACTILE_RULES.braille_to_braille_spacing_mm
+MAX_LABEL_ISOLATION_DISTANCE = TACTILE_RULES.label_isolation_mm
+TACTILE_FEATURE_TARGET = TACTILE_RULES.tactile_feature_target
+TACTILE_FEATURE_LIMIT = TACTILE_RULES.tactile_feature_limit
 MIN_GEOMETRY_ELEMENTS = 2
 DUPLICATE_COINCIDENCE_TOLERANCE = 6.0
 
@@ -42,8 +47,9 @@ DUPLICATE_COINCIDENCE_TOLERANCE = 6.0
 # These checks describe tactile output a blind user physically cannot read:
 # a stroke embossed outside the BANA band, braille sitting on top of a line, a
 # feature running off the printable area, a feature too small to resolve by
-# touch, and a sheet with no tactile geometry on it at all. They are blocking, so they alone decide whether print-ready export is
-# allowed. Every other check stays advisory (warning/info) and is surfaced to the
+# touch, a sheet with no tactile geometry on it at all, and a sheet with more
+# embossed features than can be explored by touch. They are blocking, so they
+# alone decide whether print-ready export is allowed. Every other check stays advisory (warning/info) and is surfaced to the
 # teacher without gating export.
 BLOCKING_CHECKS = frozenset({
     "stroke_width_out_of_bounds",
@@ -51,6 +57,8 @@ BLOCKING_CHECKS = frozenset({
     "element_outside_printable_area",
     "feature_below_minimum_size",
     "no_tactile_geometry",
+    "exceeds_tactile_density",
+    "density_reduction_requires_review",
 })
 DEFAULT_SEVERITY = "warning"
 
@@ -134,7 +142,8 @@ class _IssueCollector:
         return collected
 
 
-def _element_extent(element: DetectedElement) -> float:
+def element_extent(element: DetectedElement) -> float:
+    """Largest image-space extent of ``element``."""
     geo = element.geometry
     if "radius" in geo and geo["radius"]:
         return float(geo["radius"]) * 2
@@ -211,8 +220,8 @@ def _coincident_elements(a: DetectedElement, b: DetectedElement) -> bool:
     if not pa or not pb:
         return False
     # Both extents must be comparable size.
-    extent_a = _element_extent(a)
-    extent_b = _element_extent(b)
+    extent_a = element_extent(a)
+    extent_b = element_extent(b)
     if extent_a == 0 or extent_b == 0:
         return False
     if abs(extent_a - extent_b) / max(extent_a, extent_b) > 0.5:
@@ -226,14 +235,85 @@ def _coincident_elements(a: DetectedElement, b: DetectedElement) -> bool:
     return near_fraction >= 0.8
 
 
-def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_height: int) -> QAReport:
+def outline_segments(element: DetectedElement) -> list[tuple[tuple[float, float], tuple[float, float]]]:
+    """The embossed outline of ``element`` as line segments (a dot is a zero-length segment)."""
+    geo = element.geometry
+    if element.type in (GeometryType.LINE_SEGMENT, GeometryType.RAY, GeometryType.AXES, GeometryType.ARROW):
+        points = _element_points(element)
+        return [(points[0], points[-1])] if len(points) >= 2 else []
+    if element.type in (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON,
+                        GeometryType.CIRCLE, GeometryType.ELLIPSE):
+        points = [(float(p[0]), float(p[1])) for p in outline_points(element)]
+        return list(zip(points, points[1:] + points[:1])) if len(points) >= 2 else []
+    if element.type is GeometryType.ANGLE and geo.get("vertex") and geo.get("arms"):
+        vertex = (float(geo["vertex"][0]), float(geo["vertex"][1]))
+        return [(vertex, (float(arm[0]), float(arm[1]))) for arm in geo["arms"]]
+    if element.type is GeometryType.POINT and geo.get("position"):
+        position = (float(geo["position"][0]), float(geo["position"][1]))
+        return [(position, position)]
+    return []
+
+
+def braille_rect(label: DetectedElement, image_width: int, image_height: int) -> Rect | None:
+    """Image-space box covered by the embossed braille cells of ``label``."""
+    position = label.geometry.get("position")
+    braille = str(label.geometry.get("braille") or label.geometry.get("text") or "")
+    if not position or not braille:
+        return None
+    width, height = braille_text_extent(braille, image_width, image_height)
+    return rect_around((float(position[0]), float(position[1])), width, height)
+
+
+def braille_clearance_mm(rect: Rect, element: DetectedElement, mm_per_px: float) -> float:
+    segments = outline_segments(element)
+    if not segments:
+        return float("inf")
+    return min(segment_to_rect_distance(a, b, rect) for a, b in segments) * mm_per_px
+
+
+def run_tactile_qa(
+    elements: list[DetectedElement],
+    image_width: int,
+    image_height: int,
+    density_removed: int = 0,
+) -> QAReport:
+    """``density_removed`` is how many features simplification dropped to meet the tactile budget."""
     collector = _IssueCollector()
     checks = 0
+    mm_per_px = page_layout(image_width, image_height).mm_per_px
+    embossed = [e for e in elements if is_embossed_geometry(e)]
+    labels = [e for e in elements if e.type is GeometryType.TEXT_LABEL]
 
-    if len(elements) > COMPLEXITY_THRESHOLD:
+    # Dropping more features than remain means the sheet no longer represents
+    # the source diagram; the teacher must crop, split, or edit it first.
+    if density_removed > len(embossed):
+        collector.add(
+            "density_reduction_requires_review",
+            (
+                f"{density_removed} of {density_removed + len(embossed)} features were dropped to fit one tactile "
+                "page, so the sheet may no longer represent the diagram. Crop or split the image, or delete "
+                "features in the editor, before exporting."
+            ),
+        )
+    elif density_removed:
+        collector.add(
+            "density_reduced",
+            f"{density_removed} low-priority feature(s) were dropped to keep the sheet readable by touch; review them in the editor.",
+        )
+    checks += 1
+
+    if len(embossed) > TACTILE_FEATURE_LIMIT:
+        collector.add(
+            "exceeds_tactile_density",
+            (
+                f"The sheet has {len(embossed)} embossed features; more than {TACTILE_FEATURE_LIMIT} on one "
+                "A4 page cannot be explored reliably by touch. Simplify or split the diagram."
+            ),
+        )
+    elif len(embossed) > TACTILE_FEATURE_TARGET:
         collector.add(
             "complexity",
-            f"Diagram contains {len(elements)} elements, which may be complex to feel by touch.",
+            f"Diagram contains {len(embossed)} embossed features, which may be complex to feel by touch.",
         )
     checks += 1
 
@@ -250,12 +330,15 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
         )
     checks += 1
 
-    for element in elements:
-        extent = _element_extent(element)
-        if extent and 0 < extent < SMALL_ELEMENT_THRESHOLD:
+    for element in embossed:
+        extent_mm = element_extent(element) * mm_per_px
+        if extent_mm and 0 < extent_mm < SMALL_ELEMENT_THRESHOLD:
             collector.add(
                 "feature_below_minimum_size",
-                f"Element {element.id} is very small (about {extent:.0f}px) and cannot be felt reliably.",
+                (
+                    f"Element {element.id} is about {extent_mm:.1f}mm on the printed sheet, below the "
+                    f"{SMALL_ELEMENT_THRESHOLD:g}mm that can be felt reliably."
+                ),
                 element_id=element.id,
             )
         checks += 1
@@ -276,16 +359,13 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
 
     # The rendered braille string must sit wholly on the page; the OCR bbox above
     # describes the printed source text, not the braille that replaces it.
-    for element in elements:
-        if element.type is not GeometryType.TEXT_LABEL:
+    rects: dict[str, Rect] = {}
+    for element in labels:
+        rect = braille_rect(element, image_width, image_height)
+        if rect is None:
             continue
-        position = element.geometry.get("position")
-        braille = str(element.geometry.get("braille") or element.geometry.get("text") or "")
-        if not position or not braille:
-            continue
-        width, height = braille_text_extent(braille, image_width, image_height)
-        x, y = float(position[0]), float(position[1])
-        if x - width / 2 < 0 or y - height / 2 < 0 or x + width / 2 > image_width or y + height / 2 > image_height:
+        rects[element.id] = rect
+        if rect[0] < 0 or rect[1] < 0 or rect[2] > image_width or rect[3] > image_height:
             collector.add(
                 "element_outside_printable_area",
                 f"Braille for label {element.id} runs off the page and would be clipped when printed.",
@@ -293,48 +373,56 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
             )
         checks += 1
 
-    # Spacing, overlap, and braille collision checks.
-    for index, a in enumerate(elements):
-        for b in elements[index + 1:]:
-            if a.type is GeometryType.TEXT_LABEL and b.type is GeometryType.TEXT_LABEL:
-                distance = _distance_between_elements(a, b)
-                if 0 < distance < BRAILLE_SPACING:
-                    collector.add(
-                        "braille_collision",
-                        f"Braille markers {a.id} and {b.id} are closer than {BRAILLE_SPACING}px and may collide.",
-                    )
-                checks += 1
+    # Braille blocks need blank space around them, measured from the cell block.
+    for index, a in enumerate(labels):
+        if a.id not in rects:
+            continue
+        for b in labels[index + 1:]:
+            if b.id not in rects:
                 continue
+            gap_mm = rect_gap(rects[a.id], rects[b.id]) * mm_per_px
+            if gap_mm < BRAILLE_SPACING:
+                collector.add(
+                    "braille_collision",
+                    f"Braille markers {a.id} and {b.id} are {gap_mm:.1f}mm apart (minimum {BRAILLE_SPACING:g}mm) and may collide.",
+                )
+            checks += 1
+        for geometry in embossed:
+            clearance = braille_clearance_mm(rects[a.id], geometry, mm_per_px)
+            if clearance < BRAILLE_CLEARANCE:
+                collector.add(
+                    "braille_on_line",
+                    (
+                        f"Braille for {a.id} is {clearance:.1f}mm from {geometry.id} (minimum {BRAILLE_CLEARANCE:g}mm), "
+                        "so the cells and the line would be indistinct by touch."
+                    ),
+                    element_id=a.id,
+                )
+            checks += 1
 
-            if a.type is GeometryType.TEXT_LABEL or b.type is GeometryType.TEXT_LABEL:
-                distance = _distance_between_elements(a, b)
-                if 0 < distance < BRAILLE_CLEARANCE:
-                    collector.add(
-                        "braille_on_line",
-                        f"Braille marker is closer than {BRAILLE_CLEARANCE}px to geometry, risking indistinct touch.",
-                        element_id=a.id if a.type is GeometryType.TEXT_LABEL else b.id,
-                    )
-                checks += 1
-                continue
-
-            distance = _distance_between_elements(a, b)
-            if distance <= TACTILE_RULES.overlap_tolerance_px:
+    for index, a in enumerate(embossed):
+        for b in embossed[index + 1:]:
+            distance_mm = _distance_between_elements(a, b) * mm_per_px
+            if distance_mm <= OVERLAP_TOLERANCE:
                 collector.add(
                     "overlap",
                     f"Elements {a.id} and {b.id} overlap, which may merge into unclear tactile shapes.",
                     element_id=a.id,
                 )
-            elif 0 < distance < MIN_FEATURE_SPACING:
+            elif distance_mm < MIN_FEATURE_SPACING:
                 collector.add(
                     "spacing",
-                    f"Elements {a.id} and {b.id} are closer than {MIN_FEATURE_SPACING}px, which may be hard to distinguish by touch.",
+                    (
+                        f"Elements {a.id} and {b.id} are {distance_mm:.1f}mm apart (minimum {MIN_FEATURE_SPACING:g}mm), "
+                        "which may be hard to distinguish by touch."
+                    ),
                     element_id=a.id,
                 )
             checks += 1
 
     # Unlabelled features are hard for a blind learner to interpret. One summary
     # issue keeps a plain worksheet from drowning real problems in per-shape noise.
-    unlabelled = [e.id for e in elements if e.type is not GeometryType.TEXT_LABEL and not e.associated_label_id]
+    unlabelled = [e.id for e in embossed if not e.associated_label_id]
     if unlabelled:
         collector.add(
             "isolated_element",
@@ -346,13 +434,11 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
 
     # High/low confidence conflict: a low-confidence feature near high-confidence
     # geometry may be noise and can confuse the diagram.
-    high_confidence = [e for e in elements if e.confidence >= TACTILE_RULES.high_confidence_threshold and e.type is not GeometryType.TEXT_LABEL]
-    for element in elements:
-        if element.type is GeometryType.TEXT_LABEL:
-            continue
+    high_confidence = [e for e in embossed if e.confidence >= TACTILE_RULES.high_confidence_threshold]
+    for element in embossed:
         if element.confidence < 0.5:
             for strong in high_confidence:
-                if _distance_between_elements(element, strong) < MIN_FEATURE_SPACING * 2:
+                if _distance_between_elements(element, strong) * mm_per_px < MIN_FEATURE_SPACING * 2:
                     collector.add(
                         "confidence_conflict",
                         f"Low-confidence element {element.id} sits near high-confidence geometry and may be noise.",
@@ -363,32 +449,27 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
 
     # Duplicate / near-coincident geometry: two features that represent the
     # same shape overlap almost entirely, risking a double-struck tactile line.
-    geometry_pairs = [(a, b) for i, a in enumerate(elements) if a.type is not GeometryType.TEXT_LABEL
-                      for b in elements[i + 1:] if b.type is not GeometryType.TEXT_LABEL]
-    for a, b in geometry_pairs:
-        if _coincident_elements(a, b):
-            collector.add(
-                "duplicate_geometry",
-                f"Elements {a.id} and {b.id} are nearly coincident and may represent the same feature.",
-                element_id=a.id,
-            )
-            checks += 1
+    for index, a in enumerate(embossed):
+        for b in embossed[index + 1:]:
+            if _coincident_elements(a, b):
+                collector.add(
+                    "duplicate_geometry",
+                    f"Elements {a.id} and {b.id} are nearly coincident and may represent the same feature.",
+                    element_id=a.id,
+                )
+                checks += 1
 
     # Dangling label: a text label whose geometry has no association and is
     # far from all geometry, so it may be stray OCR noise or an unplaced label.
-    geometry_non_label = [e for e in elements if e.type is not GeometryType.TEXT_LABEL]
-    for element in elements:
-        if element.type is not GeometryType.TEXT_LABEL:
-            continue
+    for element in labels:
         if element.associated_label_id:
             continue
         geo_position = element.geometry.get("position")
         if not geo_position:
             continue
         position = (float(geo_position[0]), float(geo_position[1]))
-        nearest = min((_min_point_distance(position, other) for other in geometry_non_label),
-                      default=float("inf"))
-        if nearest > MAX_LABEL_ISOLATION_DISTANCE:
+        nearest = min((_min_point_distance(position, other) for other in embossed), default=float("inf"))
+        if nearest * mm_per_px > MAX_LABEL_ISOLATION_DISTANCE:
             collector.add(
                 "dangling_label",
                 f"Label {element.id} is not associated with geometry and sits far from all shapes; verify it is intended.",
@@ -396,7 +477,7 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
             )
             checks += 1
 
-    if not geometry_non_label:
+    if not embossed:
         collector.add(
             "no_tactile_geometry",
             "No shapes or lines were found, so there is nothing to feel on the printed sheet. "
@@ -404,7 +485,7 @@ def run_tactile_qa(elements: list[DetectedElement], image_width: int, image_heig
         )
         checks += 1
     # Sparse diagram: so little geometry that the image may not be a diagram.
-    elif len(geometry_non_label) < MIN_GEOMETRY_ELEMENTS:
+    elif len(embossed) < MIN_GEOMETRY_ELEMENTS:
         collector.add(
             "sparse_diagram",
             "Very few geometry features were detected; confirm the image is a geometry worksheet.",

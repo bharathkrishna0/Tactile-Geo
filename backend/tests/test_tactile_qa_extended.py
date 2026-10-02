@@ -95,7 +95,8 @@ def test_qa_no_sparse_warning_with_multiple_shapes():
 def test_qa_new_checks_do_not_break_existing():
     triangle = _triangle_element("el_0", [(50, 50), (150, 50), (100, 150)])
     line = _line_element("el_1", (200, 100), (250, 100))
-    label = _label_element("el_2", (230, 95), associated="el_1")
+    # Braille cells clear of the line by more than the physical clearance.
+    label = _label_element("el_2", (225, 80), associated="el_1")
     report = run_tactile_qa([triangle, line, label], 400, 400)
     assert 0 <= report.score_0_100 <= 100
     assert report.passes is True
