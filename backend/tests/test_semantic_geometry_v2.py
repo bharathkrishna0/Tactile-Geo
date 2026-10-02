@@ -132,6 +132,23 @@ class TestBuild:
         assert "Braille label" in outcome.detail
         assert snapshot(v2.semantic) == snapshot(model_a)
 
+    def test_a_repeated_model_b_id_is_never_applied(self) -> None:
+        """One decision cannot say which of two same-id findings the teacher meant."""
+        model_a = make_model_a()
+        result = make_model_b(
+            doc_with(
+                [
+                    entity_with_id("e1", "polygon", TRIANGLE_BBOX),
+                    entity_with_id("e1", "ellipse", ELLIPSE_BBOX),
+                ]
+            )
+        )
+        v2 = build_semantic_geometry_v2(model_a, result, {"b_e1": "accept"}, "job")
+        (outcome,) = v2.outcomes
+        assert not outcome.applied and outcome.model_a_id is None
+        assert "more than one finding" in outcome.detail
+        assert snapshot(v2.semantic) == snapshot(model_a)
+
     def test_applying_twice_is_idempotent(self) -> None:
         model_a = make_model_a()
         result = make_model_b(doc_with([entity_with_id("e1", "polygon", TRIANGLE_BBOX)]))

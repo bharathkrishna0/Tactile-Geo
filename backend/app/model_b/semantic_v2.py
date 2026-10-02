@@ -35,6 +35,7 @@ Three kinds of change exist:
 from __future__ import annotations
 
 import copy
+from collections import Counter
 from dataclasses import dataclass, field
 
 from ..models.geometry import ConfidenceLevel, DetectedElement, GeometryType, SemanticGeometry, TransformationExplanation
@@ -93,10 +94,19 @@ def build_semantic_geometry_v2(
     report = reconcile(v2, result)
     entities = {entity.id: entity for entity in result.entities}
     reviews = {review.model_b_id: review for review in report.entity_reviews}
+    id_counts = Counter(entity.id for entity in result.entities)
+    repeated = {model_b_id for model_b_id, count in id_counts.items() if count > 1}
     outcomes: list[FindingOutcome] = []
 
     for model_b_id, decision in sorted(decisions.items()):
         if decision != "accept":
+            continue
+        if model_b_id in repeated:
+            outcomes.append(FindingOutcome(
+                model_b_id, False, None, None,
+                f"Model B reported more than one finding as {model_b_id}, so this decision "
+                "cannot be tied to one region. Correct it in the geometry view.",
+            ))
             continue
         review = reviews.get(model_b_id)
         entity = entities.get(model_b_id)

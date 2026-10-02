@@ -432,6 +432,28 @@ class TestMatching:
         assert sorted(h.model_a_id for h in report.agreements) == ["m1", "m2"]
         assert not [d for d in report.disagreements if d.kind == "model_a_only"]
 
+    def test_a_closer_fit_wins_even_when_overlaps_differ_by_under_a_millionth(self) -> None:
+        """The solver must rank overlaps exactly as the report shows them."""
+        model_a = make_model_a()
+        model_a.elements[0].bbox = (100, 100, 600, 500)
+        model_a.elements[1].bbox = (940, 740, 40, 40)
+        report = reconcile(
+            model_a,
+            make_model_b(
+                doc_with(
+                    [
+                        entity_with_id("e1", "triangle", (193, 1, 680, 691)),
+                        entity_with_id("e2", "triangle", (287, 43, 320, 581)),
+                    ]
+                )
+            ),
+        )
+
+        (agreement,) = report.agreements
+        assert (agreement.model_b_id, agreement.model_a_id) == ("b_e2", "m1")
+        assert round(agreement.iou, 6) == 0.490918
+        assert [a.model_b_id for a in report.candidate_additions] == ["b_e1"]
+
     def test_assignment_matches_brute_force(self) -> None:
         rng = random.Random(7)
         for _ in range(200):

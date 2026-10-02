@@ -274,6 +274,11 @@ def reconcile(
     return report
 
 
+# Every float IoU >= 2**-4 is an exact integer multiple of 2**-56, so scaling by
+# 2**56 keeps the solver's IoU ordering identical to the reported values.
+_IOU_SCALE = 2**56
+
+
 def _pair_entities(
     entities: list[SuggestedEntity], elements: list[DetectedElement]
 ) -> dict[int, tuple[DetectedElement, float]]:
@@ -300,11 +305,11 @@ def _pair_entities(
 
     size = max(len(entities), len(elements))
     iou_unit = 2 * size + 1
-    match_unit = (1_000_000 * iou_unit + 1) * size + 1
+    match_unit = (_IOU_SCALE * iou_unit + 1) * size + 1
     weights = [[0] * size for _ in range(size)]
     for (entity_index, element_index), (overlap, same_type) in overlaps.items():
         weights[entity_index][element_index] = (
-            match_unit + round(overlap * 1_000_000) * iou_unit + int(same_type)
+            match_unit + int(overlap * _IOU_SCALE) * iou_unit + int(same_type)
         )
 
     pairs: dict[int, tuple[DetectedElement, float]] = {}
