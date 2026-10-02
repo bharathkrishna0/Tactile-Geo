@@ -133,6 +133,12 @@ def _apply(semantic: SemanticGeometry, element: DetectedElement, entity: Suggest
         target = entity.geometry_type
         if target is None:
             return FindingOutcome(entity.id, False, None, element.id, f"Model B's '{entity.kind}' has no Model A equivalent.")
+        if GeometryType.TEXT_LABEL in (element.type, target):
+            return FindingOutcome(
+                entity.id, False, None, element.id,
+                f"{element.id} would switch between a Braille label and a raised shape, "
+                "which would drop or invent a label; correct it in the geometry view.",
+            )
         if not geometry_supports(target, element.geometry):
             return FindingOutcome(
                 entity.id, False, None, element.id,
