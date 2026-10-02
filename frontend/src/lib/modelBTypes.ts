@@ -12,6 +12,8 @@
  *   so treating it as a probability would overstate what is known.
  */
 
+import type { AnalysisResult } from '../types'
+
 export type ConfidenceLevel = 'high' | 'medium' | 'low'
 
 export type ModelBJobStatusValue = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled'
@@ -213,7 +215,7 @@ export interface ModelBEntityReview {
 
 export type ModelBDecisionValue = 'accept' | 'reject' | 'defer'
 
-/** A teacher's recorded decision. Recording never changes Model A geometry. */
+/** A teacher's recorded decision. Recording alone never changes the session. */
 export interface ModelBDecision {
   job_id: string
   model_b_id: string
@@ -257,4 +259,23 @@ export interface ModelBFusionReport {
     subject_ids: string[]
   }>
   advisory_only: true
+}
+
+/** What happened to one accepted finding when Semantic Geometry v2 was built. */
+export interface ModelBApplyOutcome {
+  model_b_id: string
+  applied: boolean
+  change: 'set_type' | 'attach_label' | 'confirm' | null
+  model_a_id: string | null
+  detail: string
+}
+
+/**
+ * The session regenerated from Model A geometry plus accepted findings.
+ * Coordinates are always Model A's; QA and the tactile SVG are rebuilt.
+ */
+export interface ModelBApplyResult {
+  session: AnalysisResult
+  outcomes: ModelBApplyOutcome[]
+  reverted: string[]
 }

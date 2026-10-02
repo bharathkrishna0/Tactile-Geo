@@ -18,6 +18,10 @@ Four invariants, each enforced by a test in `test_model_b_fusion.py`:
     I2  The QA report is byte-identical after fusion.
     I3  No Model A element id is removed or renamed.
     I4  Every suggested addition requires explicit teacher approval.
+
+Teacher-accepted findings reach the tactile output only through
+`semantic_v2.build_semantic_geometry_v2`, which works on a copy and never
+changes coordinates.
 """
 
 from __future__ import annotations

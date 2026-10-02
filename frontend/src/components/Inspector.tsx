@@ -145,7 +145,7 @@ export default function Inspector({ element, elements, relationships, onEdit, bu
         <section className="properties">
           <h4>Properties</h4>
           <dl>
-            {Object.entries(element.semantic_properties).map(([property, value]) => (
+            {Object.entries(element.semantic_properties).filter(([, value]) => value === null || typeof value !== 'object' || Array.isArray(value)).map(([property, value]) => (
               <div key={property}><dt>{property.replace(/_/g, ' ')}</dt><dd>{String(value)}</dd></div>
             ))}
           </dl>

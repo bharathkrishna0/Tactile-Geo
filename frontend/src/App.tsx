@@ -9,6 +9,7 @@ import TactileOutputView from './components/TactileOutputView'
 import ViewTabs from './components/ViewTabs'
 import { exportBlockReason } from './lib/exportGate'
 import {
+  applyModelBFindings,
   cancelModelBJob,
   fetchModelBAvailability,
   fetchModelBJob,
@@ -31,6 +32,7 @@ const modelBApi = {
   cancel: cancelModelBJob,
   fusion: fetchModelBFusion,
   decide: recordModelBDecision,
+  apply: applyModelBFindings,
 }
 
 function readinessScore(result: AnalysisResult | null): number {
@@ -246,6 +248,11 @@ export default function App() {
             availability={modelBAvailability}
             modelAReady={Boolean(analysis.session_id)}
             api={modelBApi}
+            onApplied={next => {
+              setAnalysis(next)
+              setSelectedId(current => (next.semantic_geometry?.elements.some(el => el.id === current) ? current : defaultSelection(next)))
+              setStatus('Accepted findings applied. Tactile output and QA updated.')
+            }}
           />
         </div>
       )}

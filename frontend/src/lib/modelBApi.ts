@@ -1,4 +1,5 @@
 import type {
+  ModelBApplyResult,
   ModelBAvailability,
   ModelBDecision,
   ModelBDecisionValue,
@@ -81,4 +82,11 @@ export async function recordModelBDecision(
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not record the decision.')
   return payload as unknown as ModelBDecision
+}
+
+export async function applyModelBFindings(sessionId: string, jobId: string): Promise<ModelBApplyResult> {
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b/${jobId}/apply`, { method: 'POST' })
+  const payload = await readJson(response)
+  if (!response.ok) throw errorFrom(payload, 'Could not apply the accepted findings.')
+  return payload as unknown as ModelBApplyResult
 }

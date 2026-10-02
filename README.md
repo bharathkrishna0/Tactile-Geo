@@ -9,8 +9,11 @@ The tactile compiler constructs. QA verifies. SVG delivers.
 
 - **Model A** (deterministic OpenCV + OCR + Liblouis) is the geometry authority
   and produces the final SVG. It needs no credentials and no network.
-- **Model B** (optional vision-language model via OpenRouter) is advisory only;
-  fusion reports where it agrees, disagrees, or adds candidates for teacher review.
+- **Model B** (optional vision-language model via OpenRouter) interprets; fusion
+  reports where it agrees, disagrees, or adds candidates for teacher review.
+  Findings the teacher accepts and applies build *Semantic Geometry v2*, which
+  can change types, label attachment and confirmation on Model A elements, never
+  coordinates, before the tactile output is regenerated.
 
 See `docs/DEPLOYMENT.md` for production deployment, `docs/FINAL_REPORT.md` for
 the architecture and measured results, and `AGENTS.md` for Model B configuration.

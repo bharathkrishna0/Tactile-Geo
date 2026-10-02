@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  applyModelBFindings,
   cancelModelBJob,
   fetchModelBJob,
   fetchModelBFusion,
@@ -15,7 +16,9 @@ import {
   nextDelayMs,
   retryAfterSeconds,
 } from '../lib/modelBPoll'
+import type { AnalysisResult } from '../types'
 import type {
+  ModelBApplyResult,
   ModelBAvailability,
   ModelBDecision,
   ModelBDecisionValue,
@@ -35,7 +38,10 @@ interface ModelBPanelProps {
     cancel: typeof cancelModelBJob
     fusion: typeof fetchModelBFusion
     decide: typeof recordModelBDecision
+    apply: typeof applyModelBFindings
   }
+  /** Receives the session regenerated from Semantic Geometry v2. */
+  onApplied?: (session: AnalysisResult) => void
 }
 
 /**
@@ -45,11 +51,12 @@ interface ModelBPanelProps {
  *
  * 1. It never auto-runs. Model B costs money and takes seconds, so the teacher
  *    asks for it. Nothing is requested on upload.
- * 2. It never writes to Model A. Every suggestion is displayed as a
- *    suggestion. The review queue records the teacher's accept / reject /
- *    defer decision in the audit history, but accepting applies nothing:
- *    applying it would mean fabricating geometry from a bounding box. The
- *    teacher makes the change in the geometry view, against Model A.
+ * 2. Nothing changes the tactile output until the teacher says so. The review
+ *    queue records accept / reject / defer; "Apply accepted findings" then
+ *    builds Semantic Geometry v2 on the server and regenerates simplification,
+ *    Braille, QA and the SVG. Coordinates always stay Model A's, so a finding
+ *    with no Model A geometry behind it is reported as not applied rather than
+ *    turned into a shape drawn from a bounding box.
  * 3. It is honest when it is off, busy, failed, or partial. A silent panel that
  *    shows nothing is indistinguishable from one that found nothing.
  */
@@ -58,6 +65,7 @@ export default function ModelBPanel({
   availability,
   modelAReady,
   api,
+  onApplied,
 }: ModelBPanelProps) {
   const [job, setJob] = useState<ModelBJob | null>(null)
   const [fusion, setFusion] = useState<ModelBFusionReport | null>(null)
@@ -185,7 +193,7 @@ export default function ModelBPanel({
       <p className="model-b-note">
         Optional second opinion that looks for relationships the geometry pipeline
         cannot detect, such as right-angle markers, tangencies, and handwriting.
-        It never changes the output above.
+        It changes the output above only for findings you accept and apply.
       </p>
 
       {!modelAReady && (
@@ -254,6 +262,11 @@ export default function ModelBPanel({
         <FusionSummary
           fusion={fusion}
           onDecide={(modelBId, decision) => api.decide(sessionId, job.job_id, modelBId, decision)}
+          onApply={async () => {
+            const applied = await api.apply(sessionId, job.job_id)
+            onApplied?.(applied.session)
+            return applied
+          }}
         />
       )}
     </section>
@@ -346,9 +359,11 @@ function ModelBAttribution({ result }: { result: NonNullable<ModelBJob['result']
 function FusionSummary({
   fusion,
   onDecide,
+  onApply,
 }: {
   fusion: ModelBFusionReport
   onDecide: (modelBId: string, decision: ModelBDecisionValue) => Promise<ModelBDecision>
+  onApply: () => Promise<ModelBApplyResult>
 }) {
   const { summary } = fusion
   return (
@@ -364,6 +379,7 @@ function FusionSummary({
         reviews={(fusion.entity_reviews ?? []).filter(review => review.requires_review)}
         initialDecisions={fusion.decisions ?? {}}
         onDecide={onDecide}
+        onApply={onApply}
       />
 
       {fusion.candidate_additions.length > 0 && (
@@ -396,8 +412,8 @@ function FusionSummary({
       )}
 
       <p className="model-b-note">
-        Nothing here has been applied. Model A remains the embossed output until you
-        correct it yourself in the geometry view.
+        Nothing here has been applied unless you accept it and choose Apply. Model A
+        stays the source of every coordinate in the embossed output.
       </p>
     </div>
   )
@@ -418,25 +434,43 @@ const CORRESPONDENCE_LABELS: Record<ModelBEntityReview['correspondence'], string
 /**
  * Findings a teacher should decide on, one at a time.
  *
- * Decisions are recorded in the session's audit history. They are a record of
- * judgement, not an edit: nothing here changes the embossed output.
+ * Decisions are recorded in the session's audit history. Applying is a separate,
+ * explicit step so a single click never silently changes the embossed output.
  */
 function ReviewQueue({
   reviews,
   initialDecisions,
   onDecide,
+  onApply,
 }: {
   reviews: ModelBEntityReview[]
   initialDecisions: Record<string, ModelBDecision>
   onDecide: (modelBId: string, decision: ModelBDecisionValue) => Promise<ModelBDecision>
+  onApply: () => Promise<ModelBApplyResult>
 }) {
   const [decisions, setDecisions] = useState<Record<string, ModelBDecisionValue>>(() =>
     Object.fromEntries(Object.entries(initialDecisions).map(([id, d]) => [id, d.decision])),
   )
   const [pending, setPending] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [applying, setApplying] = useState(false)
+  const [lastApply, setLastApply] = useState<ModelBApplyResult | null>(null)
 
   if (reviews.length === 0) return null
+
+  const apply = async () => {
+    setApplying(true)
+    setError('')
+    try {
+      setLastApply(await onApply())
+    } catch (applyError) {
+      setError(applyError instanceof Error ? applyError.message : 'Could not apply the accepted findings.')
+    } finally {
+      setApplying(false)
+    }
+  }
+
+  const hasAccepted = Object.values(decisions).includes('accept')
 
   const decide = async (modelBId: string, decision: ModelBDecisionValue) => {
     setPending(modelBId)
@@ -497,9 +531,43 @@ function ReviewQueue({
         </p>
       )}
       <p className="model-b-note">
-        Accepting records your judgement only. To change the embossed output, edit the element in
-        the geometry view.
+        Accepted findings change the tactile output only after you apply them, and only where Model
+        A detected the geometry: a type correction, a label Model A read but did not attach, or a
+        confirmation. Re-apply after changing a decision to withdraw it.
       </p>
+      {(hasAccepted || lastApply) && (
+        <button type="button" className="model-b-action" onClick={() => void apply()} disabled={applying || pending !== null}>
+          {applying ? 'Applying…' : 'Apply accepted findings to the tactile output'}
+        </button>
+      )}
+      {lastApply && <ApplySummary result={lastApply} />}
     </section>
+  )
+}
+
+function ApplySummary({ result }: { result: ModelBApplyResult }) {
+  const applied = result.outcomes.filter(outcome => outcome.applied)
+  const skipped = result.outcomes.filter(outcome => !outcome.applied)
+  return (
+    <div className="model-b-apply" role="status" aria-live="polite">
+      <p>
+        Semantic Geometry v2: {applied.length} finding{applied.length === 1 ? '' : 's'} applied
+        {result.reverted.length > 0 ? `, ${result.reverted.length} withdrawn` : ''}. The tactile
+        output and QA were regenerated.
+      </p>
+      {applied.length > 0 && (
+        <ul>
+          {applied.map(outcome => <li key={outcome.model_b_id}>{outcome.model_b_id}: {outcome.detail}</li>)}
+        </ul>
+      )}
+      {skipped.length > 0 && (
+        <>
+          <p>Not applied:</p>
+          <ul>
+            {skipped.map(outcome => <li key={outcome.model_b_id}>{outcome.model_b_id}: {outcome.detail}</li>)}
+          </ul>
+        </>
+      )}
+    </div>
   )
 }

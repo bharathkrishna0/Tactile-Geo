@@ -4,6 +4,7 @@ import { axe } from 'jest-axe'
 import { describe, expect, it, vi } from 'vitest'
 import ModelBPanel from '../components/ModelBPanel'
 import type {
+  ModelBApplyResult,
   ModelBAvailability,
   ModelBAnalysis,
   ModelBFusionReport,
@@ -123,6 +124,17 @@ function makeFusion(overrides: Partial<ModelBFusionReport> = {}): ModelBFusionRe
 
 type ModelBApi = React.ComponentProps<typeof ModelBPanel>['api']
 
+function makeApplyResult(): ModelBApplyResult {
+  return {
+    session: { session_id: 's1', tactile_svg: '<svg />', semantic_geometry: null } as unknown as ModelBApplyResult['session'],
+    outcomes: [
+      { model_b_id: 'b_e2', applied: true, change: 'set_type', model_a_id: 'el_3', detail: 'Element el_3 is now a circle, keeping Model A\'s coordinates.' },
+      { model_b_id: 'b_e1', applied: false, change: null, model_a_id: null, detail: 'Model A has no geometry here, so nothing can be embossed from this finding.' },
+    ],
+    reverted: [],
+  }
+}
+
 function makeApi(overrides: Partial<ModelBApi> = {}): ModelBApi {
   return {
     request: vi.fn().mockResolvedValue(makeJob()),
@@ -137,6 +149,7 @@ function makeApi(overrides: Partial<ModelBApi> = {}): ModelBApi {
       decided_at: '2026-01-01T00:00:00Z',
       applied_to_geometry: false,
     })),
+    apply: vi.fn().mockResolvedValue(makeApplyResult()),
     ...overrides,
   } as ModelBApi
 }
@@ -550,7 +563,7 @@ describe('ModelBPanel review queue', () => {
     expect(api.decide).toHaveBeenCalledWith('s1', 'job-1', 'b_e2', 'reject')
     await waitFor(() => expect(reject).toHaveAttribute('aria-pressed', 'true'))
     expect(screen.getByText(/1 of 2 findings still need a decision/)).toBeInTheDocument()
-    expect(screen.getByText(/Accepting records your judgement only/)).toBeInTheDocument()
+    expect(screen.getByText(/change the tactile output only after you apply them/)).toBeInTheDocument()
   })
 
   it('restores decisions already recorded on the server', async () => {
@@ -589,6 +602,58 @@ describe('ModelBPanel review queue', () => {
 
   it('has no detectable accessibility violations', async () => {
     const { container } = await openQueue(completed())
+    await expectNoAxeViolations(container)
+  })
+})
+
+describe('ModelBPanel applying accepted findings', () => {
+  const completed = () =>
+    makeApi({
+      request: vi.fn().mockResolvedValue(makeJob({ status: 'completed', result: makeResult() })),
+      fusion: vi.fn().mockResolvedValue(makeFusion({ entity_reviews: reviews })),
+    })
+
+  it('offers no apply control until a finding is accepted', async () => {
+    const api = completed()
+    const { user } = await openQueue(api)
+    expect(screen.queryByRole('button', { name: /Apply accepted findings/i })).not.toBeInTheDocument()
+    await user.click(within(screen.getByRole('group', { name: /b_e2/ })).getByRole('button', { name: 'Reject' }))
+    expect(screen.queryByRole('button', { name: /Apply accepted findings/i })).not.toBeInTheDocument()
+    await user.click(within(screen.getByRole('group', { name: /b_e2/ })).getByRole('button', { name: 'Accept' }))
+    expect(await screen.findByRole('button', { name: /Apply accepted findings/i })).toBeInTheDocument()
+  })
+
+  it('applies accepted findings, hands back the regenerated session, and reports each outcome', async () => {
+    const api = completed()
+    const onApplied = vi.fn()
+    const user = userEvent.setup()
+    render(<ModelBPanel sessionId="s1" availability={available} modelAReady api={api} onApplied={onApplied} />)
+    await user.click(screen.getByRole('button', { name: /Run Model B check/i }))
+    await screen.findByRole('heading', { name: /Review queue/i })
+    await user.click(within(screen.getByRole('group', { name: /b_e2/ })).getByRole('button', { name: 'Accept' }))
+    await user.click(await screen.findByRole('button', { name: /Apply accepted findings/i }))
+    expect(api.apply).toHaveBeenCalledWith('s1', 'job-1')
+    expect(onApplied).toHaveBeenCalledWith(makeApplyResult().session)
+    expect(await screen.findByText(/Semantic Geometry v2: 1 finding applied/)).toBeInTheDocument()
+    expect(screen.getByText(/el_3 is now a circle/)).toBeInTheDocument()
+    expect(screen.getByText(/nothing can be embossed from this finding/)).toBeInTheDocument()
+  })
+
+  it('surfaces a failed apply as an alert', async () => {
+    const api = completed()
+    api.apply = vi.fn().mockRejectedValue(new Error('Could not apply the accepted findings.'))
+    const { user } = await openQueue(api)
+    await user.click(within(screen.getByRole('group', { name: /b_e2/ })).getByRole('button', { name: 'Accept' }))
+    await user.click(await screen.findByRole('button', { name: /Apply accepted findings/i }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Could not apply/)
+  })
+
+  it('has no detectable accessibility violations after applying', async () => {
+    const api = completed()
+    const { user, container } = await openQueue(api)
+    await user.click(within(screen.getByRole('group', { name: /b_e2/ })).getByRole('button', { name: 'Accept' }))
+    await user.click(await screen.findByRole('button', { name: /Apply accepted findings/i }))
+    await screen.findByText(/Semantic Geometry v2/)
     await expectNoAxeViolations(container)
   })
 })
