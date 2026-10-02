@@ -37,6 +37,28 @@ class TactileRules:
     # Element count above which the diagram is flagged as excessively complex.
     complexity_threshold: int = 50
 
+    # Physical (on-paper) thresholds, applied after the diagram is scaled onto
+    # the A4 page so QA does not depend on the upload's pixel resolution. These
+    # are conservative, guideline-informed defaults, not a certified standard.
+    # Smallest feature extent that can be resolved by touch.
+    minimum_feature_size_mm: float = 5.0
+    # Separation below which two independent features read as one.
+    minimum_feature_spacing_mm: float = 6.0
+    # Features closer than this physically touch once embossed.
+    overlap_tolerance_mm: float = 1.5
+    # Blank space required between a braille cell block and any line.
+    braille_to_line_clearance_mm: float = 3.0
+    # Blank space required between two braille cell blocks.
+    braille_to_braille_spacing_mm: float = 3.0
+    # An unassociated label further than this from every shape is dangling.
+    label_isolation_mm: float = 50.0
+
+    # Tactile density: simplification aims for at most ``tactile_feature_target``
+    # embossed geometry features on one A4 sheet; more than
+    # ``tactile_feature_limit`` blocks print-ready export.
+    tactile_feature_target: int = 40
+    tactile_feature_limit: int = 60
+
     # Printable boundary margin, as a fraction of image width/height.
     printable_margin_fraction: float = 0.1
 

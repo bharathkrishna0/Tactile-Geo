@@ -84,8 +84,31 @@ class Disagreement:
 
 
 @dataclass
+class EntityReview:
+    """The five fusion questions, answered for one Model B entity.
+
+    1. ``model_a_id``: which Model A element, if any, corresponds to it.
+    2. ``correspondence``: how strong that correspondence is.
+    3. ``adds_semantics``: whether Model B contributes meaning Model A lacks.
+    4. ``contradicts_model_a``: whether the two disagree about what it is.
+    5. ``requires_review``: whether a teacher should decide before export.
+    """
+
+    model_b_id: str
+    model_b_kind: str
+    model_a_id: str | None
+    correspondence: str  # "strong" | "weak" | "none"
+    adds_semantics: bool
+    contradicts_model_a: bool
+    requires_review: bool
+    reason: str
+    advisory_only: bool = True
+
+
+@dataclass
 class FusionReport:
     agreements: list[AgreementHint] = field(default_factory=list)
+    entity_reviews: list[EntityReview] = field(default_factory=list)
     candidate_additions: list[CandidateAddition] = field(default_factory=list)
     disagreements: list[Disagreement] = field(default_factory=list)
     # Whole-diagram statements Model A has no concept of. Passed through as
@@ -130,16 +153,31 @@ def reconcile(
     elements = [element for element in model_a.elements if element.bbox]
     matched_a: set[str] = set()
 
+    related_ids = {subject for note in model_b.diagram_relations for subject in note.subject_ids}
+
     for entity in model_b.entities:
         best = _best_overlap(entity.region, elements, matched_a)
         if best is None:
             report.candidate_additions.append(
                 _candidate(entity, "Model B found a region Model A did not report.")
             )
+            report.entity_reviews.append(
+                EntityReview(
+                    model_b_id=entity.id,
+                    model_b_kind=entity.kind,
+                    model_a_id=None,
+                    correspondence="none",
+                    adds_semantics=True,
+                    contradicts_model_a=False,
+                    requires_review=True,
+                    reason="Only Model B reports this. It stays a candidate until a teacher confirms it on the image.",
+                )
+            )
             continue
 
         element, iou = best
         matched_a.add(element.id)
+        report.entity_reviews.append(_entity_review(entity, element, iou, related_ids))
         report.agreements.append(
             AgreementHint(
                 model_b_id=entity.id,
@@ -251,6 +289,38 @@ def _best_overlap(
         if overlap >= MATCH_IOU_THRESHOLD and (best is None or overlap > best[1]):
             best = (element, overlap)
     return best
+
+
+def _entity_review(
+    entity: SuggestedEntity, element: DetectedElement, iou: float, related_ids: set[str]
+) -> EntityReview:
+    correspondence = "strong" if iou >= STRONG_IOU_THRESHOLD else "weak"
+    contradicts = _verdict(entity, element, iou) == "type_mismatch"
+    new_label = bool(entity.label) and element.associated_label_id is None
+    adds_semantics = new_label or entity.id in related_ids
+    requires_review = contradicts or correspondence == "weak" or entity.needs_review or adds_semantics
+    if contradicts:
+        reason = f"Model A reads a {element.type.value}; Model B reads a {entity.kind}."
+    elif correspondence == "weak":
+        reason = "The two regions only partly overlap."
+    elif entity.needs_review:
+        reason = "Model B was unsure about this region."
+    elif new_label:
+        reason = f"Model B reads the label '{entity.label}', which Model A did not attach."
+    elif adds_semantics:
+        reason = "Model B relates this element to others (for example a tangency or right angle)."
+    else:
+        reason = "Both analyses agree."
+    return EntityReview(
+        model_b_id=entity.id,
+        model_b_kind=entity.kind,
+        model_a_id=element.id,
+        correspondence=correspondence,
+        adds_semantics=adds_semantics,
+        contradicts_model_a=contradicts,
+        requires_review=requires_review,
+        reason=reason,
+    )
 
 
 def _candidate(entity: SuggestedEntity, reason: str) -> CandidateAddition:

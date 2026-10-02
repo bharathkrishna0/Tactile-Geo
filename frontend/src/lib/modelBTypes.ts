@@ -168,6 +168,8 @@ export interface ModelBJob {
   /** Gateway and configured model, known before the call returns. */
   provider?: string
   model?: string
+  /** True when an identical earlier analysis was reused without a provider call. */
+  cache_hit?: boolean
 }
 
 export interface ModelBAgreementHint {
@@ -197,9 +199,36 @@ export interface ModelBDisagreement {
   advisory_only: true
 }
 
+export interface ModelBEntityReview {
+  model_b_id: string
+  model_b_kind: string
+  model_a_id: string | null
+  correspondence: 'strong' | 'weak' | 'none'
+  adds_semantics: boolean
+  contradicts_model_a: boolean
+  requires_review: boolean
+  reason: string
+  advisory_only: true
+}
+
+export type ModelBDecisionValue = 'accept' | 'reject' | 'defer'
+
+/** A teacher's recorded decision. Recording never changes Model A geometry. */
+export interface ModelBDecision {
+  job_id: string
+  model_b_id: string
+  decision: ModelBDecisionValue
+  note: string | null
+  decided_at: string
+  applied_to_geometry: false
+}
+
 export interface ModelBFusionReport {
   summary: Record<string, number>
   agreements: ModelBAgreementHint[]
+  /** Absent from older servers; treat as empty. */
+  entity_reviews?: ModelBEntityReview[]
+  decisions?: Record<string, ModelBDecision>
   candidate_additions: ModelBCandidateAddition[]
   disagreements: ModelBDisagreement[]
   diagram_relations: Array<{

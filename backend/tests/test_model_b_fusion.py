@@ -430,3 +430,51 @@ class TestReportShape:
         report = reconcile(make_model_a(), make_model_b())
         for addition in report.candidate_additions:
             assert not addition.model_b_id.startswith("m")
+
+
+class TestEntityReviews:
+    """Every Model B entity gets an explicit answer to the five fusion questions."""
+
+    def test_every_entity_is_reviewed_exactly_once(self) -> None:
+        result = make_model_b()
+        report = reconcile(make_model_a(), result)
+        assert sorted(r.model_b_id for r in report.entity_reviews) == sorted(e.id for e in result.entities)
+
+    def test_unmatched_entity_is_a_candidate_that_requires_review(self) -> None:
+        report = reconcile(make_model_a(), make_model_b())
+        for review in report.entity_reviews:
+            if review.model_a_id is None:
+                assert review.correspondence == "none"
+                assert review.requires_review and review.adds_semantics
+                assert review.model_b_id in {c.model_b_id for c in report.candidate_additions}
+
+    def test_type_mismatch_is_a_contradiction_requiring_review(self) -> None:
+        doc = valid_document()
+        doc["entities"] = [entity_at("circle", (100, 80, 600, 560))]
+        doc["relationships"], doc["diagram_relations"], doc["uncertainties"] = [], [], []
+        (review,) = reconcile(make_model_a(), make_model_b(doc)).entity_reviews
+        assert review.model_a_id == "m1"
+        assert review.contradicts_model_a and review.requires_review
+
+    def test_confident_agreement_needs_no_review(self) -> None:
+        doc = valid_document()
+        doc["entities"] = [entity_at("triangle", (100, 80, 600, 560))]
+        doc["relationships"], doc["diagram_relations"], doc["uncertainties"] = [], [], []
+        (review,) = reconcile(make_model_a(), make_model_b(doc)).entity_reviews
+        assert review.correspondence == "strong"
+        assert not review.contradicts_model_a and not review.adds_semantics
+        assert review.requires_review is False
+
+    def test_a_label_model_a_lacks_counts_as_added_semantics(self) -> None:
+        doc = valid_document()
+        doc["entities"] = [dict(entity_at("triangle", (100, 80, 600, 560)), label="ABC")]
+        doc["relationships"], doc["diagram_relations"], doc["uncertainties"] = [], [], []
+        (review,) = reconcile(make_model_a(), make_model_b(doc)).entity_reviews
+        assert review.adds_semantics and review.requires_review
+        assert "ABC" in review.reason
+
+    def test_reviews_do_not_mutate_model_a(self) -> None:
+        model_a = make_model_a()
+        before = copy.deepcopy(model_a)
+        reconcile(model_a, make_model_b())
+        assert model_a == before

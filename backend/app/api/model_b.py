@@ -29,6 +29,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from app.core.config import MODEL_B_MAX_CONCURRENT_JOBS, model_b_settings
 from app.models.model_b_job import JobStatus, ModelBJob, ModelBJobError
 from app.models.model_b_result import ModelBResult
+from app.model_b.cache import model_b_cache_key
 from app.model_b.errors import (
     ModelBApiError,
     ModelBCancelled,
@@ -49,9 +50,12 @@ from app.schemas.model_b import (
     ModelBAgreementHint,
     ModelBBoundingRegion,
     ModelBCandidateAddition,
+    ModelBDecision,
+    ModelBDecisionRequest,
     ModelBDiagramRelation,
     ModelBDisagreement,
     ModelBEntity,
+    ModelBEntityReview,
     ModelBErrorSchema,
     ModelBFusionReport,
     ModelBJobStatus,
@@ -61,7 +65,8 @@ from app.schemas.model_b import (
 )
 from app.services.editing import semantic_from_dict
 from app.services.model_b_store import model_b_job_store
-from app.services.session_store import session_store
+from app.services.object_storage import ObjectStorageError
+from app.services.session_store import object_storage, read_source_image, session_store
 
 logger = logging.getLogger(__name__)
 
@@ -219,6 +224,7 @@ def _job_schema(job: ModelBJob) -> ModelBJobStatus:
         completed_at=job.completed_at,
         provider=job.provider,
         model=job.model,
+        cache_hit=job.cache_hit,
         result=_analysis_schema(job.result) if isinstance(job.result, ModelBResult) else None,
         error=_error_payload(job.error) if job.error else None,
     )
@@ -255,28 +261,22 @@ def _run_job(job: ModelBJob, image_bytes: bytes) -> None:
             error.detail,
             error.reason,
         )
-        target = store.get(job.job_id)
-        if target is not None and not target.status.is_terminal:
-            target.mark_failed(
-                ModelBJobError(
-                    code=error.reason,
-                    message=error.detail,
-                    retryable=getattr(error, "retryable", False),
-                    retry_after_s=getattr(error, "retry_after_s", None),
-                )
-            )
+        store.fail(
+            job.job_id,
+            ModelBJobError(
+                code=error.reason,
+                message=error.detail,
+                retryable=getattr(error, "retryable", False),
+                retry_after_s=getattr(error, "retry_after_s", None),
+            ),
+        )
         return
     except Exception:  # noqa: BLE001 - a worker must never take the process down
         logger.exception("Unexpected Model B failure in job %s", job.job_id)
-        target = store.get(job.job_id)
-        if target is not None and not target.status.is_terminal:
-            target.mark_failed(
-                ModelBJobError(
-                    code="internal_error",
-                    message="Model B failed unexpectedly.",
-                    retryable=True,
-                )
-            )
+        store.fail(
+            job.job_id,
+            ModelBJobError(code="internal_error", message="Model B failed unexpectedly.", retryable=True),
+        )
         return
 
     # PROJECT.md section 13 observability. Counts and timings only: no image
@@ -307,9 +307,8 @@ def _run_job(job: ModelBJob, image_bytes: bytes) -> None:
     for warning in result.validation_warnings:
         logger.debug("Model B job %s validation warning: %s", job.job_id, warning)
 
-    target = store.get(job.job_id)
-    if target is not None and not target.status.is_terminal:
-        target.mark_completed(result)
+    if store.complete(job.job_id, result) is not None and job.cache_key and not result.truncated:
+        store.cache_put(job.cache_key, result)
 
 
 @router.get("/model-b/status", response_model=ModelBAvailability)
@@ -358,6 +357,7 @@ def request_model_b(
     except ModelBError as error:
         _raise_http(error)
 
+    model_b_job_store.recover_interrupted(_stale_after_s(settings))
     if model_b_job_store.has_active_job(session_id):
         raise HTTPException(
             status_code=409,
@@ -370,15 +370,21 @@ def request_model_b(
         )
 
     try:
-        image_bytes = session.original_image_path.read_bytes()
-    except OSError as error:
+        image_bytes = read_source_image(session, object_storage)
+    except ObjectStorageError as error:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available.") from error
     if not image_bytes:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available.")
 
+    cache_key = model_b_cache_key(image_bytes, settings)
     job = model_b_job_store.create(
-        session_id, model=settings.model, provider=settings.provider
+        session_id, model=settings.model, provider=settings.provider, cache_key=cache_key
     )
+    cached = model_b_job_store.cache_get(cache_key)
+    if cached is not None:
+        logger.info("Model B job %s reused a cached analysis; no provider call made", job.job_id)
+        completed = model_b_job_store.complete(job.job_id, cached, cache_hit=True)
+        return _job_schema(completed or job)
     # Left QUEUED on purpose. `_run_job` transitions it to RUNNING, which keeps
     # a real cancellation window open between this response and the worker
     # starting. Marking it RUNNING here would make DELETE permanently 409.
@@ -393,18 +399,7 @@ def get_model_b_fusion(session_id: str, job_id: str) -> ModelBFusionReport:
     Read-only and side-effect free. Returns 409 until the job completes, since
     there is nothing to reconcile against a result that does not exist yet.
     """
-    job = model_b_job_store.get(job_id)
-    if job is None or job.session_id != session_id:
-        raise HTTPException(status_code=404, detail="Model B job not found.")
-    if not job.status.is_terminal:
-        raise HTTPException(
-            status_code=409,
-            detail=f"The Model B job is still {job.status.value}.",
-        )
-    if job.status is not JobStatus.COMPLETED or not isinstance(job.result, ModelBResult):
-        raise HTTPException(
-            status_code=409, detail="This Model B job did not produce a result to reconcile."
-        )
+    job = _completed_job(session_id, job_id)
 
     from app.model_b.fusion import reconcile
 
@@ -428,7 +423,69 @@ def get_model_b_fusion(session_id: str, job_id: str) -> ModelBFusionReport:
         sum(1 for d in report.disagreements if d.kind == "model_a_only"),
         sum(1 for a in report.agreements if a.verdict == "weak_overlap"),
     )
-    return _fusion_schema(report)
+    return _fusion_schema(report, _decisions_for(session_id, job_id))
+
+
+@router.post(
+    "/sessions/{session_id}/model-b/{job_id}/decisions",
+    response_model=ModelBDecision,
+    status_code=201,
+)
+def record_model_b_decision(session_id: str, job_id: str, payload: ModelBDecisionRequest) -> ModelBDecision:
+    """Record a teacher's accept / reject / defer on one Model B finding.
+
+    Append-only audit history; the latest decision per finding wins. Nothing in
+    Model A changes here: an accepted finding is applied by the teacher through
+    the element editor, against Model A's own geometry.
+    """
+    job = _completed_job(session_id, job_id)
+    known_ids = {entity.id for entity in job.result.entities}
+    known_ids |= {note.id for note in job.result.diagram_relations}
+    known_ids |= {item.id for item in job.result.text_items}
+    known_ids |= {note.id for note in job.result.uncertainties}
+    if payload.model_b_id not in known_ids:
+        raise HTTPException(status_code=422, detail="That finding is not part of this Model B result.")
+    session_store.record_event(
+        session_id,
+        "model_b_decision",
+        {"job_id": job_id, "model_b_id": payload.model_b_id, "decision": payload.decision, "note": payload.note},
+    )
+    decision = _decisions_for(session_id, job_id).get(payload.model_b_id)
+    if decision is None:
+        raise HTTPException(status_code=500, detail="The decision could not be recorded.")
+    return decision
+
+
+def _completed_job(session_id: str, job_id: str) -> ModelBJob:
+    job = model_b_job_store.get(job_id)
+    if job is None or job.session_id != session_id:
+        raise HTTPException(status_code=404, detail="Model B job not found.")
+    if not job.status.is_terminal:
+        raise HTTPException(
+            status_code=409,
+            detail=f"The Model B job is still {job.status.value}.",
+        )
+    if job.status is not JobStatus.COMPLETED or not isinstance(job.result, ModelBResult):
+        raise HTTPException(
+            status_code=409, detail="This Model B job did not produce a result to reconcile."
+        )
+    return job
+
+
+def _decisions_for(session_id: str, job_id: str) -> dict[str, ModelBDecision]:
+    decisions: dict[str, ModelBDecision] = {}
+    for event in session_store.events(session_id):
+        payload = event["payload"]
+        if event["event_type"] != "model_b_decision" or payload.get("job_id") != job_id:
+            continue
+        decisions[payload["model_b_id"]] = ModelBDecision(
+            job_id=job_id,
+            model_b_id=payload["model_b_id"],
+            decision=payload["decision"],
+            note=payload.get("note"),
+            decided_at=event["created_at"],
+        )
+    return decisions
 
 
 def _model_a_semantic_geometry(session_id: str) -> SemanticGeometry | None:
@@ -447,9 +504,23 @@ def _model_a_semantic_geometry(session_id: str) -> SemanticGeometry | None:
         return None
 
 
-def _fusion_schema(report: FusionReport) -> ModelBFusionReport:
+def _fusion_schema(report: FusionReport, decisions: dict[str, ModelBDecision]) -> ModelBFusionReport:
     return ModelBFusionReport(
         summary=report.summary(),
+        entity_reviews=[
+            ModelBEntityReview(
+                model_b_id=review.model_b_id,
+                model_b_kind=review.model_b_kind,
+                model_a_id=review.model_a_id,
+                correspondence=review.correspondence,
+                adds_semantics=review.adds_semantics,
+                contradicts_model_a=review.contradicts_model_a,
+                requires_review=review.requires_review,
+                reason=review.reason,
+            )
+            for review in report.entity_reviews
+        ],
+        decisions=decisions,
         agreements=[
             ModelBAgreementHint(
                 model_b_id=hint.model_b_id,
@@ -486,8 +557,18 @@ def _fusion_schema(report: FusionReport) -> ModelBFusionReport:
     )
 
 
+def _stale_after_s(settings) -> float:
+    """How long a job may stay unfinished before its worker is presumed gone.
+
+    Generous on purpose: the longest legitimate run is every provider attempt
+    timing out plus every backoff, and a false "interrupted" costs a retry.
+    """
+    return settings.max_attempts * (settings.timeout_s + settings.retry_max_delay_s) + 60.0
+
+
 @router.get("/sessions/{session_id}/model-b/{job_id}", response_model=ModelBJobStatus)
 def get_model_b_job(session_id: str, job_id: str) -> ModelBJobStatus:
+    model_b_job_store.recover_interrupted(_stale_after_s(model_b_settings()))
     job = model_b_job_store.get(job_id)
     if job is None or job.session_id != session_id:
         raise HTTPException(status_code=404, detail="Model B job not found.")

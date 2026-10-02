@@ -13,6 +13,9 @@ from fastapi.testclient import TestClient
 
 from app.api import model_b as model_b_api
 from app.model_b._fixtures import minimal_document
+from app.model_b.normalizer import normalize
+from app.model_b.preparation import prepare_image
+from app.model_b.validator import validate_document
 from app.model_b.client import ProviderResponse
 from app.models.model_b_job import JobStatus, ModelBJob, ModelBJobError
 from app.schemas.model_b import ModelBAnalysis
@@ -622,6 +625,7 @@ def _seed_model_a(session_id: str) -> None:
         "image_height": 800,
         "element_count": 1,
     }
+    session_store.save(session)
 
 
 class TestFusionEndpoint:
@@ -723,3 +727,84 @@ class TestWireContract:
         client.post(f"/api/sessions/{session_id}/model-b")
         body = client.post(f"/api/sessions/{session_id}/process").json()
         assert "readable" not in json.dumps(body["qa_report"])
+
+
+class TestTeacherDecisions:
+    @pytest.fixture(autouse=True)
+    def _rich_result(self, client, monkeypatch) -> None:
+        """A result with entities, relations and text, so there is something to decide on."""
+        from app.model_b._fixtures import valid_document
+
+        def fake_analyze(image_bytes, settings, client=None):
+            prepared = prepare_image(image_bytes)
+            document, warnings = validate_document(
+                valid_document(), prepared_width=prepared.width, prepared_height=prepared.height
+            )
+            return normalize(document, prepared, finish_reason="STOP", validation_warnings=warnings)
+
+        monkeypatch.setattr(model_b_api, "analyze_image", fake_analyze)
+
+    def _completed(self, client) -> tuple[str, str]:
+        session_id = _upload(client)
+        _seed_model_a(session_id)
+        job_id = client.post(f"/api/sessions/{session_id}/model-b").json()["job_id"]
+        return session_id, job_id
+
+    def test_fusion_reports_per_entity_reviews(self, client) -> None:
+        session_id, job_id = self._completed(client)
+        body = client.get(f"/api/sessions/{session_id}/model-b/{job_id}/fusion").json()
+        assert body["entity_reviews"]
+        for review in body["entity_reviews"]:
+            assert review["correspondence"] in {"strong", "weak", "none"}
+            assert review["advisory_only"] is True
+        assert body["decisions"] == {}
+
+    def test_decision_is_recorded_and_latest_wins(self, client) -> None:
+        session_id, job_id = self._completed(client)
+        url = f"/api/sessions/{session_id}/model-b/{job_id}/decisions"
+        first = client.post(url, json={"model_b_id": "b_e2", "decision": "defer"})
+        assert first.status_code == 201
+        assert first.json()["applied_to_geometry"] is False
+        client.post(url, json={"model_b_id": "b_e2", "decision": "reject", "note": "artifact"})
+        decisions = client.get(f"/api/sessions/{session_id}/model-b/{job_id}/fusion").json()["decisions"]
+        assert decisions["b_e2"]["decision"] == "reject"
+        assert decisions["b_e2"]["note"] == "artifact"
+
+    def test_decision_is_in_the_audit_history(self, client) -> None:
+        from app.services.session_store import session_store
+
+        session_id, job_id = self._completed(client)
+        client.post(
+            f"/api/sessions/{session_id}/model-b/{job_id}/decisions",
+            json={"model_b_id": "b_e1", "decision": "accept"},
+        )
+        events = [e for e in session_store.events(session_id) if e["event_type"] == "model_b_decision"]
+        assert events[-1]["payload"] == {"job_id": job_id, "model_b_id": "b_e1", "decision": "accept", "note": None}
+
+    def test_accepting_does_not_change_model_a(self, client) -> None:
+        from app.services.session_store import session_store
+
+        session_id, job_id = self._completed(client)
+        before = json.dumps(session_store.get(session_id).semantic_geometry, sort_keys=True)
+        for entity_id in ("b_e1", "b_e2", "b_e3"):
+            client.post(
+                f"/api/sessions/{session_id}/model-b/{job_id}/decisions",
+                json={"model_b_id": entity_id, "decision": "accept"},
+            )
+        assert json.dumps(session_store.get(session_id).semantic_geometry, sort_keys=True) == before
+
+    def test_unknown_finding_is_rejected(self, client) -> None:
+        session_id, job_id = self._completed(client)
+        response = client.post(
+            f"/api/sessions/{session_id}/model-b/{job_id}/decisions",
+            json={"model_b_id": "invented", "decision": "accept"},
+        )
+        assert response.status_code == 422
+
+    def test_invalid_decision_value_is_rejected(self, client) -> None:
+        session_id, job_id = self._completed(client)
+        response = client.post(
+            f"/api/sessions/{session_id}/model-b/{job_id}/decisions",
+            json={"model_b_id": "b_e1", "decision": "apply"},
+        )
+        assert response.status_code == 422

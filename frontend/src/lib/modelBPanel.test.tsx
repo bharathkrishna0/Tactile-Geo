@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { axe } from 'jest-axe'
 import { describe, expect, it, vi } from 'vitest'
@@ -129,6 +129,14 @@ function makeApi(overrides: Partial<ModelBApi> = {}): ModelBApi {
     poll: vi.fn().mockResolvedValue(makeJob({ status: 'completed', result: makeResult() })),
     cancel: vi.fn().mockResolvedValue(makeJob({ status: 'cancelled' })),
     fusion: vi.fn().mockResolvedValue(makeFusion()),
+    decide: vi.fn().mockImplementation(async (_s: string, jobId: string, modelBId: string, decision: string) => ({
+      job_id: jobId,
+      model_b_id: modelBId,
+      decision,
+      note: null,
+      decided_at: '2026-01-01T00:00:00Z',
+      applied_to_geometry: false,
+    })),
     ...overrides,
   } as ModelBApi
 }
@@ -471,5 +479,128 @@ describe('ModelBPanel rate limits', () => {
     await user.click(screen.getByRole('button', { name: /Run Model B check/i }))
     await screen.findByText(/Timed out/)
     expect(screen.queryByText(/asked to wait/)).not.toBeInTheDocument()
+  })
+})
+
+const reviews: NonNullable<ModelBFusionReport['entity_reviews']> = [
+  {
+    model_b_id: 'b_e1',
+    model_b_kind: 'triangle',
+    model_a_id: null,
+    correspondence: 'none',
+    adds_semantics: true,
+    contradicts_model_a: false,
+    requires_review: true,
+    reason: 'Only Model B reports this.',
+    advisory_only: true,
+  },
+  {
+    model_b_id: 'b_e2',
+    model_b_kind: 'circle',
+    model_a_id: 'el_3',
+    correspondence: 'strong',
+    adds_semantics: false,
+    contradicts_model_a: true,
+    requires_review: true,
+    reason: 'Model A reads a ellipse; Model B reads a circle.',
+    advisory_only: true,
+  },
+  {
+    model_b_id: 'b_e3',
+    model_b_kind: 'point',
+    model_a_id: 'el_4',
+    correspondence: 'strong',
+    adds_semantics: false,
+    contradicts_model_a: false,
+    requires_review: false,
+    reason: 'Both analyses agree.',
+    advisory_only: true,
+  },
+]
+
+async function openQueue(api: ModelBApi) {
+  const user = userEvent.setup()
+  const view = render(<ModelBPanel sessionId="s1" availability={available} modelAReady api={api} />)
+  await user.click(screen.getByRole('button', { name: /Run Model B check/i }))
+  await screen.findByRole('heading', { name: /Review queue/i })
+  return { user, ...view }
+}
+
+describe('ModelBPanel review queue', () => {
+  const completed = () =>
+    makeApi({
+      request: vi.fn().mockResolvedValue(makeJob({ status: 'completed', result: makeResult() })),
+      fusion: vi.fn().mockResolvedValue(makeFusion({ entity_reviews: reviews })),
+    })
+
+  it('lists only findings that need a teacher decision', async () => {
+    await openQueue(completed())
+    expect(screen.getByRole('group', { name: /Decision for triangle b_e1/i })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: /Decision for circle b_e2/i })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: /b_e3/ })).not.toBeInTheDocument()
+    expect(screen.getByText(/2 of 2 findings still need a decision/)).toBeInTheDocument()
+  })
+
+  it('records a decision and marks it pressed without touching Model A', async () => {
+    const api = completed()
+    const { user } = await openQueue(api)
+    const group = screen.getByRole('group', { name: /Decision for circle b_e2/i })
+    const reject = within(group).getByRole('button', { name: 'Reject' })
+    await user.click(reject)
+    expect(api.decide).toHaveBeenCalledWith('s1', 'job-1', 'b_e2', 'reject')
+    await waitFor(() => expect(reject).toHaveAttribute('aria-pressed', 'true'))
+    expect(screen.getByText(/1 of 2 findings still need a decision/)).toBeInTheDocument()
+    expect(screen.getByText(/Accepting records your judgement only/)).toBeInTheDocument()
+  })
+
+  it('restores decisions already recorded on the server', async () => {
+    const api = makeApi({
+      request: vi.fn().mockResolvedValue(makeJob({ status: 'completed', result: makeResult() })),
+      fusion: vi.fn().mockResolvedValue(
+        makeFusion({
+          entity_reviews: reviews,
+          decisions: {
+            b_e1: { job_id: 'job-1', model_b_id: 'b_e1', decision: 'accept', note: null, decided_at: '2026-01-01T00:00:00Z', applied_to_geometry: false },
+          },
+        }),
+      ),
+    })
+    await openQueue(api)
+    const group = screen.getByRole('group', { name: /Decision for triangle b_e1/i })
+    expect(within(group).getByRole('button', { name: 'Accept' })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('is operable from the keyboard', async () => {
+    const api = completed()
+    const { user } = await openQueue(api)
+    const accept = within(screen.getByRole('group', { name: /Decision for triangle b_e1/i })).getByRole('button', { name: 'Accept' })
+    accept.focus()
+    await user.keyboard('{Enter}')
+    expect(api.decide).toHaveBeenCalledWith('s1', 'job-1', 'b_e1', 'accept')
+  })
+
+  it('surfaces a failed save as an alert', async () => {
+    const api = completed()
+    api.decide = vi.fn().mockRejectedValue(new Error('Could not record the decision.'))
+    const { user } = await openQueue(api)
+    await user.click(within(screen.getByRole('group', { name: /b_e1/ })).getByRole('button', { name: 'Reject' }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/Could not record/)
+  })
+
+  it('has no detectable accessibility violations', async () => {
+    const { container } = await openQueue(completed())
+    await expectNoAxeViolations(container)
+  })
+})
+
+describe('ModelBPanel cache reuse', () => {
+  it('says when an identical earlier analysis was reused', async () => {
+    const user = userEvent.setup()
+    const api = makeApi({
+      request: vi.fn().mockResolvedValue(makeJob({ status: 'completed', result: makeResult(), cache_hit: true })),
+    })
+    render(<ModelBPanel sessionId="s1" availability={available} modelAReady api={api} />)
+    await user.click(screen.getByRole('button', { name: /Run Model B check/i }))
+    expect(await screen.findByText(/Reused the earlier analysis/)).toBeInTheDocument()
   })
 })

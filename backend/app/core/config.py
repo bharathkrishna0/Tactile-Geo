@@ -7,6 +7,16 @@ UPLOAD_DIRECTORY = Path(os.getenv("UPLOAD_DIRECTORY", "uploads"))
 SESSION_TTL_SECONDS = float(os.getenv("SESSION_TTL_SECONDS", str(2 * 60 * 60)))
 ALLOWED_MEDIA_TYPES = {"image/png", "image/jpeg"}
 ALLOWED_EXTENSIONS = {".png", ".jpg", ".jpeg"}
+# --- Persistence ------------------------------------------------------------
+# Unset DATABASE_URL keeps the process-local store (development and tests). Set
+# it to a Postgres URL (for Supabase, the session-pooler connection string) to
+# make sessions, edits and audit events durable across restarts and workers.
+DATABASE_URL = os.getenv("DATABASE_URL", "").strip() or None
+# With both set, source images go to a private Supabase Storage bucket instead
+# of the local upload directory. The service-role key is backend-only.
+SUPABASE_URL = os.getenv("SUPABASE_URL", "").strip().rstrip("/") or None
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip() or None
+SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "tactilegeo-sources").strip() or "tactilegeo-sources"
 CORS_ORIGINS = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if origin.strip()]
 
 # Liblouis table path. If empty/unset, the braille service searches common

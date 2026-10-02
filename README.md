@@ -1,8 +1,34 @@
 # TactileGeo
 
-Milestone 1 implementation of the visual-to-tactile geometry conversion pipeline.
+Converts educational STEM diagrams into simplified, Braille-labelled, print-ready
+tactile SVG for swell-paper or embosser output, with the teacher reviewing every
+step before export.
+
+AI interprets. Computer vision measures. Fusion reconciles. The teacher decides.
+The tactile compiler constructs. QA verifies. SVG delivers.
+
+- **Model A** (deterministic OpenCV + OCR + Liblouis) is the geometry authority
+  and produces the final SVG. It needs no credentials and no network.
+- **Model B** (optional vision-language model via OpenRouter) is advisory only;
+  fusion reports where it agrees, disagrees, or adds candidates for teacher review.
+
+See `docs/DEPLOYMENT.md` for production deployment, `docs/FINAL_REPORT.md` for
+the architecture and measured results, and `AGENTS.md` for Model B configuration.
 
 ## Backend
+
+Linux/macOS (Python 3.11+, Debian/Ubuntu shown):
+
+```bash
+sudo apt-get install liblouis-data python3-louis
+cd backend
+python3.11 -m venv .venv && . .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+ln -s /usr/lib/python3/dist-packages/louis "$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')/louis"
+uvicorn app.main:app --reload --port 8000
+```
+
+Windows:
 
 ```powershell
 cd backend
@@ -12,14 +38,33 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
+Without `DATABASE_URL` sessions live in process memory (development only).
+Set it to a Postgres URL and run `python scripts/migrate.py` for durable
+sessions, edits, audit events, and Model B jobs.
+
 ## Frontend
 
-```powershell
+```bash
 cd frontend
-npm.cmd install
-npm.cmd run dev
+npm install
+npm run dev        # http://localhost:5173, proxies /api to :8000
+```
+
+## Tests and benchmark
+
+```bash
+cd backend && pytest
+cd frontend && npm test && npm run typecheck && npm run build
+
+# STEM benchmark (48 synthetic cases with exact ground truth)
+cd backend
+python benchmarks/stem/generate.py
+python scripts/benchmark.py --out benchmarks/stem/results/after.json
 ```
 
 ## Braille runtime
 
-Milestone 2 uses the official Liblouis `louis` Python bindings with the `en-ueb-g2.ctb` table. The production Docker image installs Liblouis and its table files. Local Windows development also needs a native Liblouis installation plus its official Python bindings; the unrelated PyPI package named `louis` is not a Liblouis binding.
+Braille uses the official Liblouis `louis` Python bindings with the
+`en-ueb-g2.ctb` table. The Docker image installs Liblouis and its tables. Windows
+development needs a native Liblouis installation plus its official Python
+bindings; the unrelated PyPI package named `louis` is not a Liblouis binding.

@@ -20,6 +20,10 @@ _SHARPEN_KERNEL = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], dtype=np.float
 # Gaussian noise threshold (from image_quality._estimate_noise) beyond which we sharpen.
 _NOISE_BLUR = 3
 
+# Below this median luminance the page itself is dark, so the ink may be the
+# lighter tone (chalkboard, inverted scan, underexposed light-on-dark print).
+_DARK_PAGE_MEDIAN = 128
+
 
 def enhance_copy(image: np.ndarray) -> np.ndarray:
     """Produce an improved copy of ``image`` for CV processing.
@@ -27,6 +31,7 @@ def enhance_copy(image: np.ndarray) -> np.ndarray:
     Steps (each applied to a working copy, original untouched):
       1. Adaptive contrast (CLAHE) on the luminance channel.
       2. Conditional mild sharpening to restore edge definition.
+      3. Polarity normalisation so ink is always darker than the page.
     Returns a BGR image; the caller may convert/duplicate as needed.
     """
     working = image.copy()
@@ -45,7 +50,27 @@ def enhance_copy(image: np.ndarray) -> np.ndarray:
     if noise >= _NOISE_BLUR:
         enhanced = cv2.filter2D(enhanced, -1, _SHARPEN_KERNEL)
 
-    return enhanced
+    return normalize_polarity(enhanced)
+
+
+def has_light_ink_on_dark_page(gray: np.ndarray) -> bool:
+    """True when the drawing is lighter than its background.
+
+    The thresholding stage assumes dark ink on light paper; on a dark page the
+    ink sits in the bright tail of the histogram rather than the dark one.
+    """
+    if gray.size == 0:
+        return False
+    low, median, high = np.percentile(gray, [1, 50, 99])
+    return bool(median < _DARK_PAGE_MEDIAN and (high - median) > (median - low))
+
+
+def normalize_polarity(image: np.ndarray) -> np.ndarray:
+    """Invert light-on-dark drawings so downstream stages see dark ink on light paper."""
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) if len(image.shape) == 3 else image
+    if has_light_ink_on_dark_page(gray):
+        return cv2.bitwise_not(image)
+    return image
 
 
 def _estimate_noise(gray: np.ndarray) -> float:

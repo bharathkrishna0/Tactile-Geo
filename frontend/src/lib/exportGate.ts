@@ -11,6 +11,8 @@ export const BLOCKING_QA_CHECKS = [
   'element_outside_printable_area',
   'feature_below_minimum_size',
   'no_tactile_geometry',
+  'exceeds_tactile_density',
+  'density_reduction_requires_review',
 ] as const
 
 const blockingChecks: ReadonlySet<string> = new Set(BLOCKING_QA_CHECKS)

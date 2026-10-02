@@ -1,0 +1,2381 @@
+{
+  "backend_root": "/home/ubuntu/baseline/backend",
+  "overall": {
+    "cases": 48,
+    "precision": 0.627,
+    "recall": 0.784,
+    "f1": 0.697,
+    "type_accuracy": 0.884,
+    "found_as_sides": 6,
+    "label_recall": 0.556,
+    "qa_pass_rate": 0.875,
+    "svg_rate": 0.979,
+    "error_rate": 0.021,
+    "median_ms": 7910,
+    "p95_ms": 12238
+  },
+  "by_category": {
+    "biology": {
+      "cases": 4,
+      "precision": 0.75,
+      "recall": 0.75,
+      "f1": 0.75,
+      "type_accuracy": 1.0,
+      "found_as_sides": 0,
+      "label_recall": 0.75,
+      "qa_pass_rate": 0.0,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 8520,
+      "p95_ms": 8681
+    },
+    "chemistry": {
+      "cases": 4,
+      "precision": 0.333,
+      "recall": 0.375,
+      "f1": 0.353,
+      "type_accuracy": 1.0,
+      "found_as_sides": 0,
+      "label_recall": null,
+      "qa_pass_rate": 1.0,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 7280,
+      "p95_ms": 7402
+    },
+    "geometry": {
+      "cases": 24,
+      "precision": 0.585,
+      "recall": 0.75,
+      "f1": 0.657,
+      "type_accuracy": 0.917,
+      "found_as_sides": 2,
+      "label_recall": 0.558,
+      "qa_pass_rate": 0.958,
+      "svg_rate": 0.958,
+      "error_rate": 0.042,
+      "median_ms": 7910,
+      "p95_ms": 12238
+    },
+    "graphs": {
+      "cases": 8,
+      "precision": 0.8,
+      "recall": 1.0,
+      "f1": 0.889,
+      "type_accuracy": 1.0,
+      "found_as_sides": 0,
+      "label_recall": 0.125,
+      "qa_pass_rate": 0.875,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 7412,
+      "p95_ms": 12870
+    },
+    "physics": {
+      "cases": 8,
+      "precision": 0.545,
+      "recall": 0.75,
+      "f1": 0.631,
+      "type_accuracy": 0.5,
+      "found_as_sides": 4,
+      "label_recall": 0.875,
+      "qa_pass_rate": 1.0,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 8402,
+      "p95_ms": 8745
+    }
+  },
+  "by_variant": {
+    "clean": {
+      "cases": 12,
+      "precision": 0.833,
+      "recall": 0.909,
+      "f1": 0.869,
+      "type_accuracy": 0.85,
+      "found_as_sides": 3,
+      "label_recall": 0.722,
+      "qa_pass_rate": 0.833,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 8402,
+      "p95_ms": 12870
+    },
+    "dark": {
+      "cases": 12,
+      "precision": 0.413,
+      "recall": 0.864,
+      "f1": 0.559,
+      "type_accuracy": 0.895,
+      "found_as_sides": 0,
+      "label_recall": 0.611,
+      "qa_pass_rate": 0.917,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 8648,
+      "p95_ms": 11458
+    },
+    "halfres": {
+      "cases": 12,
+      "precision": 0.588,
+      "recall": 0.455,
+      "f1": 0.513,
+      "type_accuracy": 1.0,
+      "found_as_sides": 0,
+      "label_recall": 0.611,
+      "qa_pass_rate": 0.833,
+      "svg_rate": 0.917,
+      "error_rate": 0.083,
+      "median_ms": 4801,
+      "p95_ms": 6984
+    },
+    "photo": {
+      "cases": 12,
+      "precision": 0.87,
+      "recall": 0.909,
+      "f1": 0.889,
+      "type_accuracy": 0.85,
+      "found_as_sides": 3,
+      "label_recall": 0.278,
+      "qa_pass_rate": 0.917,
+      "svg_rate": 1.0,
+      "error_rate": 0.0,
+      "median_ms": 8432,
+      "p95_ms": 12238
+    }
+  },
+  "peak_rss_mb": 3914,
+  "references": [
+    {
+      "file": "Screenshot 2026-10-02 002714.png",
+      "ms": 31112,
+      "semantic_elements": 374,
+      "tactile_elements": 326,
+      "qa_passes": true,
+      "blocking": []
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 12.37.25 AM.jpeg",
+      "ms": 15662,
+      "semantic_elements": 30,
+      "tactile_elements": 27,
+      "qa_passes": true,
+      "blocking": []
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 5.47.55 AM.jpeg",
+      "ms": 21900,
+      "semantic_elements": 7,
+      "tactile_elements": 7,
+      "qa_passes": false,
+      "blocking": [
+        "feature_below_minimum_size"
+      ]
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 5.48.32 AM.jpeg",
+      "ms": 16525,
+      "semantic_elements": 318,
+      "tactile_elements": 302,
+      "qa_passes": false,
+      "blocking": [
+        "feature_below_minimum_size"
+      ]
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 5.48.49 AM.jpeg",
+      "ms": 11613,
+      "semantic_elements": 146,
+      "tactile_elements": 135,
+      "qa_passes": false,
+      "blocking": [
+        "feature_below_minimum_size"
+      ]
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 9.24.37 AM.jpeg",
+      "ms": 63462,
+      "semantic_elements": 134,
+      "tactile_elements": 120,
+      "qa_passes": true,
+      "blocking": []
+    },
+    {
+      "file": "WhatsApp Image 2026-10-02 at 9.24.52 AM.jpeg",
+      "ms": 46130,
+      "semantic_elements": 78,
+      "tactile_elements": 74,
+      "qa_passes": true,
+      "blocking": []
+    }
+  ],
+  "cases": [
+    {
+      "file": "images/triangle_labelled__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 9840,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 3,
+      "labels_found": 3,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 4,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "triangle",
+          "bbox": [
+            221,
+            152,
+            578,
+            466
+          ]
+        }
+      ],
+      "label_texts": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "file": "images/triangle_labelled__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 6984,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 3,
+      "labels_found": 3,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 4,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "triangle",
+          "bbox": [
+            110,
+            76,
+            290,
+            233
+          ]
+        }
+      ],
+      "label_texts": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "file": "images/triangle_labelled__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 7943,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 3,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "triangle",
+          "bbox": [
+            221,
+            152,
+            577,
+            467
+          ]
+        }
+      ],
+      "label_texts": [
+        "B"
+      ]
+    },
+    {
+      "file": "images/triangle_labelled__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 9592,
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 3,
+      "labels_found": 2,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "triangle",
+          "bbox": [
+            234,
+            165,
+            552,
+            447
+          ]
+        },
+        {
+          "type": "triangle",
+          "bbox": [
+            214,
+            144,
+            592,
+            477
+          ]
+        }
+      ],
+      "label_texts": [
+        "8",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "file": "images/right_triangle__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 7626,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 1,
+      "type_correct": 0,
+      "labels_expected": 3,
+      "labels_found": 3,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 12,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            251,
+            618,
+            527,
+            2
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            251,
+            150,
+            1,
+            470
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            252,
+            150,
+            526,
+            468
+          ]
+        }
+      ],
+      "label_texts": [
+        "P",
+        "Q",
+        "R"
+      ]
+    },
+    {
+      "file": "images/right_triangle__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 5719,
+      "tp": 0,
+      "fp": 2,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 3,
+      "labels_found": 2,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 6,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            126,
+            310,
+            263,
+            0
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            125,
+            76,
+            1,
+            234
+          ]
+        }
+      ],
+      "label_texts": [
+        "P",
+        "R"
+      ]
+    },
+    {
+      "file": "images/right_triangle__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 10801,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 1,
+      "type_correct": 0,
+      "labels_expected": 3,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 9,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            250,
+            618,
+            529,
+            2
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            250,
+            150,
+            2,
+            470
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            252,
+            150,
+            527,
+            468
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/right_triangle__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 11188,
+      "tp": 1,
+      "fp": 2,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 3,
+      "labels_found": 2,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 7,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            214,
+            634,
+            1,
+            46
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            254,
+            159,
+            515,
+            457
+          ]
+        },
+        {
+          "type": "triangle",
+          "bbox": [
+            244,
+            148,
+            541,
+            477
+          ]
+        }
+      ],
+      "label_texts": [
+        "0",
+        "P",
+        "R"
+      ]
+    },
+    {
+      "file": "images/circle_centre__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 8848,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            500,
+            399,
+            251,
+            1
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            249,
+            149,
+            502,
+            502
+          ]
+        }
+      ],
+      "label_texts": [
+        "0"
+      ]
+    },
+    {
+      "file": "images/circle_centre__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 4769,
+      "tp": 1,
+      "fp": 0,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            251,
+            200,
+            124,
+            0
+          ]
+        }
+      ],
+      "label_texts": [
+        "0"
+      ]
+    },
+    {
+      "file": "images/circle_centre__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 8796,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            500,
+            401,
+            251,
+            0
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            249,
+            149,
+            502,
+            502
+          ]
+        }
+      ],
+      "label_texts": [
+        "0"
+      ]
+    },
+    {
+      "file": "images/circle_centre__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 8464,
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            461,
+            392,
+            296,
+            1
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            257,
+            157,
+            486,
+            486
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            244,
+            144,
+            512,
+            512
+          ]
+        }
+      ],
+      "label_texts": [
+        "0"
+      ]
+    },
+    {
+      "file": "images/rectangle_abcd__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 12528,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 4,
+      "labels_found": 3,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            200,
+            200,
+            600,
+            400
+          ]
+        }
+      ],
+      "label_texts": [
+        "0",
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    {
+      "file": "images/rectangle_abcd__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 6493,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 4,
+      "labels_found": 4,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            100,
+            100,
+            300,
+            200
+          ]
+        }
+      ],
+      "label_texts": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    {
+      "file": "images/rectangle_abcd__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 12238,
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 4,
+      "labels_found": 2,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            200,
+            200,
+            600,
+            400
+          ]
+        }
+      ],
+      "label_texts": [
+        "A",
+        "B"
+      ]
+    },
+    {
+      "file": "images/rectangle_abcd__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 11458,
+      "tp": 1,
+      "fp": 2,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 4,
+      "labels_found": 2,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 7,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            830,
+            614,
+            0,
+            44
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            207,
+            207,
+            586,
+            386
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            194,
+            195,
+            611,
+            410
+          ]
+        }
+      ],
+      "label_texts": [
+        "0",
+        "8",
+        "A",
+        "C"
+      ]
+    },
+    {
+      "file": "images/pentagon__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 7372,
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 1,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            254,
+            160,
+            492,
+            470
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/pentagon__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 4555,
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 1,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            174,
+            315,
+            151,
+            0
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/pentagon__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 7491,
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 1,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            254,
+            160,
+            492,
+            470
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/pentagon__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 7260,
+      "tp": 0,
+      "fp": 2,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            262,
+            170,
+            475,
+            454
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            251,
+            154,
+            502,
+            482
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/two_circles__clean.png",
+      "category": "geometry",
+      "variant": "clean",
+      "ms": 8361,
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 2,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 4,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            580,
+            260,
+            280,
+            280
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            130,
+            230,
+            340,
+            340
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            706,
+            612,
+            21,
+            28
+          ]
+        }
+      ],
+      "label_texts": [
+        "X"
+      ]
+    },
+    {
+      "file": "images/two_circles__halfres.png",
+      "category": "geometry",
+      "variant": "halfres",
+      "ms": 4580,
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 2,
+      "labels_found": 0,
+      "qa_passes": false,
+      "blocking": [],
+      "tactile_elements": 0,
+      "has_svg": false,
+      "error": "ValueError: Cannot map labels because no vector geometry was detected."
+    },
+    {
+      "file": "images/two_circles__photo.png",
+      "category": "geometry",
+      "variant": "photo",
+      "ms": 7437,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 2,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            580,
+            260,
+            280,
+            280
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            130,
+            230,
+            340,
+            340
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/two_circles__dark.png",
+      "category": "geometry",
+      "variant": "dark",
+      "ms": 7877,
+      "tp": 2,
+      "fp": 3,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 2,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 6,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "polygon",
+          "bbox": [
+            700,
+            606,
+            34,
+            40
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            587,
+            267,
+            266,
+            266
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            574,
+            254,
+            292,
+            292
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            138,
+            238,
+            324,
+            324
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            124,
+            224,
+            352,
+            352
+          ]
+        }
+      ],
+      "label_texts": [
+        "X"
+      ]
+    },
+    {
+      "file": "images/inclined_plane__clean.png",
+      "category": "physics",
+      "variant": "clean",
+      "ms": 8411,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 2,
+      "type_correct": 0,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 22,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            152,
+            648,
+            698,
+            0
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            152,
+            250,
+            698,
+            398
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            850,
+            250,
+            0,
+            398
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            470,
+            499,
+            120,
+            0
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            470,
+            400,
+            121,
+            2
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            590,
+            400,
+            1,
+            99
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            470,
+            402,
+            0,
+            97
+          ]
+        }
+      ],
+      "label_texts": [
+        "m"
+      ]
+    },
+    {
+      "file": "images/inclined_plane__halfres.png",
+      "category": "physics",
+      "variant": "halfres",
+      "ms": 4639,
+      "tp": 0,
+      "fp": 2,
+      "fn": 2,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            76,
+            324,
+            348,
+            1
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            424,
+            126,
+            1,
+            198
+          ]
+        }
+      ],
+      "label_texts": [
+        "m"
+      ]
+    },
+    {
+      "file": "images/inclined_plane__photo.png",
+      "category": "physics",
+      "variant": "photo",
+      "ms": 8561,
+      "tp": 2,
+      "fp": 1,
+      "fn": 0,
+      "outline_matches": 2,
+      "type_correct": 0,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 23,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            152,
+            648,
+            698,
+            2
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            152,
+            250,
+            698,
+            400
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            850,
+            250,
+            0,
+            398
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            470,
+            500,
+            120,
+            0
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            469,
+            400,
+            122,
+            3
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            590,
+            400,
+            1,
+            100
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            469,
+            403,
+            1,
+            97
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            469,
+            451,
+            1,
+            49
+          ]
+        }
+      ],
+      "label_texts": [
+        "m"
+      ]
+    },
+    {
+      "file": "images/inclined_plane__dark.png",
+      "category": "physics",
+      "variant": "dark",
+      "ms": 8745,
+      "tp": 2,
+      "fp": 5,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 8,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            153,
+            252,
+            705,
+            407
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            461,
+            368,
+            91,
+            56
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            507,
+            368,
+            45,
+            27
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            474,
+            406,
+            112,
+            90
+          ]
+        },
+        {
+          "type": "triangle",
+          "bbox": [
+            474,
+            404,
+            98,
+            56
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            181,
+            264,
+            662,
+            379
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            145,
+            246,
+            711,
+            410
+          ]
+        }
+      ],
+      "label_texts": [
+        "m"
+      ]
+    },
+    {
+      "file": "images/lever__clean.png",
+      "category": "physics",
+      "variant": "clean",
+      "ms": 8392,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            120,
+            400,
+            760,
+            0
+          ]
+        },
+        {
+          "type": "triangle",
+          "bbox": [
+            420,
+            412,
+            158,
+            188
+          ]
+        }
+      ],
+      "label_texts": [
+        "F"
+      ]
+    },
+    {
+      "file": "images/lever__halfres.png",
+      "category": "physics",
+      "variant": "halfres",
+      "ms": 4833,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            61,
+            200,
+            378,
+            0
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            211,
+            300,
+            78,
+            0
+          ]
+        }
+      ],
+      "label_texts": [
+        "F"
+      ]
+    },
+    {
+      "file": "images/lever__photo.png",
+      "category": "physics",
+      "variant": "photo",
+      "ms": 8333,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            119,
+            400,
+            762,
+            0
+          ]
+        },
+        {
+          "type": "triangle",
+          "bbox": [
+            422,
+            412,
+            156,
+            188
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/lever__dark.png",
+      "category": "physics",
+      "variant": "dark",
+      "ms": 8616,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "triangle",
+          "bbox": [
+            426,
+            421,
+            148,
+            175
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            114,
+            399,
+            772,
+            210
+          ]
+        }
+      ],
+      "label_texts": [
+        "F"
+      ]
+    },
+    {
+      "file": "images/axes_line_graph__clean.png",
+      "category": "graphs",
+      "variant": "clean",
+      "ms": 12870,
+      "tp": 3,
+      "fp": 1,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 2,
+      "labels_found": 0,
+      "qa_passes": false,
+      "blocking": [
+        "feature_below_minimum_size"
+      ],
+      "tactile_elements": 7,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            150,
+            648,
+            729,
+            1
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            180,
+            200,
+            640,
+            400
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            150,
+            120,
+            0,
+            528
+          ]
+        },
+        {
+          "type": "polygon",
+          "bbox": [
+            898,
+            646,
+            16,
+            20
+          ]
+        }
+      ],
+      "label_texts": [
+        "Y"
+      ]
+    },
+    {
+      "file": "images/axes_line_graph__halfres.png",
+      "category": "graphs",
+      "variant": "halfres",
+      "ms": 5609,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 2,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 6,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            89,
+            100,
+            321,
+            200
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            76,
+            324,
+            363,
+            1
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            75,
+            61,
+            1,
+            263
+          ]
+        }
+      ],
+      "label_texts": [
+        "X"
+      ]
+    },
+    {
+      "file": "images/axes_line_graph__photo.png",
+      "category": "graphs",
+      "variant": "photo",
+      "ms": 8832,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 2,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 6,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            149,
+            649,
+            732,
+            1
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            179,
+            200,
+            641,
+            400
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            149,
+            120,
+            0,
+            529
+          ]
+        }
+      ],
+      "label_texts": [
+        "X"
+      ]
+    },
+    {
+      "file": "images/axes_line_graph__dark.png",
+      "category": "graphs",
+      "variant": "dark",
+      "ms": 9926,
+      "tp": 3,
+      "fp": 2,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 2,
+      "labels_found": 1,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 7,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "line_segment",
+          "bbox": [
+            176,
+            198,
+            648,
+            404
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            144,
+            654,
+            776,
+            1
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            141,
+            641,
+            778,
+            4
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            144,
+            109,
+            2,
+            545
+          ]
+        },
+        {
+          "type": "line_segment",
+          "bbox": [
+            154,
+            76,
+            5,
+            564
+          ]
+        }
+      ],
+      "label_texts": [
+        "X",
+        "y"
+      ]
+    },
+    {
+      "file": "images/bar_chart__clean.png",
+      "category": "graphs",
+      "variant": "clean",
+      "ms": 7137,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            660,
+            500,
+            140,
+            150
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            220,
+            400,
+            140,
+            250
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            440,
+            250,
+            140,
+            400
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/bar_chart__halfres.png",
+      "category": "graphs",
+      "variant": "halfres",
+      "ms": 4539,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            330,
+            250,
+            70,
+            75
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            110,
+            200,
+            70,
+            125
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            220,
+            125,
+            70,
+            200
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/bar_chart__photo.png",
+      "category": "graphs",
+      "variant": "photo",
+      "ms": 7520,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            660,
+            500,
+            140,
+            150
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            220,
+            400,
+            140,
+            250
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            440,
+            250,
+            140,
+            400
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/bar_chart__dark.png",
+      "category": "graphs",
+      "variant": "dark",
+      "ms": 7305,
+      "tp": 3,
+      "fp": 3,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 3,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 6,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "rectangle",
+          "bbox": [
+            667,
+            507,
+            126,
+            136
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            655,
+            495,
+            150,
+            160
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            227,
+            407,
+            126,
+            236
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            215,
+            394,
+            150,
+            261
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            446,
+            256,
+            128,
+            388
+          ]
+        },
+        {
+          "type": "rectangle",
+          "bbox": [
+            434,
+            244,
+            152,
+            412
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/benzene_ring__clean.png",
+      "category": "chemistry",
+      "variant": "clean",
+      "ms": 7396,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            350,
+            250,
+            300,
+            300
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            242,
+            174,
+            518,
+            450
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/benzene_ring__halfres.png",
+      "category": "chemistry",
+      "variant": "halfres",
+      "ms": 4312,
+      "tp": 0,
+      "fp": 1,
+      "fn": 2,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 1,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            120,
+            87,
+            260,
+            225
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/benzene_ring__photo.png",
+      "category": "chemistry",
+      "variant": "photo",
+      "ms": 7402,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 2,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            350,
+            250,
+            300,
+            300
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            242,
+            174,
+            518,
+            450
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/benzene_ring__dark.png",
+      "category": "chemistry",
+      "variant": "dark",
+      "ms": 7164,
+      "tp": 1,
+      "fp": 3,
+      "fn": 1,
+      "outline_matches": 0,
+      "type_correct": 1,
+      "labels_expected": 0,
+      "labels_found": 0,
+      "qa_passes": true,
+      "blocking": [],
+      "tactile_elements": 4,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            357,
+            257,
+            286,
+            286
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            344,
+            244,
+            312,
+            312
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            252,
+            181,
+            499,
+            437
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            234,
+            170,
+            532,
+            460
+          ]
+        }
+      ],
+      "label_texts": []
+    },
+    {
+      "file": "images/cell__clean.png",
+      "category": "biology",
+      "variant": "clean",
+      "ms": 8510,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": false,
+      "blocking": [
+        "braille_on_line"
+      ],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            470,
+            290,
+            180,
+            180
+          ]
+        },
+        {
+          "type": "ellipse",
+          "bbox": [
+            141,
+            161,
+            718,
+            478
+          ]
+        }
+      ],
+      "label_texts": [
+        "N"
+      ]
+    },
+    {
+      "file": "images/cell__halfres.png",
+      "category": "biology",
+      "variant": "halfres",
+      "ms": 5141,
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "outline_matches": 0,
+      "type_correct": 0,
+      "labels_expected": 1,
+      "labels_found": 0,
+      "qa_passes": false,
+      "blocking": [
+        "no_tactile_geometry"
+      ],
+      "tactile_elements": 0,
+      "has_svg": true,
+      "predictions": [],
+      "label_texts": []
+    },
+    {
+      "file": "images/cell__photo.png",
+      "category": "biology",
+      "variant": "photo",
+      "ms": 8530,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": false,
+      "blocking": [
+        "braille_on_line"
+      ],
+      "tactile_elements": 3,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            469,
+            289,
+            183,
+            182
+          ]
+        },
+        {
+          "type": "ellipse",
+          "bbox": [
+            140,
+            160,
+            720,
+            480
+          ]
+        }
+      ],
+      "label_texts": [
+        "N"
+      ]
+    },
+    {
+      "file": "images/cell__dark.png",
+      "category": "biology",
+      "variant": "dark",
+      "ms": 8681,
+      "tp": 2,
+      "fp": 2,
+      "fn": 0,
+      "outline_matches": 0,
+      "type_correct": 2,
+      "labels_expected": 1,
+      "labels_found": 1,
+      "qa_passes": false,
+      "blocking": [
+        "braille_on_line"
+      ],
+      "tactile_elements": 5,
+      "has_svg": true,
+      "predictions": [
+        {
+          "type": "circle",
+          "bbox": [
+            474,
+            294,
+            172,
+            172
+          ]
+        },
+        {
+          "type": "circle",
+          "bbox": [
+            464,
+            284,
+            192,
+            192
+          ]
+        },
+        {
+          "type": "ellipse",
+          "bbox": [
+            148,
+            167,
+            704,
+            466
+          ]
+        },
+        {
+          "type": "ellipse",
+          "bbox": [
+            134,
+            154,
+            732,
+            492
+          ]
+        }
+      ],
+      "label_texts": [
+        "N"
+      ]
+    }
+  ]
+}

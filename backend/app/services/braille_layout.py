@@ -8,8 +8,9 @@ from math import hypot
 from typing import Any
 
 from app.models.geometry import DetectedElement, GeometryType
+from app.services.segment_geometry import rect_around, rect_gap, segment_to_rect_distance
 from app.services.tactile_rules import TACTILE_RULES
-from app.services.tactile_svg import braille_text_extent
+from app.services.tactile_svg import braille_text_extent, page_layout
 
 
 def _point_to_segment_distance(point: tuple[int, int], start: tuple[int, int], end: tuple[int, int]) -> float:
@@ -60,13 +61,15 @@ def place_braille_markers(
     """Move labels off geometry, apart from other markers, and add reading order.
 
     ``bounds`` is the page ``(width, height)``; when given, the whole rendered
-    braille string must fit on the page, so no cell is clipped at the edge.
+    braille string must fit on the page, so no cell is clipped at the edge, and
+    clearance is measured in millimetres from the embossed cell block.
     """
+    if bounds is not None and minimum_clearance is None:
+        return _place_on_page(labels, shapes, bounds)
     if minimum_clearance is None:
         minimum_clearance = int(TACTILE_RULES.braille_to_line_clearance_px)
     segments = _line_segments(shapes)
     positioned: list[dict] = []
-    candidates = [(0, 0), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
     for label in labels:
         desired = label["desired_position"]
         braille = str(label.get("braille") or label.get("text") or "")
@@ -74,7 +77,7 @@ def place_braille_markers(
         maximum_search = minimum_clearance * 5 + 1
         step = max(1, minimum_clearance // 2)
         for radius in range(0, maximum_search + 1, step):
-            for direction_x, direction_y in candidates:
+            for direction_x, direction_y in _SEARCH_DIRECTIONS:
                 proposed = (desired[0] + direction_x * radius, desired[1] + direction_y * radius)
                 if not _on_page(proposed, braille, bounds):
                     continue
@@ -86,13 +89,57 @@ def place_braille_markers(
             else:
                 continue
             break
-        positioned.append({
-            **label,
-            "position": position,
-            "offset": (position[0] - desired[0], position[1] - desired[1]),
-            "collision_adjusted": position != desired,
-        })
+        positioned.append(_positioned(label, desired, position))
 
+    return _with_reading_order(positioned)
+
+
+_SEARCH_DIRECTIONS = [(0, 0), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1)]
+# How far (as a multiple of the cell block's larger side) a marker may travel
+# from its printed position before placement gives up and leaves it for QA.
+_MAX_SEARCH_BLOCKS = 4
+
+
+def _positioned(label: dict, desired: tuple[int, int], position: tuple[int, int]) -> dict:
+    return {
+        **label,
+        "position": position,
+        "offset": (position[0] - desired[0], position[1] - desired[1]),
+        "collision_adjusted": position != desired,
+    }
+
+
+def _place_on_page(labels: list[dict], shapes: list[dict], bounds: tuple[int, int]) -> list[dict]:
+    mm_per_px = page_layout(*bounds).mm_per_px
+    line_clearance = TACTILE_RULES.braille_to_line_clearance_mm / mm_per_px
+    marker_spacing = TACTILE_RULES.braille_to_braille_spacing_mm / mm_per_px
+    segments = _line_segments(shapes)
+    placed_rects: list[tuple[float, float, float, float]] = []
+    positioned: list[dict] = []
+    for label in labels:
+        desired = label["desired_position"]
+        braille = str(label.get("braille") or label.get("text") or "")
+        width, height = braille_text_extent(braille, *bounds)
+        position = _clamp_to_page(desired, braille, bounds)
+        step = max(1, math.ceil(min(width, height) / 4))
+        maximum_search = math.ceil(max(width, height) * _MAX_SEARCH_BLOCKS)
+        found = False
+        for radius in range(0, maximum_search + 1, step):
+            for direction_x, direction_y in _SEARCH_DIRECTIONS:
+                proposed = (desired[0] + direction_x * radius, desired[1] + direction_y * radius)
+                if not _on_page(proposed, braille, bounds):
+                    continue
+                rect = rect_around(proposed, width, height)
+                if all(segment_to_rect_distance(a, b, rect) >= line_clearance for a, b in segments) and all(
+                    rect_gap(rect, prior) >= marker_spacing for prior in placed_rects
+                ):
+                    position = proposed
+                    found = True
+                    break
+            if found:
+                break
+        placed_rects.append(rect_around(position, width, height))
+        positioned.append(_positioned(label, desired, position))
     return _with_reading_order(positioned)
 
 

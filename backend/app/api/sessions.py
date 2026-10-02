@@ -31,8 +31,9 @@ from app.services.braille import LouisBrailleTranslator
 from app.services.editing import ElementNotFoundError, InvalidEditError, apply_batch_edits, apply_edit, refresh_semantic_fields, regenerate, semantic_from_dict
 from app.services.image_quality import QualityReport
 from app.services.pipeline import build_full_analysis
+from app.services.object_storage import ObjectStorageError, source_image_key
 from app.services.rate_limiter import upload_rate_limiter
-from app.services.session_store import session_store
+from app.services.session_store import object_storage, read_source_image, session_store
 from app.services.tactile_qa import QAReport
 from app.services.tactile_simplification import SimplifiedGeometry
 
@@ -279,10 +280,18 @@ async def create_session(request: Request, image: UploadFile = File(...)) -> Ses
     if len(contents) > MAX_UPLOAD_BYTES:
         raise HTTPException(status_code=413, detail="The uploaded image exceeds the 10 MB limit.")
     session_id = str(uuid4())
-    UPLOAD_DIRECTORY.mkdir(parents=True, exist_ok=True)
-    image_path = UPLOAD_DIRECTORY / f"{session_id}{extension}"
-    image_path.write_bytes(contents)
-    session = ConversionSession(session_id=session_id, original_filename=image.filename or f"upload{extension}", original_image_path=image_path)
+    storage_key = source_image_key(session_id, extension)
+    try:
+        object_storage.put(storage_key, contents, image.content_type)
+    except ObjectStorageError as error:
+        logger.error("Could not store upload for session %s: %s", session_id, error)
+        raise HTTPException(status_code=503, detail="The image could not be saved. Please try again.") from error
+    session = ConversionSession(
+        session_id=session_id,
+        original_filename=image.filename or f"upload{extension}",
+        original_image_path=UPLOAD_DIRECTORY / storage_key,
+        source_storage_key=storage_key,
+    )
     session_store.add(session)
     return SessionCreated(session_id=session_id, filename=session.original_filename, created_at=session.created_at)
 
@@ -298,7 +307,11 @@ async def process_session(session_id: str, params: ProcessingParams | None = Non
     # are logged, never image data or student-identifying content.
     started = time.perf_counter()
     try:
-        result = build_full_analysis(session.original_image_path.read_bytes(), processing_params.edge_sensitivity)
+        image_bytes = read_source_image(session, object_storage)
+    except ObjectStorageError as error:
+        raise HTTPException(status_code=410, detail="The uploaded image is no longer available. Upload it again.") from error
+    try:
+        result = build_full_analysis(image_bytes, processing_params.edge_sensitivity)
     except ValueError as error:
         logger.warning("Model A process failed for session %s after %.0fms: %s", session_id, (time.perf_counter() - started) * 1000, error)
         raise HTTPException(status_code=422, detail=str(error)) from error
@@ -314,6 +327,10 @@ async def process_session(session_id: str, params: ProcessingParams | None = Non
     session.semantic_geometry = _semantic_to_dict(result.semantic_geometry)
     session.simplified_geometry = _simplified_to_dict(result.simplified_geometry)
     session.qa_report = _qa_to_dict(result.qa_report)
+    session_store.save(session)
+    duration_ms = round((time.perf_counter() - started) * 1000)
+    session_store.record_run(session_id, "process", session.processing_params, _run_summary(result.qa_report, result.simplified_geometry), duration_ms)
+    session_store.record_event(session_id, "model_a_processed", {"qa_passes": result.qa_report.passes, "score": result.qa_report.score_0_100})
     logger.info(
         "Model A processed session %s in %.0fms: %d shapes, %d labels, %d elements, %d QA issues",
         session_id,
@@ -345,7 +362,7 @@ async def edit_element(
         raise HTTPException(status_code=404, detail=str(error)) from error
     except InvalidEditError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
-    _persist_edited_session(session, semantic)
+    _persist_edited_session(session, semantic, [edit])
     return _session_response(session)
 
 
@@ -367,7 +384,7 @@ async def batch_edit(
         raise HTTPException(status_code=404, detail=str(error)) from error
     except InvalidEditError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
-    _persist_edited_session(session, semantic)
+    _persist_edited_session(session, semantic, edits)
     return _session_response(session)
 
 
@@ -382,10 +399,28 @@ def _editable_semantic(session: ConversionSession) -> SemanticGeometry:
     return semantic_from_dict(session.semantic_geometry)
 
 
-def _persist_edited_session(session: ConversionSession, semantic: SemanticGeometry) -> None:
+def _persist_edited_session(session: ConversionSession, semantic: SemanticGeometry, edits: list[dict]) -> None:
+    started = time.perf_counter()
     refresh_semantic_fields(semantic)
     simplified, qa_report, tactile_svg = regenerate(semantic)
     session.semantic_geometry = _semantic_to_dict(semantic)
     session.simplified_geometry = _simplified_to_dict(simplified)
     session.qa_report = _qa_to_dict(qa_report)
     session.tactile_svg = tactile_svg
+    session_store.save(session)
+    session_store.record_edits(session.session_id, edits)
+    session_store.record_run(
+        session.session_id, "regenerate", {}, _run_summary(qa_report, simplified), round((time.perf_counter() - started) * 1000),
+    )
+    session_store.record_event(
+        session.session_id, "teacher_edit", {"element_ids": [edit["element_id"] for edit in edits], "qa_passes": qa_report.passes},
+    )
+
+
+def _run_summary(qa_report: QAReport, simplified: SimplifiedGeometry) -> dict:
+    return {
+        "qa_passes": qa_report.passes,
+        "qa_score": qa_report.score_0_100,
+        "blocking_checks": sorted({issue.check for issue in qa_report.issues if issue.severity == "error"}),
+        "element_count": len(simplified.elements),
+    }

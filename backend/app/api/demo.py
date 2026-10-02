@@ -87,6 +87,7 @@ def process_demo_sample(sample_id: str) -> DemoProcessedOut:
     session.simplified_geometry = _simplified_to_dict(result.simplified_geometry)
     session.qa_report = _qa_to_dict(result.qa_report)
     session_store.add(session)
+    session_store.record_event(session_id, "model_a_processed", {"qa_passes": result.qa_report.passes, "demo_sample": sample_id})
 
     return DemoProcessedOut(
         **_session_response(session).model_dump(),
