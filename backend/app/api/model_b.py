@@ -50,9 +50,12 @@ from app.schemas.model_b import (
     ModelBAgreementHint,
     ModelBBoundingRegion,
     ModelBCandidateAddition,
+    ModelBDecision,
+    ModelBDecisionRequest,
     ModelBDiagramRelation,
     ModelBDisagreement,
     ModelBEntity,
+    ModelBEntityReview,
     ModelBErrorSchema,
     ModelBFusionReport,
     ModelBJobStatus,
@@ -396,18 +399,7 @@ def get_model_b_fusion(session_id: str, job_id: str) -> ModelBFusionReport:
     Read-only and side-effect free. Returns 409 until the job completes, since
     there is nothing to reconcile against a result that does not exist yet.
     """
-    job = model_b_job_store.get(job_id)
-    if job is None or job.session_id != session_id:
-        raise HTTPException(status_code=404, detail="Model B job not found.")
-    if not job.status.is_terminal:
-        raise HTTPException(
-            status_code=409,
-            detail=f"The Model B job is still {job.status.value}.",
-        )
-    if job.status is not JobStatus.COMPLETED or not isinstance(job.result, ModelBResult):
-        raise HTTPException(
-            status_code=409, detail="This Model B job did not produce a result to reconcile."
-        )
+    job = _completed_job(session_id, job_id)
 
     from app.model_b.fusion import reconcile
 
@@ -431,7 +423,69 @@ def get_model_b_fusion(session_id: str, job_id: str) -> ModelBFusionReport:
         sum(1 for d in report.disagreements if d.kind == "model_a_only"),
         sum(1 for a in report.agreements if a.verdict == "weak_overlap"),
     )
-    return _fusion_schema(report)
+    return _fusion_schema(report, _decisions_for(session_id, job_id))
+
+
+@router.post(
+    "/sessions/{session_id}/model-b/{job_id}/decisions",
+    response_model=ModelBDecision,
+    status_code=201,
+)
+def record_model_b_decision(session_id: str, job_id: str, payload: ModelBDecisionRequest) -> ModelBDecision:
+    """Record a teacher's accept / reject / defer on one Model B finding.
+
+    Append-only audit history; the latest decision per finding wins. Nothing in
+    Model A changes here: an accepted finding is applied by the teacher through
+    the element editor, against Model A's own geometry.
+    """
+    job = _completed_job(session_id, job_id)
+    known_ids = {entity.id for entity in job.result.entities}
+    known_ids |= {note.id for note in job.result.diagram_relations}
+    known_ids |= {item.id for item in job.result.text_items}
+    known_ids |= {note.id for note in job.result.uncertainties}
+    if payload.model_b_id not in known_ids:
+        raise HTTPException(status_code=422, detail="That finding is not part of this Model B result.")
+    session_store.record_event(
+        session_id,
+        "model_b_decision",
+        {"job_id": job_id, "model_b_id": payload.model_b_id, "decision": payload.decision, "note": payload.note},
+    )
+    decision = _decisions_for(session_id, job_id).get(payload.model_b_id)
+    if decision is None:
+        raise HTTPException(status_code=500, detail="The decision could not be recorded.")
+    return decision
+
+
+def _completed_job(session_id: str, job_id: str) -> ModelBJob:
+    job = model_b_job_store.get(job_id)
+    if job is None or job.session_id != session_id:
+        raise HTTPException(status_code=404, detail="Model B job not found.")
+    if not job.status.is_terminal:
+        raise HTTPException(
+            status_code=409,
+            detail=f"The Model B job is still {job.status.value}.",
+        )
+    if job.status is not JobStatus.COMPLETED or not isinstance(job.result, ModelBResult):
+        raise HTTPException(
+            status_code=409, detail="This Model B job did not produce a result to reconcile."
+        )
+    return job
+
+
+def _decisions_for(session_id: str, job_id: str) -> dict[str, ModelBDecision]:
+    decisions: dict[str, ModelBDecision] = {}
+    for event in session_store.events(session_id):
+        payload = event["payload"]
+        if event["event_type"] != "model_b_decision" or payload.get("job_id") != job_id:
+            continue
+        decisions[payload["model_b_id"]] = ModelBDecision(
+            job_id=job_id,
+            model_b_id=payload["model_b_id"],
+            decision=payload["decision"],
+            note=payload.get("note"),
+            decided_at=event["created_at"],
+        )
+    return decisions
 
 
 def _model_a_semantic_geometry(session_id: str) -> SemanticGeometry | None:
@@ -450,9 +504,23 @@ def _model_a_semantic_geometry(session_id: str) -> SemanticGeometry | None:
         return None
 
 
-def _fusion_schema(report: FusionReport) -> ModelBFusionReport:
+def _fusion_schema(report: FusionReport, decisions: dict[str, ModelBDecision]) -> ModelBFusionReport:
     return ModelBFusionReport(
         summary=report.summary(),
+        entity_reviews=[
+            ModelBEntityReview(
+                model_b_id=review.model_b_id,
+                model_b_kind=review.model_b_kind,
+                model_a_id=review.model_a_id,
+                correspondence=review.correspondence,
+                adds_semantics=review.adds_semantics,
+                contradicts_model_a=review.contradicts_model_a,
+                requires_review=review.requires_review,
+                reason=review.reason,
+            )
+            for review in report.entity_reviews
+        ],
+        decisions=decisions,
         agreements=[
             ModelBAgreementHint(
                 model_b_id=hint.model_b_id,

@@ -245,6 +245,45 @@ class ModelBDisagreement(BaseModel):
     advisory_only: Literal[True] = True
 
 
+class ModelBEntityReview(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
+    model_b_id: str
+    model_b_kind: str
+    model_a_id: str | None
+    correspondence: Literal["strong", "weak", "none"]
+    adds_semantics: bool
+    contradicts_model_a: bool
+    requires_review: bool
+    reason: str
+    advisory_only: Literal[True] = True
+
+
+class ModelBDecisionRequest(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
+    model_b_id: str = Field(min_length=1, max_length=64)
+    decision: Literal["accept", "reject", "defer"]
+    note: str | None = Field(default=None, max_length=500)
+
+
+class ModelBDecision(BaseModel):
+    """A teacher's recorded decision on one Model B finding.
+
+    Recording ``accept`` changes nothing in Model A. The teacher applies a
+    change through the element editor, where Model A geometry is the evidence.
+    """
+
+    model_config = ConfigDict(protected_namespaces=())
+
+    job_id: str
+    model_b_id: str
+    decision: Literal["accept", "reject", "defer"]
+    note: str | None = None
+    decided_at: datetime
+    applied_to_geometry: Literal[False] = False
+
+
 class ModelBFusionReport(BaseModel):
     """Read-only reconciliation. Contains no field that can change Model A."""
 
@@ -252,6 +291,9 @@ class ModelBFusionReport(BaseModel):
 
     summary: dict[str, int]
     agreements: list[ModelBAgreementHint]
+    entity_reviews: list[ModelBEntityReview] = []
+    #: Latest teacher decision per Model B id, for this job.
+    decisions: dict[str, ModelBDecision] = {}
     candidate_additions: list[ModelBCandidateAddition]
     disagreements: list[ModelBDisagreement]
     diagram_relations: list[dict]

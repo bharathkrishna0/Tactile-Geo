@@ -13,6 +13,7 @@ import {
   fetchModelBAvailability,
   fetchModelBJob,
   fetchModelBFusion,
+  recordModelBDecision,
   requestModelB,
 } from './lib/modelBApi'
 import type { ModelBAvailability } from './lib/modelBTypes'
@@ -24,7 +25,13 @@ const acceptedTypes = ['image/png', 'image/jpeg']
  * Model B client functions, passed in as a prop so the panel is testable without
  * module mocking and so the whole feature can be stubbed in one place.
  */
-const modelBApi = { request: requestModelB, poll: fetchModelBJob, cancel: cancelModelBJob, fusion: fetchModelBFusion }
+const modelBApi = {
+  request: requestModelB,
+  poll: fetchModelBJob,
+  cancel: cancelModelBJob,
+  fusion: fetchModelBFusion,
+  decide: recordModelBDecision,
+}
 
 function readinessScore(result: AnalysisResult | null): number {
   if (!result?.qa_report) return 0

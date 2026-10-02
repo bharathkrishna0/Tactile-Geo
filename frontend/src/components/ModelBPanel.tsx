@@ -3,6 +3,7 @@ import {
   cancelModelBJob,
   fetchModelBJob,
   fetchModelBFusion,
+  recordModelBDecision,
   requestModelB,
 } from '../lib/modelBApi'
 import {
@@ -16,6 +17,9 @@ import {
 } from '../lib/modelBPoll'
 import type {
   ModelBAvailability,
+  ModelBDecision,
+  ModelBDecisionValue,
+  ModelBEntityReview,
   ModelBFusionReport,
   ModelBJob,
 } from '../lib/modelBTypes'
@@ -30,6 +34,7 @@ interface ModelBPanelProps {
     poll: typeof fetchModelBJob
     cancel: typeof cancelModelBJob
     fusion: typeof fetchModelBFusion
+    decide: typeof recordModelBDecision
   }
 }
 
@@ -41,8 +46,10 @@ interface ModelBPanelProps {
  * 1. It never auto-runs. Model B costs money and takes seconds, so the teacher
  *    asks for it. Nothing is requested on upload.
  * 2. It never writes to Model A. Every suggestion is displayed as a
- *    suggestion; there is no accept button wired to a mutation, because
- *    accepting would mean fabricating geometry from a bounding box.
+ *    suggestion. The review queue records the teacher's accept / reject /
+ *    defer decision in the audit history, but accepting applies nothing:
+ *    applying it would mean fabricating geometry from a bounding box. The
+ *    teacher makes the change in the geometry view, against Model A.
  * 3. It is honest when it is off, busy, failed, or partial. A silent panel that
  *    shows nothing is indistinguishable from one that found nothing.
  */
@@ -208,6 +215,12 @@ export default function ModelBPanel({
         </p>
       )}
 
+      {job?.cache_hit === true && (
+        <p className="model-b-note">
+          Reused the earlier analysis of this identical image; no new provider call was made.
+        </p>
+      )}
+
       {job?.result?.truncated === true && (
         <p className="model-b-warning">
           This response was cut off, so it may be missing findings.
@@ -237,7 +250,12 @@ export default function ModelBPanel({
         <ModelBFindings result={job.result} />
       )}
 
-      {fusion && <FusionSummary fusion={fusion} />}
+      {fusion && job && (
+        <FusionSummary
+          fusion={fusion}
+          onDecide={(modelBId, decision) => api.decide(sessionId, job.job_id, modelBId, decision)}
+        />
+      )}
     </section>
   )
 }
@@ -325,7 +343,13 @@ function ModelBAttribution({ result }: { result: NonNullable<ModelBJob['result']
   )
 }
 
-function FusionSummary({ fusion }: { fusion: ModelBFusionReport }) {
+function FusionSummary({
+  fusion,
+  onDecide,
+}: {
+  fusion: ModelBFusionReport
+  onDecide: (modelBId: string, decision: ModelBDecisionValue) => Promise<ModelBDecision>
+}) {
   const { summary } = fusion
   return (
     <div className="model-b-fusion">
@@ -335,6 +359,12 @@ function FusionSummary({ fusion }: { fusion: ModelBFusionReport }) {
         <li>{summary.candidate_additions} possible addition{summary.candidate_additions === 1 ? '' : 's'}</li>
         <li>{summary.disagreements} disagreement{summary.disagreements === 1 ? '' : 's'}</li>
       </ul>
+
+      <ReviewQueue
+        reviews={(fusion.entity_reviews ?? []).filter(review => review.requires_review)}
+        initialDecisions={fusion.decisions ?? {}}
+        onDecide={onDecide}
+      />
 
       {fusion.candidate_additions.length > 0 && (
         <>
@@ -370,5 +400,106 @@ function FusionSummary({ fusion }: { fusion: ModelBFusionReport }) {
         correct it yourself in the geometry view.
       </p>
     </div>
+  )
+}
+
+const DECISION_LABELS: Record<ModelBDecisionValue, string> = {
+  accept: 'Accept',
+  reject: 'Reject',
+  defer: 'Decide later',
+}
+
+const CORRESPONDENCE_LABELS: Record<ModelBEntityReview['correspondence'], string> = {
+  strong: 'matches a Model A element',
+  weak: 'partly overlaps a Model A element',
+  none: 'no Model A element',
+}
+
+/**
+ * Findings a teacher should decide on, one at a time.
+ *
+ * Decisions are recorded in the session's audit history. They are a record of
+ * judgement, not an edit: nothing here changes the embossed output.
+ */
+function ReviewQueue({
+  reviews,
+  initialDecisions,
+  onDecide,
+}: {
+  reviews: ModelBEntityReview[]
+  initialDecisions: Record<string, ModelBDecision>
+  onDecide: (modelBId: string, decision: ModelBDecisionValue) => Promise<ModelBDecision>
+}) {
+  const [decisions, setDecisions] = useState<Record<string, ModelBDecisionValue>>(() =>
+    Object.fromEntries(Object.entries(initialDecisions).map(([id, d]) => [id, d.decision])),
+  )
+  const [pending, setPending] = useState<string | null>(null)
+  const [error, setError] = useState('')
+
+  if (reviews.length === 0) return null
+
+  const decide = async (modelBId: string, decision: ModelBDecisionValue) => {
+    setPending(modelBId)
+    setError('')
+    try {
+      const recorded = await onDecide(modelBId, decision)
+      setDecisions(current => ({ ...current, [modelBId]: recorded.decision }))
+    } catch (decideError) {
+      setError(decideError instanceof Error ? decideError.message : 'Could not record the decision.')
+    } finally {
+      setPending(null)
+    }
+  }
+
+  const remaining = reviews.filter(review => !decisions[review.model_b_id] || decisions[review.model_b_id] === 'defer').length
+
+  return (
+    <section className="model-b-review" aria-labelledby="model-b-review-heading">
+      <h4 id="model-b-review-heading">Review queue</h4>
+      <p className="model-b-note" role="status" aria-live="polite">
+        {remaining === 0
+          ? 'Every finding has a decision.'
+          : `${remaining} of ${reviews.length} finding${reviews.length === 1 ? '' : 's'} still need a decision.`}
+      </p>
+      <ol className="model-b-review-list">
+        {reviews.map(review => {
+          const current = decisions[review.model_b_id]
+          const name = `${review.model_b_kind.replace(/_/g, ' ')} ${review.model_b_id}`
+          return (
+            <li key={review.model_b_id} className="model-b-review-item">
+              <p>
+                <strong>{name}</strong>: {review.reason}{' '}
+                <span className="model-b-evidence">
+                  ({CORRESPONDENCE_LABELS[review.correspondence]}
+                  {review.model_a_id ? ` ${review.model_a_id}` : ''})
+                </span>
+              </p>
+              <div role="group" aria-label={`Decision for ${name}`} className="model-b-decisions">
+                {(Object.keys(DECISION_LABELS) as ModelBDecisionValue[]).map(value => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={current === value}
+                    disabled={pending === review.model_b_id}
+                    onClick={() => void decide(review.model_b_id, value)}
+                  >
+                    {DECISION_LABELS[value]}
+                  </button>
+                ))}
+              </div>
+            </li>
+          )
+        })}
+      </ol>
+      {error && (
+        <p className="model-b-error" role="alert">
+          {error}
+        </p>
+      )}
+      <p className="model-b-note">
+        Accepting records your judgement only. To change the embossed output, edit the element in
+        the geometry view.
+      </p>
+    </section>
   )
 }

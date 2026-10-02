@@ -1,5 +1,7 @@
 import type {
   ModelBAvailability,
+  ModelBDecision,
+  ModelBDecisionValue,
   ModelBFusionReport,
   ModelBJob,
 } from './modelBTypes'
@@ -62,4 +64,20 @@ export async function fetchModelBFusion(
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not compare the two analyses.')
   return payload as unknown as ModelBFusionReport
+}
+
+export async function recordModelBDecision(
+  sessionId: string,
+  jobId: string,
+  modelBId: string,
+  decision: ModelBDecisionValue,
+): Promise<ModelBDecision> {
+  const response = await fetch(`/api/sessions/${sessionId}/model-b/${jobId}/decisions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model_b_id: modelBId, decision }),
+  })
+  const payload = await readJson(response)
+  if (!response.ok) throw errorFrom(payload, 'Could not record the decision.')
+  return payload as unknown as ModelBDecision
 }
