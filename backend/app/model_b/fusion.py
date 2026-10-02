@@ -26,6 +26,7 @@ changes coordinates.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 from ..models.geometry import DetectedElement, SemanticGeometry
@@ -161,8 +162,8 @@ def reconcile(
 
     pairs = _pair_entities(model_b.entities, elements)
 
-    for entity in model_b.entities:
-        best = pairs.get(entity.id)
+    for entity_index, entity in enumerate(model_b.entities):
+        best = pairs.get(entity_index)
         if best is None:
             report.candidate_additions.append(
                 _candidate(entity, "Model B found a region Model A did not report.")
@@ -275,17 +276,17 @@ def reconcile(
 
 def _pair_entities(
     entities: list[SuggestedEntity], elements: list[DetectedElement]
-) -> dict[str, tuple[DetectedElement, float]]:
-    """One-to-one pairing of Model B entities to Model A elements, best IoU first.
+) -> dict[int, tuple[DetectedElement, float]]:
+    """One-to-one pairing of Model B entities to Model A elements, keyed by entity index.
 
     A Model A element can back at most one Model B entity, so two Model B
-    regions over one shape cannot both count as corroboration. Pairs are taken
-    in descending IoU across the whole result rather than in Model B's listing
-    order, so a loosely overlapping side segment listed first cannot claim the
-    shape that a later, closely fitting entity describes. Ties prefer the pair
-    whose types agree, then Model B's order, so the result is stable.
+    regions over one shape cannot both count as corroboration. The pairing is
+    an optimal assignment: it first keeps as many eligible pairs as possible,
+    then maximises total IoU, then type agreement. Neither Model B's listing
+    order nor one large overlap can take the only match another entity has.
+    Keys are list positions because the provider can repeat an entity id.
     """
-    candidates: list[tuple[float, bool, int, int]] = []
+    overlaps: dict[tuple[int, int], tuple[float, bool]] = {}
     for entity_index, entity in enumerate(entities):
         for element_index, element in enumerate(elements):
             x, y, width, height = element.bbox  # type: ignore[misc]
@@ -293,18 +294,79 @@ def _pair_entities(
             overlap = entity.region.iou(region)
             if overlap >= MATCH_IOU_THRESHOLD:
                 same_type = entity.geometry_type is element.type
-                candidates.append((overlap, same_type, entity_index, element_index))
-    candidates.sort(key=lambda item: (-item[0], not item[1], item[2], item[3]))
+                overlaps[(entity_index, element_index)] = (overlap, same_type)
+    if not overlaps:
+        return {}
 
-    pairs: dict[str, tuple[DetectedElement, float]] = {}
-    claimed: set[int] = set()
-    for overlap, _, entity_index, element_index in candidates:
-        entity = entities[entity_index]
-        if entity.id in pairs or element_index in claimed:
-            continue
-        pairs[entity.id] = (elements[element_index], overlap)
-        claimed.add(element_index)
+    size = max(len(entities), len(elements))
+    iou_unit = 2 * size + 1
+    match_unit = (1_000_000 * iou_unit + 1) * size + 1
+    weights = [[0] * size for _ in range(size)]
+    for (entity_index, element_index), (overlap, same_type) in overlaps.items():
+        weights[entity_index][element_index] = (
+            match_unit + round(overlap * 1_000_000) * iou_unit + int(same_type)
+        )
+
+    pairs: dict[int, tuple[DetectedElement, float]] = {}
+    for entity_index, element_index in enumerate(_max_weight_assignment(weights)):
+        pair = overlaps.get((entity_index, element_index))
+        if pair is not None:
+            pairs[entity_index] = (elements[element_index], pair[0])
     return pairs
+
+
+def _max_weight_assignment(weights: list[list[int]]) -> list[int]:
+    """Column assigned to each row of a square matrix, maximising the total weight.
+
+    Hungarian algorithm with potentials, O(n^3). Integer weights keep it exact.
+    """
+    size = len(weights)
+    row_potential = [0] * (size + 1)
+    column_potential = [0] * (size + 1)
+    row_of_column = [0] * (size + 1)
+    previous_column = [0] * (size + 1)
+    for row in range(1, size + 1):
+        row_of_column[0] = row
+        column = 0
+        slack = [math.inf] * (size + 1)
+        used = [False] * (size + 1)
+        while True:
+            used[column] = True
+            current_row = row_of_column[column]
+            delta = math.inf
+            next_column = 0
+            for candidate in range(1, size + 1):
+                if used[candidate]:
+                    continue
+                cost = (
+                    -weights[current_row - 1][candidate - 1]
+                    - row_potential[current_row]
+                    - column_potential[candidate]
+                )
+                if cost < slack[candidate]:
+                    slack[candidate] = cost
+                    previous_column[candidate] = column
+                if slack[candidate] < delta:
+                    delta = slack[candidate]
+                    next_column = candidate
+            for candidate in range(size + 1):
+                if used[candidate]:
+                    row_potential[row_of_column[candidate]] += delta
+                    column_potential[candidate] -= delta
+                else:
+                    slack[candidate] -= delta
+            column = next_column
+            if row_of_column[column] == 0:
+                break
+        while column:
+            prior = previous_column[column]
+            row_of_column[column] = row_of_column[prior]
+            column = prior
+
+    assignment = [0] * size
+    for column in range(1, size + 1):
+        assignment[row_of_column[column] - 1] = column - 1
+    return assignment
 
 
 def _entity_review(
