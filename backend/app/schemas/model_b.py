@@ -18,6 +18,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.session import EnhancedProcessedSession
+
 from app.models.geometry import ConfidenceLevel
 from app.models.model_b_job import JobStatus
 
@@ -270,8 +272,9 @@ class ModelBDecisionRequest(BaseModel):
 class ModelBDecision(BaseModel):
     """A teacher's recorded decision on one Model B finding.
 
-    Recording ``accept`` changes nothing in Model A. The teacher applies a
-    change through the element editor, where Model A geometry is the evidence.
+    Recording ``accept`` changes nothing by itself. Accepted findings reach the
+    tactile output only through the explicit apply step, and only where Model A
+    geometry backs them.
     """
 
     model_config = ConfigDict(protected_namespaces=())
@@ -300,3 +303,29 @@ class ModelBFusionReport(BaseModel):
     text_notes: list[dict]
     uncertainties: list[dict]
     advisory_only: Literal[True] = True
+
+
+class ModelBApplyOutcome(BaseModel):
+    """What happened to one accepted finding when building Semantic Geometry v2."""
+
+    model_config = ConfigDict(protected_namespaces=())
+
+    model_b_id: str
+    applied: bool
+    change: Literal["set_type", "attach_label", "confirm"] | None
+    model_a_id: str | None
+    detail: str
+
+
+class ModelBApplyResult(BaseModel):
+    """Regenerated session after applying the teacher-accepted findings.
+
+    Coordinates in ``session`` are Model A's; only types, label associations
+    and teacher confirmation can differ from the Model A result.
+    """
+
+    model_config = ConfigDict(protected_namespaces=())
+
+    session: EnhancedProcessedSession
+    outcomes: list[ModelBApplyOutcome]
+    reverted: list[str]

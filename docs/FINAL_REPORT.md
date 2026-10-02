@@ -16,19 +16,27 @@ guideline-informed defaults.
 ## 1. Architecture diagram
 
 ```
-                         ┌─────────────── FastAPI backend (authoritative) ───────────────┐
- Teacher ── browser ───> │ upload ─> object storage (private) ─> Model A pipeline          │
-   ^   (React, a11y)     │                                         │  measure, construct   │
-   │                     │                                         v                       │
-   │                     │        Model B job (optional, async) ─> fusion (read-only) ─┐   │
-   │                     │        Postgres job row, atomic claim,     per-entity review │   │
-   │                     │        content-hash cache                                    │   │
-   │                     │                                                              v   │
-   └── review queue <────│── teacher decisions (audit events, never mutate geometry) <──┘   │
-       edits ──────────> │── teacher edits ─> simplification ─> tactile QA ─> tactile SVG   │
-                         │                                         │ export gate          │
-                         │ Postgres: sessions, runs, edits, audit, Model B jobs + cache    │
-                         └────────────────────────────────────────────────────────────────┘
+ Image
+   ├─> Model A (deterministic CV, OCR, Braille) ── geometry authority ─────────┐
+   └─> Model B (optional, async, semantic AI)                                   │
+             │                                                                  v
+             └──────────────> FUSION ENGINE (read-only reconcile, per-entity review)
+                                                │
+                              teacher accept / reject / defer (audit events)
+                                                │  explicit "Apply accepted findings"
+                                                v
+                      Semantic Geometry v2 = Model A geometry + accepted findings
+                      (type corrections, Model A labels attached, confirmations;
+                       coordinates always Model A's, reversible, idempotent)
+                                                │
+                                                v
+                 Tactile simplification ─> Braille layout ─> QA engine (mm)
+                                                │
+                                                v
+                     Teacher approval (export gate, no bypass) ─> FINAL SVG
+
+ Persistence (Postgres + object storage): sessions, runs, edits, audit events,
+ Model B jobs + content-hash cache. Teacher edits re-enter at simplification.
 ```
 
 ## 2. Model A architecture
@@ -64,6 +72,18 @@ entity: `model_a_id`, `correspondence` (strong/weak/none), `adds_semantics`,
 | Before | After | Why | Measurement | Test |
 |---|---|---|---|---|
 | Aggregate agreement/disagreement lists only | Per-entity answers plus persisted teacher decisions (`accept`/`reject`/`defer`) as audit events with `applied_to_geometry: false` | The teacher needs to act per finding; Model B must never change geometry | Every Model B entity gets exactly one review | `test_model_b_fusion.py`, decision endpoint tests (unknown finding -> 422) |
+| Accepted findings never reached the tactile output | `build_semantic_geometry_v2()` (`app/model_b/semantic_v2.py`) applies accepted findings to a copy of Model A's semantic geometry, then simplification, Braille, QA and SVG are regenerated | Teacher-approved semantics should shape the sheet, while Model A stays the geometry authority | Coordinates and bboxes byte-identical to Model A in every test; Model B-only regions add no element | `test_semantic_geometry_v2.py` (24) |
+
+Semantic Geometry v2 rules: only `accept` decisions apply; only findings that
+correspond to a Model A element apply. Three changes exist: `set_type` (only
+when Model A's own geometry can draw the new type, e.g. a triangle needs three
+Model A vertices), `attach_label` (associates an existing, unattached Model A
+text label whose text matches Model B's reading; no label is created) and
+`confirm` (teacher override, which protects the element from density
+simplification). Each change stores the previous values on the element, so a
+withdrawn acceptance is restored on the next apply unless the teacher has since
+edited the element by hand. The fusion endpoint compares against the
+pre-application baseline, so applying does not hide the reviews it acted on.
 
 ## 5. Database architecture
 
@@ -92,6 +112,7 @@ runs as a container, not a serverless function. See `docs/DEPLOYMENT.md`.
 ## 7. API changes
 
 - `POST /api/sessions/{id}/model-b/{job_id}/decisions` — record a teacher decision on a Model B finding (201).
+- `POST /api/sessions/{id}/model-b/{job_id}/apply` — build Semantic Geometry v2 from accepted findings and regenerate; returns the session plus a per-finding outcome (`applied`, `change`, `detail`) and the withdrawn ids. Recorded as a `model_b_apply` run and a `model_b_applied` audit event; 409 before Model A has run.
 - `GET .../model-b/{job_id}` adds `cache_hit`; fusion report adds `entity_reviews` and `decisions`.
 - Missing source image after expiry -> HTTP 410 instead of 500.
 - QA report adds `exceeds_tactile_density`, `density_reduced`, `density_reduction_requires_review`; existing checks are now in mm.
@@ -101,14 +122,18 @@ runs as a container, not a serverless function. See `docs/DEPLOYMENT.md`.
 
 Model B panel: cache-reuse message, per-entity review queue showing only
 findings that need review, Accept / Reject / Decide later buttons, restored
-server decisions. Export gate knows the two new blocking density checks.
+server decisions, and an "Apply accepted findings to the tactile output"
+button (shown once something is accepted) that swaps in the regenerated session
+and lists what was and was not applied. Export gate knows the two new blocking
+density checks.
 `API_BASE` for cross-origin deployment.
 
 ## 9. Accessibility improvements
 
 Native buttons with `aria-pressed`, visible focus, `aria-live` count of
-remaining reviews, `role="alert"` on save failures, plain-language note that
-accepting a finding does not change the embossed output. Covered by Testing
+remaining reviews, `role="alert"` on save and apply failures, an `aria-live`
+summary of applied findings, and a plain-language note that accepting changes
+the embossed output only after applying, and only where Model A has geometry. Covered by Testing
 Library keyboard tests and `jest-axe` (no violations).
 
 ## 10. Tactile improvements

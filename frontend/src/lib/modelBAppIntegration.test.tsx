@@ -27,6 +27,7 @@ vi.mock('./modelBApi', () => ({
   cancelModelBJob: (...args: unknown[]) => cancelModelBJob(...args),
   fetchModelBFusion: (...args: unknown[]) => fetchModelBFusion(...args),
   recordModelBDecision: vi.fn(),
+  applyModelBFindings: vi.fn(),
 }))
 
 const available: ModelBAvailability = {

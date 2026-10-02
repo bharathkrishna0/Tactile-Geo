@@ -6,6 +6,9 @@ Four endpoints, all additive under `/api`:
     POST   /api/sessions/{id}/model-b               enqueue, 202 immediately
     GET    /api/sessions/{id}/model-b/{job_id}      poll
     DELETE /api/sessions/{id}/model-b/{job_id}      cancel if not started
+    GET    /api/sessions/{id}/model-b/{job_id}/fusion     read-only reconciliation
+    POST   /api/sessions/{id}/model-b/{job_id}/decisions  record accept/reject/defer
+    POST   /api/sessions/{id}/model-b/{job_id}/apply      build Semantic Geometry v2
 
 The worker runs as a Starlette background task. Starlette executes sync
 background callables in a threadpool, which matters because `analyze_image` is
@@ -15,13 +18,15 @@ duration of that call, turning an optional feature into a denial-of-service
 vector for Model A.
 
 Model A's endpoints and payloads are untouched. Nothing here is required for the
-product to function.
+product to function. The apply endpoint is the only one that changes the
+tactile output, and only from findings a teacher accepted.
 """
 
 from __future__ import annotations
 
 import logging
 import time
+from dataclasses import asdict
 from typing import NoReturn
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
@@ -41,13 +46,17 @@ from app.model_b.errors import (
     ModelBTimeout,
     ModelBValidationError,
 )
+from app.api.sessions import _qa_to_dict, _run_summary, _semantic_to_dict, _session_response, _simplified_to_dict
 from app.model_b.fusion import FusionReport
+from app.model_b.semantic_v2 import build_semantic_geometry_v2, model_a_baseline
 from app.model_b.service import analyze_image, is_available
 from app.models.geometry import SemanticGeometry
 from app.schemas.model_b import (
     ModelBAvailability,
     ModelBAnalysis,
     ModelBAgreementHint,
+    ModelBApplyOutcome,
+    ModelBApplyResult,
     ModelBBoundingRegion,
     ModelBCandidateAddition,
     ModelBDecision,
@@ -63,7 +72,7 @@ from app.schemas.model_b import (
     ModelBTextItem,
     ModelBUncertainty,
 )
-from app.services.editing import semantic_from_dict
+from app.services.editing import refresh_semantic_fields, regenerate, semantic_from_dict
 from app.services.model_b_store import model_b_job_store
 from app.services.object_storage import ObjectStorageError
 from app.services.session_store import object_storage, read_source_image, session_store
@@ -409,7 +418,9 @@ def get_model_b_fusion(session_id: str, job_id: str) -> ModelBFusionReport:
             status_code=409,
             detail="Process this session with Model A before requesting a comparison.",
         )
-    report = reconcile(model_a_geometry, job.result)
+    # Compared against Model A as it was before this job's accepted findings
+    # were applied, so applying does not make the reviews it acted on vanish.
+    report = reconcile(model_a_baseline(model_a_geometry, job_id), job.result)
     # PROJECT.md section 13: record the fusion result. Counts only, so nothing
     # identifying reaches the log.
     logger.info(
@@ -435,8 +446,7 @@ def record_model_b_decision(session_id: str, job_id: str, payload: ModelBDecisio
     """Record a teacher's accept / reject / defer on one Model B finding.
 
     Append-only audit history; the latest decision per finding wins. Nothing in
-    Model A changes here: an accepted finding is applied by the teacher through
-    the element editor, against Model A's own geometry.
+    the session geometry changes here; see `apply_model_b_findings`.
     """
     job = _completed_job(session_id, job_id)
     known_ids = {entity.id for entity in job.result.entities}
@@ -454,6 +464,54 @@ def record_model_b_decision(session_id: str, job_id: str, payload: ModelBDecisio
     if decision is None:
         raise HTTPException(status_code=500, detail="The decision could not be recorded.")
     return decision
+
+
+@router.post("/sessions/{session_id}/model-b/{job_id}/apply", response_model=ModelBApplyResult)
+def apply_model_b_findings(session_id: str, job_id: str) -> ModelBApplyResult:
+    """Build Semantic Geometry v2 from the accepted findings and regenerate.
+
+    Simplification, Braille layout, QA and the tactile SVG are rebuilt from the
+    result, so the export gate re-evaluates. Idempotent: findings no longer
+    accepted are withdrawn and their Model A values restored.
+    """
+    job = _completed_job(session_id, job_id)
+    session = session_store.get(session_id)
+    if session is None or not session.semantic_geometry:
+        raise HTTPException(status_code=409, detail="Process this session with Model A before applying findings.")
+    started = time.perf_counter()
+    decisions = {model_b_id: decision.decision for model_b_id, decision in _decisions_for(session_id, job_id).items()}
+    v2 = build_semantic_geometry_v2(semantic_from_dict(session.semantic_geometry), job.result, decisions, job_id)
+    semantic = refresh_semantic_fields(v2.semantic)
+    simplified, qa_report, tactile_svg = regenerate(semantic)
+    session.semantic_geometry = _semantic_to_dict(semantic)
+    session.simplified_geometry = _simplified_to_dict(simplified)
+    session.qa_report = _qa_to_dict(qa_report)
+    session.tactile_svg = tactile_svg
+    session_store.save(session)
+    session_store.record_run(
+        session_id, "model_b_apply", {"job_id": job_id}, _run_summary(qa_report, simplified),
+        round((time.perf_counter() - started) * 1000),
+    )
+    session_store.record_event(
+        session_id,
+        "model_b_applied",
+        {
+            "job_id": job_id,
+            "applied": [outcome.model_b_id for outcome in v2.applied],
+            "not_applied": [outcome.model_b_id for outcome in v2.not_applied],
+            "reverted": v2.reverted,
+            "qa_passes": qa_report.passes,
+        },
+    )
+    logger.info(
+        "Model B findings applied for job %s: %d applied, %d not applied, %d withdrawn; QA passes=%s",
+        job_id, len(v2.applied), len(v2.not_applied), len(v2.reverted), qa_report.passes,
+    )
+    return ModelBApplyResult(
+        session=_session_response(session),
+        outcomes=[ModelBApplyOutcome(**asdict(outcome)) for outcome in v2.outcomes],
+        reverted=v2.reverted,
+    )
 
 
 def _completed_job(session_id: str, job_id: str) -> ModelBJob:

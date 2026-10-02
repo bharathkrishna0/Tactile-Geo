@@ -26,6 +26,8 @@ Two independent layers. See `PROJECT.md` section 17 for the full boundary.
 - **Model B** — optional vision-language interpretation via OpenRouter. Advisory
   only. Returns
   regions, types, relationships, and uncertainty. Never produces geometry.
+  Teacher-accepted findings reach the tactile output only through
+  `semantic_v2.py`, on Model A elements, and only via the explicit apply endpoint.
 
 - `backend/` - Python FastAPI + OpenCV + EasyOCR pipeline
 - `frontend/` - React + Vite + TypeScript (proxies `/api` to localhost:8000)
@@ -92,6 +94,7 @@ python scripts/evaluate_model_b.py --live     # real calls; refuses without a ke
 - `backend/app/model_b/prompts.py` - Deterministic advisory prompt
 - `backend/app/model_b/validator.py` - Contract enforcement; rejects, never repairs
 - `backend/app/model_b/fusion.py` - Read-only reconciliation with Model A
+- `backend/app/model_b/semantic_v2.py` - Semantic Geometry v2: applies teacher-accepted findings to a copy of Model A (never coordinates)
 - `backend/app/model_b/service.py` - prepare -> call -> parse -> validate -> normalize
 - `backend/app/services/braille.py` - Liblouis UEB Grade 2 translation
 - `backend/app/core/config.py` - Environment config (upload limits, CORS, Model B)
