@@ -29,6 +29,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException
 from app.core.config import MODEL_B_MAX_CONCURRENT_JOBS, model_b_settings
 from app.models.model_b_job import JobStatus, ModelBJob, ModelBJobError
 from app.models.model_b_result import ModelBResult
+from app.model_b.cache import model_b_cache_key
 from app.model_b.errors import (
     ModelBApiError,
     ModelBCancelled,
@@ -220,6 +221,7 @@ def _job_schema(job: ModelBJob) -> ModelBJobStatus:
         completed_at=job.completed_at,
         provider=job.provider,
         model=job.model,
+        cache_hit=job.cache_hit,
         result=_analysis_schema(job.result) if isinstance(job.result, ModelBResult) else None,
         error=_error_payload(job.error) if job.error else None,
     )
@@ -256,28 +258,22 @@ def _run_job(job: ModelBJob, image_bytes: bytes) -> None:
             error.detail,
             error.reason,
         )
-        target = store.get(job.job_id)
-        if target is not None and not target.status.is_terminal:
-            target.mark_failed(
-                ModelBJobError(
-                    code=error.reason,
-                    message=error.detail,
-                    retryable=getattr(error, "retryable", False),
-                    retry_after_s=getattr(error, "retry_after_s", None),
-                )
-            )
+        store.fail(
+            job.job_id,
+            ModelBJobError(
+                code=error.reason,
+                message=error.detail,
+                retryable=getattr(error, "retryable", False),
+                retry_after_s=getattr(error, "retry_after_s", None),
+            ),
+        )
         return
     except Exception:  # noqa: BLE001 - a worker must never take the process down
         logger.exception("Unexpected Model B failure in job %s", job.job_id)
-        target = store.get(job.job_id)
-        if target is not None and not target.status.is_terminal:
-            target.mark_failed(
-                ModelBJobError(
-                    code="internal_error",
-                    message="Model B failed unexpectedly.",
-                    retryable=True,
-                )
-            )
+        store.fail(
+            job.job_id,
+            ModelBJobError(code="internal_error", message="Model B failed unexpectedly.", retryable=True),
+        )
         return
 
     # PROJECT.md section 13 observability. Counts and timings only: no image
@@ -308,9 +304,8 @@ def _run_job(job: ModelBJob, image_bytes: bytes) -> None:
     for warning in result.validation_warnings:
         logger.debug("Model B job %s validation warning: %s", job.job_id, warning)
 
-    target = store.get(job.job_id)
-    if target is not None and not target.status.is_terminal:
-        target.mark_completed(result)
+    if store.complete(job.job_id, result) is not None and job.cache_key and not result.truncated:
+        store.cache_put(job.cache_key, result)
 
 
 @router.get("/model-b/status", response_model=ModelBAvailability)
@@ -359,6 +354,7 @@ def request_model_b(
     except ModelBError as error:
         _raise_http(error)
 
+    model_b_job_store.recover_interrupted(_stale_after_s(settings))
     if model_b_job_store.has_active_job(session_id):
         raise HTTPException(
             status_code=409,
@@ -377,9 +373,15 @@ def request_model_b(
     if not image_bytes:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available.")
 
+    cache_key = model_b_cache_key(image_bytes, settings)
     job = model_b_job_store.create(
-        session_id, model=settings.model, provider=settings.provider
+        session_id, model=settings.model, provider=settings.provider, cache_key=cache_key
     )
+    cached = model_b_job_store.cache_get(cache_key)
+    if cached is not None:
+        logger.info("Model B job %s reused a cached analysis; no provider call made", job.job_id)
+        completed = model_b_job_store.complete(job.job_id, cached, cache_hit=True)
+        return _job_schema(completed or job)
     # Left QUEUED on purpose. `_run_job` transitions it to RUNNING, which keeps
     # a real cancellation window open between this response and the worker
     # starting. Marking it RUNNING here would make DELETE permanently 409.
@@ -487,8 +489,18 @@ def _fusion_schema(report: FusionReport) -> ModelBFusionReport:
     )
 
 
+def _stale_after_s(settings) -> float:
+    """How long a job may stay unfinished before its worker is presumed gone.
+
+    Generous on purpose: the longest legitimate run is every provider attempt
+    timing out plus every backoff, and a false "interrupted" costs a retry.
+    """
+    return settings.max_attempts * (settings.timeout_s + settings.retry_max_delay_s) + 60.0
+
+
 @router.get("/sessions/{session_id}/model-b/{job_id}", response_model=ModelBJobStatus)
 def get_model_b_job(session_id: str, job_id: str) -> ModelBJobStatus:
+    model_b_job_store.recover_interrupted(_stale_after_s(model_b_settings()))
     job = model_b_job_store.get(job_id)
     if job is None or job.session_id != session_id:
         raise HTTPException(status_code=404, detail="Model B job not found.")

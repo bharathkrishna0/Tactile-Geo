@@ -44,7 +44,7 @@ grant usage on schema public to authenticated;
 def dsn():
     with psycopg.connect(DSN, autocommit=True) as connection:
         connection.execute(
-            "drop table if exists audit_events, teacher_edits, processing_runs, sessions, projects, profiles, schema_migrations cascade"
+            "drop table if exists model_b_cache, model_b_jobs, audit_events, teacher_edits, processing_runs, sessions, projects, profiles, schema_migrations cascade"
         )
         connection.execute(SUPABASE_AUTH_STUB)
     apply_migrations(DSN)

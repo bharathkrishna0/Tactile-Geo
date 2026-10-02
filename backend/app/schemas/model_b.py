@@ -204,6 +204,8 @@ class ModelBJobStatus(BaseModel):
     #: returns. The model that actually served it appears on the result.
     provider: str = ""
     model: str = ""
+    #: True when an identical earlier analysis was reused without a provider call.
+    cache_hit: bool = False
     result: ModelBAnalysis | None = None
     error: ModelBErrorSchema | None = None
 

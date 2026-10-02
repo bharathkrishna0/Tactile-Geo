@@ -63,6 +63,10 @@ class ModelBJob:
     model: str = ""
     #: Gateway the job was submitted to, e.g. `openrouter`.
     provider: str = ""
+    #: Content-addressed key (image hash, prompt, schema, model) for the cache.
+    cache_key: str = ""
+    #: True when the result was reused from the cache with no provider call.
+    cache_hit: bool = False
 
     def mark_running(self) -> None:
         self.status = JobStatus.RUNNING

@@ -9,34 +9,42 @@ concurrency that Milestone 1 never had:
 * cancellation, so a teacher who realises they uploaded the wrong page does not
   pay for an analysis nobody will read.
 
-Everything is per-process, so jobs do not survive a restart and do not work
-behind more than one worker. Both are named limitations rather than silent
-ones; a real deployment needs Redis or Postgres plus a shared cancel flag.
+Everything here is per-process, so jobs do not survive a restart and do not
+work behind more than one worker. With DATABASE_URL set, `model_b_job_store` is
+the Postgres implementation in `app/model_b/postgres_job_store.py` instead, which keeps
+the same interface and the same atomic claim semantics as SQL row updates.
 """
 
 from __future__ import annotations
 
 import threading
+from collections import OrderedDict
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
-from app.models.model_b_job import JobStatus, ModelBJob
+from app.core.config import DATABASE_URL
+from app.models.model_b_job import JobStatus, ModelBJob, ModelBJobError
+from app.models.model_b_result import ModelBResult
 
 # Results are the largest thing Model B stores, and holding a full analysis for
 # every job forever is a slow memory leak. Bounded by count, oldest first.
 MAX_RETAINED_JOBS = 200
+MAX_CACHED_RESULTS = 200
 
 
 class ModelBJobStore:
     def __init__(self) -> None:
         self._jobs: dict[str, ModelBJob] = {}
+        self._cache: OrderedDict[str, ModelBResult] = OrderedDict()
         self._lock = threading.Lock()
 
-    def create(self, session_id: str, model: str, provider: str = "") -> ModelBJob:
+    def create(self, session_id: str, model: str, provider: str = "", cache_key: str = "") -> ModelBJob:
         job = ModelBJob(
             job_id=str(uuid4()),
             session_id=session_id,
             model=model,
             provider=provider,
+            cache_key=cache_key,
         )
         with self._lock:
             self._jobs[job.job_id] = job
@@ -98,6 +106,53 @@ class ModelBJobStore:
             job.mark_running()
             return job
 
+    def complete(self, job_id: str, result: ModelBResult, cache_hit: bool = False) -> ModelBJob | None:
+        """Record a result unless the job already reached a terminal state."""
+        with self._lock:
+            job = self._jobs.get(job_id)
+            if job is None or job.status.is_terminal:
+                return None
+            job.cache_hit = cache_hit
+            job.mark_completed(result)
+            return job
+
+    def fail(self, job_id: str, error: ModelBJobError) -> ModelBJob | None:
+        with self._lock:
+            job = self._jobs.get(job_id)
+            if job is None or job.status.is_terminal:
+                return None
+            job.mark_failed(error)
+            return job
+
+    def recover_interrupted(self, stale_after_s: float) -> int:
+        """Fail jobs whose worker is gone, so a poller is never left waiting.
+
+        In one process a job only stalls if its worker thread died; the
+        Postgres store uses the same rule to recover jobs orphaned by a restart.
+        """
+        cutoff = datetime.now(timezone.utc) - timedelta(seconds=stale_after_s)
+        recovered = 0
+        with self._lock:
+            for job in self._jobs.values():
+                if not job.status.is_terminal and (job.started_at or job.created_at) < cutoff:
+                    job.mark_failed(INTERRUPTED_ERROR)
+                    recovered += 1
+        return recovered
+
+    def cache_get(self, cache_key: str) -> ModelBResult | None:
+        with self._lock:
+            result = self._cache.get(cache_key)
+            if result is not None:
+                self._cache.move_to_end(cache_key)
+            return result
+
+    def cache_put(self, cache_key: str, result: ModelBResult) -> None:
+        with self._lock:
+            self._cache[cache_key] = result
+            self._cache.move_to_end(cache_key)
+            while len(self._cache) > MAX_CACHED_RESULTS:
+                self._cache.popitem(last=False)
+
     def _evict_locked(self) -> None:
         if len(self._jobs) <= MAX_RETAINED_JOBS:
             return
@@ -115,6 +170,22 @@ class ModelBJobStore:
         """Test helper. Also the seam for a future store swap."""
         with self._lock:
             self._jobs.clear()
+            self._cache.clear()
 
 
-model_b_job_store = ModelBJobStore()
+INTERRUPTED_ERROR = ModelBJobError(
+    code="interrupted",
+    message="The analysis was interrupted before it finished. You can request it again.",
+    retryable=True,
+)
+
+
+def build_model_b_job_store():
+    if DATABASE_URL:
+        from app.model_b.postgres_job_store import PostgresModelBJobStore
+
+        return PostgresModelBJobStore(DATABASE_URL)
+    return ModelBJobStore()
+
+
+model_b_job_store = build_model_b_job_store()
