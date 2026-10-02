@@ -119,6 +119,19 @@ class TestBuild:
         assert _element(v2.semantic, "m1").associated_label_id is None
         assert len(v2.semantic.elements) == len(model_a.elements)
 
+    def test_a_label_never_becomes_a_shape(self) -> None:
+        """Seen live: a model marked each vertex as a point right on its letter.
+
+        Accepting those must not turn Model A's Braille labels into raised dots.
+        """
+        model_a = _with_label("A")
+        result = make_model_b(doc_with([entity_with_id("e1", "point", (390, 690, 20, 20))]))
+        v2 = build_semantic_geometry_v2(model_a, result, {"b_e1": "accept"}, "job")
+        (outcome,) = v2.outcomes
+        assert not outcome.applied and outcome.model_a_id == "l1"
+        assert "Braille label" in outcome.detail
+        assert snapshot(v2.semantic) == snapshot(model_a)
+
     def test_applying_twice_is_idempotent(self) -> None:
         model_a = make_model_a()
         result = make_model_b(doc_with([entity_with_id("e1", "polygon", TRIANGLE_BBOX)]))

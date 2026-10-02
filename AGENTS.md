@@ -72,6 +72,14 @@ to disk, and prints only aggregate counts and short quoted statements. It runs
 `image -> prepare -> OpenRouter -> structured JSON -> validate -> normalise` and
 deliberately does not touch Model A.
 
+Free-tier reliability (observed 2026-10): `openrouter/free` sometimes routes to
+text-only or content-safety models that return no JSON. `:free` vision models
+often answer 429. `dots-studio/dots-3-note-preview:free` produced valid results
+in about two of three calls, taking roughly 70 s each, so set
+`MODEL_B_TIMEOUT_S=150` with it. When it fails, it has spent its output budget on
+reasoning and the response is cut off. List the current free vision models with
+`GET https://openrouter.ai/api/v1/models`.
+
 Under WSL, environment variables are not passed to Windows executables by
 default; add `export WSLENV=OPENROUTER_API_KEY/w:MODEL_B_ENABLED/w` if the key
 appears to be ignored.

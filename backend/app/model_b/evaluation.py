@@ -89,7 +89,7 @@ def score_detections(
 ) -> DetectionScore:
     """Greedy one-to-one match of `(label, bbox)` pairs, best IoU first.
 
-    One-to-one for the same reason `fusion._best_overlap` is: a single
+    One-to-one for the same reason `fusion._pair_entities` is: a single
     predicted region may not confirm two separate expected regions, otherwise a
     model that boxes one shape three times scores three true positives.
     """
