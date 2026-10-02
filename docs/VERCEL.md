@@ -25,6 +25,9 @@ library from apt. Uploads can be up to 10 MB. So the backend runs as a
 container, and Supabase stores its data. Supabase cannot run the Python
 backend itself.
 
+**Zero cost?** Running the backend on your laptop through a free Cloudflare
+Tunnel is covered in `docs/LAPTOP_TUNNEL.md` (demo use only).
+
 Do the steps in this order. The frontend needs the backend URL, and the backend
 needs the frontend URL.
 
