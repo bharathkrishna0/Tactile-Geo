@@ -5,6 +5,7 @@ import type {
   ModelBFusionReport,
   ModelBJob,
 } from './modelBTypes'
+import { API_BASE } from './apiBase'
 
 /**
  * Model B API client.
@@ -27,28 +28,28 @@ function errorFrom(payload: Record<string, unknown>, fallback: string): Error {
 }
 
 export async function fetchModelBAvailability(): Promise<ModelBAvailability> {
-  const response = await fetch('/api/model-b/status')
+  const response = await fetch(`${API_BASE}/api/model-b/status`)
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not check Model B availability.')
   return payload as unknown as ModelBAvailability
 }
 
 export async function requestModelB(sessionId: string): Promise<ModelBJob> {
-  const response = await fetch(`/api/sessions/${sessionId}/model-b`, { method: 'POST' })
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b`, { method: 'POST' })
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not start the Model B analysis.')
   return payload as unknown as ModelBJob
 }
 
 export async function fetchModelBJob(sessionId: string, jobId: string): Promise<ModelBJob> {
-  const response = await fetch(`/api/sessions/${sessionId}/model-b/${jobId}`)
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b/${jobId}`)
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not read the Model B job.')
   return payload as unknown as ModelBJob
 }
 
 export async function cancelModelBJob(sessionId: string, jobId: string): Promise<ModelBJob> {
-  const response = await fetch(`/api/sessions/${sessionId}/model-b/${jobId}`, {
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b/${jobId}`, {
     method: 'DELETE',
   })
   const payload = await readJson(response)
@@ -60,7 +61,7 @@ export async function fetchModelBFusion(
   sessionId: string,
   jobId: string,
 ): Promise<ModelBFusionReport> {
-  const response = await fetch(`/api/sessions/${sessionId}/model-b/${jobId}/fusion`)
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b/${jobId}/fusion`)
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Could not compare the two analyses.')
   return payload as unknown as ModelBFusionReport
@@ -72,7 +73,7 @@ export async function recordModelBDecision(
   modelBId: string,
   decision: ModelBDecisionValue,
 ): Promise<ModelBDecision> {
-  const response = await fetch(`/api/sessions/${sessionId}/model-b/${jobId}/decisions`, {
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/model-b/${jobId}/decisions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ model_b_id: modelBId, decision }),

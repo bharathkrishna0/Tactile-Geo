@@ -54,12 +54,41 @@ def test_supabase_upload_targets_the_private_bucket_with_server_side_auth(monkey
     recorder = _Recorder()
     monkeypatch.setattr(storage_module.urllib.request, "urlopen", recorder)
     _storage().put("sessions/a/source.png", b"img", "image/png")
-    request = recorder.requests[0]
+    request = recorder.requests[-1]
     assert request.get_method() == "POST"
     assert request.full_url == "https://project.supabase.co/storage/v1/object/sources/sessions/a/source.png"
     assert request.get_header("Authorization") == "Bearer service-key"
     assert request.get_header("X-upsert") == "true"
     assert request.data == b"img"
+
+
+def test_supabase_bucket_is_checked_once_before_the_first_upload(monkeypatch):
+    recorder = _Recorder()
+    monkeypatch.setattr(storage_module.urllib.request, "urlopen", recorder)
+    storage = _storage()
+    storage.put("a.png", b"1", "image/png")
+    storage.put("b.png", b"2", "image/png")
+    assert [(r.get_method(), r.full_url.rsplit("/v1", 1)[1]) for r in recorder.requests] == [
+        ("GET", "/bucket/sources"),
+        ("POST", "/object/sources/a.png"),
+        ("POST", "/object/sources/b.png"),
+    ]
+
+
+def test_supabase_missing_bucket_is_created_private(monkeypatch):
+    missing = urllib.error.HTTPError("https://x", 404, "Not Found", {}, io.BytesIO(b""))
+    calls = []
+
+    def urlopen(request, timeout):
+        calls.append(request)
+        if len(calls) == 1:
+            raise missing
+        return io.BytesIO(b"{}")
+
+    monkeypatch.setattr(storage_module.urllib.request, "urlopen", urlopen)
+    _storage().put("a.png", b"1", "image/png")
+    assert calls[1].get_method() == "POST" and calls[1].full_url.endswith("/storage/v1/bucket")
+    assert json.loads(calls[1].data) == {"id": "sources", "name": "sources", "public": False}
 
 
 def test_supabase_signed_url_is_absolute_and_expiring(monkeypatch):

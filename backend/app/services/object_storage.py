@@ -74,6 +74,7 @@ class SupabaseObjectStorage:
         self._base = url.rstrip("/") + "/storage/v1"
         self._key = service_role_key
         self._bucket = bucket
+        self._bucket_ready = False
         self._timeout_s = timeout_s
 
     def _request(self, method: str, path: str, body: bytes | None = None, headers: dict[str, str] | None = None) -> bytes:
@@ -104,6 +105,9 @@ class SupabaseObjectStorage:
             self._request("POST", "/bucket", payload, {"Content-Type": "application/json"})
 
     def put(self, key: str, data: bytes, content_type: str) -> None:
+        if not self._bucket_ready:
+            self.ensure_bucket()
+            self._bucket_ready = True
         self._request("POST", self._object_path(key), data, {"Content-Type": content_type, "x-upsert": "true"})
 
     def get(self, key: str) -> bytes:
