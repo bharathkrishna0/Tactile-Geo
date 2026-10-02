@@ -8,6 +8,8 @@ class ConversionSession:
     session_id: str
     original_filename: str
     original_image_path: Path
+    #: Object-storage key of the uploaded image; None for bundled demo samples.
+    source_storage_key: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processing_params: dict[str, Any] = field(default_factory=dict)
     detected_shapes: list[dict[str, Any]] = field(default_factory=list)

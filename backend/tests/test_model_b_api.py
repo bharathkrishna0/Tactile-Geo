@@ -622,6 +622,7 @@ def _seed_model_a(session_id: str) -> None:
         "image_height": 800,
         "element_count": 1,
     }
+    session_store.save(session)
 
 
 class TestFusionEndpoint:

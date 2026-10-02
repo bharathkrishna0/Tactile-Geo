@@ -61,7 +61,8 @@ from app.schemas.model_b import (
 )
 from app.services.editing import semantic_from_dict
 from app.services.model_b_store import model_b_job_store
-from app.services.session_store import session_store
+from app.services.object_storage import ObjectStorageError
+from app.services.session_store import object_storage, read_source_image, session_store
 
 logger = logging.getLogger(__name__)
 
@@ -370,8 +371,8 @@ def request_model_b(
         )
 
     try:
-        image_bytes = session.original_image_path.read_bytes()
-    except OSError as error:
+        image_bytes = read_source_image(session, object_storage)
+    except ObjectStorageError as error:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available.") from error
     if not image_bytes:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available.")
