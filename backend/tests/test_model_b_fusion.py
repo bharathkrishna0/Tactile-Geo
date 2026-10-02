@@ -9,7 +9,9 @@ I4  Every suggested addition requires teacher approval.
 from __future__ import annotations
 
 import copy
+import itertools
 import json
+import random
 
 import cv2
 import numpy as np
@@ -19,6 +21,7 @@ from app.model_b._fixtures import valid_document
 from app.model_b.fusion import (
     MATCH_IOU_THRESHOLD,
     STRONG_IOU_THRESHOLD,
+    _max_weight_assignment,
     reconcile,
 )
 from app.model_b.normalizer import normalize
@@ -381,6 +384,66 @@ class TestMatching:
         ]
         assert [a.model_b_id for a in report.candidate_additions] == ["b_e1"]
         assert [r.model_b_id for r in report.entity_reviews] == ["b_e1", "b_e2"]
+
+    def test_a_big_overlap_does_not_take_another_entitys_only_match(self) -> None:
+        """Keep every eligible pair, rather than letting the largest IoU go first.
+
+        The ellipse region covers the triangle almost exactly and the ellipse
+        only partly; the triangle region overlaps the triangle alone. Taking
+        the largest IoU first would pair ellipse->triangle and lose both real
+        matches.
+        """
+        model_a = make_model_a()
+        model_a.elements[0].bbox = (100, 100, 400, 400)
+        model_a.elements[1].bbox = (340, 100, 400, 400)
+        report = reconcile(
+            model_a,
+            make_model_b(
+                doc_with(
+                    [
+                        entity_with_id("e1", "triangle", (100, 100, 240, 400)),
+                        entity_with_id("e2", "ellipse", (100, 100, 440, 400)),
+                    ]
+                )
+            ),
+        )
+
+        assert sorted((h.model_b_id, h.model_a_id) for h in report.agreements) == [
+            ("b_e1", "m1"),
+            ("b_e2", "m2"),
+        ]
+        assert report.candidate_additions == []
+        assert [d.kind for d in report.disagreements] == []
+
+    def test_a_repeated_entity_id_does_not_reuse_one_match(self) -> None:
+        """The validator only warns on duplicate ids, so pairing must not key on them."""
+        report = reconcile(
+            make_model_a(),
+            make_model_b(
+                doc_with(
+                    [
+                        entity_with_id("e1", "triangle", (100, 80, 600, 560)),
+                        entity_with_id("e1", "ellipse", (550, 240, 300, 240)),
+                    ]
+                )
+            ),
+        )
+
+        assert sorted(h.model_a_id for h in report.agreements) == ["m1", "m2"]
+        assert not [d for d in report.disagreements if d.kind == "model_a_only"]
+
+    def test_assignment_matches_brute_force(self) -> None:
+        rng = random.Random(7)
+        for _ in range(200):
+            size = rng.randint(1, 5)
+            weights = [[rng.choice([0, 0, rng.randint(1, 50)]) for _ in range(size)] for _ in range(size)]
+            assignment = _max_weight_assignment(weights)
+            assert sorted(assignment) == list(range(size))
+            best = max(
+                sum(weights[row][column] for row, column in enumerate(perm))
+                for perm in itertools.permutations(range(size))
+            )
+            assert sum(weights[row][column] for row, column in enumerate(assignment)) == best
 
     def test_addition_carries_model_a_shaped_suggestion(self) -> None:
         report = reconcile(SemanticGeometry(image_width=1000, image_height=800), make_model_b())
