@@ -356,6 +356,32 @@ class TestMatching:
         pairs = {hint.model_a_id for hint in report.agreements}
         assert pairs == {"m1", "m2"}, f"unexpected pairing: {pairs}"
 
+    def test_closest_fit_wins_over_an_earlier_loose_overlap(self) -> None:
+        """Pairing follows IoU, not the order Model B listed its entities.
+
+        Seen live: a model listed a triangle's left side before the triangle
+        itself. The side half-overlaps Model A's triangle; the triangle almost
+        coincides with it. The triangle must back the agreement, and the side
+        is the unverified extra.
+        """
+        report = reconcile(
+            make_model_a(),
+            make_model_b(
+                doc_with(
+                    [
+                        entity_with_id("e1", "line_segment", (100, 80, 300, 560)),
+                        entity_with_id("e2", "triangle", (95, 75, 610, 570)),
+                    ]
+                )
+            ),
+        )
+
+        assert [(h.model_b_id, h.model_a_id, h.verdict) for h in report.agreements] == [
+            ("b_e2", "m1", "agrees")
+        ]
+        assert [a.model_b_id for a in report.candidate_additions] == ["b_e1"]
+        assert [r.model_b_id for r in report.entity_reviews] == ["b_e1", "b_e2"]
+
     def test_addition_carries_model_a_shaped_suggestion(self) -> None:
         report = reconcile(SemanticGeometry(image_width=1000, image_height=800), make_model_b())
         addition = next(a for a in report.candidate_additions if a.model_b_id == "b_e1")

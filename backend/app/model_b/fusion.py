@@ -159,8 +159,10 @@ def reconcile(
 
     related_ids = {subject for note in model_b.diagram_relations for subject in note.subject_ids}
 
+    pairs = _pair_entities(model_b.entities, elements)
+
     for entity in model_b.entities:
-        best = _best_overlap(entity.region, elements, matched_a)
+        best = pairs.get(entity.id)
         if best is None:
             report.candidate_additions.append(
                 _candidate(entity, "Model B found a region Model A did not report.")
@@ -271,28 +273,38 @@ def reconcile(
     return report
 
 
-def _best_overlap(
-    region: BoundingRegion,
-    elements: list[DetectedElement],
-    claimed: set[str] | None = None,
-) -> tuple[DetectedElement, float] | None:
-    """Highest-IoU element above threshold, ignoring ones already paired.
+def _pair_entities(
+    entities: list[SuggestedEntity], elements: list[DetectedElement]
+) -> dict[str, tuple[DetectedElement, float]]:
+    """One-to-one pairing of Model B entities to Model A elements, best IoU first.
 
-    A Model A element can back at most one Model B entity. Without excluding
-    claimed ids, two Model B regions over the same shape would both report an
-    agreement against a single Model A element and the counts would overstate
-    how well the two models line up.
+    A Model A element can back at most one Model B entity, so two Model B
+    regions over one shape cannot both count as corroboration. Pairs are taken
+    in descending IoU across the whole result rather than in Model B's listing
+    order, so a loosely overlapping side segment listed first cannot claim the
+    shape that a later, closely fitting entity describes. Ties prefer the pair
+    whose types agree, then Model B's order, so the result is stable.
     """
-    best: tuple[DetectedElement, float] | None = None
-    for element in elements:
-        if claimed is not None and element.id in claimed:
+    candidates: list[tuple[float, bool, int, int]] = []
+    for entity_index, entity in enumerate(entities):
+        for element_index, element in enumerate(elements):
+            x, y, width, height = element.bbox  # type: ignore[misc]
+            region = BoundingRegion(norm=(), x=x, y=y, width=width, height=height)
+            overlap = entity.region.iou(region)
+            if overlap >= MATCH_IOU_THRESHOLD:
+                same_type = entity.geometry_type is element.type
+                candidates.append((overlap, same_type, entity_index, element_index))
+    candidates.sort(key=lambda item: (-item[0], not item[1], item[2], item[3]))
+
+    pairs: dict[str, tuple[DetectedElement, float]] = {}
+    claimed: set[int] = set()
+    for overlap, _, entity_index, element_index in candidates:
+        entity = entities[entity_index]
+        if entity.id in pairs or element_index in claimed:
             continue
-        x, y, width, height = element.bbox  # type: ignore[misc]
-        candidate = BoundingRegion(norm=(), x=x, y=y, width=width, height=height)
-        overlap = region.iou(candidate)
-        if overlap >= MATCH_IOU_THRESHOLD and (best is None or overlap > best[1]):
-            best = (element, overlap)
-    return best
+        pairs[entity.id] = (elements[element_index], overlap)
+        claimed.add(element_index)
+    return pairs
 
 
 def _entity_review(
