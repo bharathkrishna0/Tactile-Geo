@@ -1,0 +1,388 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_030",
+ "file": "images/math_030.jpg",
+ "mask_file": "masks/math_030.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "moderate",
+ "category": "K_tables_diagrams",
+ "diagram_type": "table_or_chart",
+ "layout": "figure",
+ "conditions": [
+  "scanned"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": -0.22,
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261031
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "axis_1",
+   "type": "axis",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      194.96,
+      673.84
+     ],
+     [
+      898.95,
+      676.52
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    195.0,
+    673.8,
+    704.0,
+    2.7
+   ]
+  },
+  {
+   "id": "axis_2",
+   "type": "axis",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      194.96,
+      673.84
+     ],
+     [
+      197.22,
+      78.84
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    195.0,
+    78.8,
+    2.3,
+    595.0
+   ]
+  },
+  {
+   "id": "bar_1",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      248.89,
+      376.35
+     ],
+     [
+      336.89,
+      376.69
+     ],
+     [
+      335.75,
+      674.38
+     ],
+     [
+      247.75,
+      674.04
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    247.8,
+    376.4,
+    89.1,
+    298.0
+   ]
+  },
+  {
+   "id": "bar_2",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      390.39,
+      191.92
+     ],
+     [
+      478.39,
+      192.26
+     ],
+     [
+      476.55,
+      674.91
+     ],
+     [
+      388.55,
+      674.58
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    388.6,
+    191.9,
+    89.8,
+    483.0
+   ]
+  },
+  {
+   "id": "bar_3",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      530.3,
+      426.36
+     ],
+     [
+      618.3,
+      426.69
+     ],
+     [
+      617.35,
+      675.45
+     ],
+     [
+      529.35,
+      675.11
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    529.4,
+    426.4,
+    88.9,
+    249.1
+   ]
+  },
+  {
+   "id": "bar_4",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      670.79,
+      508.89
+     ],
+     [
+      758.79,
+      509.22
+     ],
+     [
+      758.15,
+      675.98
+     ],
+     [
+      670.15,
+      675.65
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    670.1,
+    508.9,
+    88.6,
+    167.1
+   ]
+  },
+  {
+   "id": "bar_5",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      811.9,
+      426.74
+     ],
+     [
+      899.9,
+      427.07
+     ],
+     [
+      898.95,
+      676.52
+     ],
+     [
+      810.95,
+      676.19
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    811.0,
+    426.7,
+    88.9,
+    249.8
+   ]
+  }
+ ],
+ "points": [],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "A",
+   "role": "tick_label",
+   "associated_object": "bar_1",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    283.6,
+    689.2,
+    17.1,
+    18.1
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "B",
+   "role": "tick_label",
+   "associated_object": "bar_2",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    424.4,
+    689.7,
+    16.1,
+    18.1
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "C",
+   "role": "tick_label",
+   "associated_object": "bar_3",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    565.2,
+    690.2,
+    17.1,
+    18.1
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "D",
+   "role": "tick_label",
+   "associated_object": "bar_4",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    705.0,
+    690.8,
+    18.1,
+    18.1
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "E",
+   "role": "tick_label",
+   "associated_object": "bar_5",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    846.8,
+    691.3,
+    15.1,
+    18.1
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "PERPENDICULAR",
+   "source": "axis_1",
+   "target": "axis_2"
+  },
+  {
+   "type": "ON",
+   "source": "bar_1",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "bar_1"
+  },
+  {
+   "type": "ON",
+   "source": "bar_2",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "bar_2"
+  },
+  {
+   "type": "ON",
+   "source": "bar_3",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "bar_3"
+  },
+  {
+   "type": "ON",
+   "source": "bar_4",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "bar_4"
+  },
+  {
+   "type": "ON",
+   "source": "bar_5",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "bar_5"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

@@ -1,0 +1,333 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_094",
+ "file": "images/math_094.png",
+ "mask_file": "masks/math_094.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "adversarial",
+ "category": "F_shapes_polygons",
+ "diagram_type": "polygons",
+ "layout": "figure",
+ "conditions": [
+  "faded"
+ ],
+ "content_stressors": [
+  "thin_strokes"
+ ],
+ "adversarial_focus": "faded print with hairline strokes",
+ "degradation_parameters": {
+  "ink_strength": 0.45
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261095
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "triangle_1",
+   "type": "triangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      300.0,
+      248.0
+     ],
+     [
+      431.64,
+      476.0
+     ],
+     [
+      168.36,
+      476.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    168.4,
+    248.0,
+    263.3,
+    228.0
+   ]
+  },
+  {
+   "id": "polygon_1",
+   "type": "polygon",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      700.0,
+      248.0
+     ],
+     [
+      831.64,
+      324.0
+     ],
+     [
+      831.64,
+      476.0
+     ],
+     [
+      700.0,
+      552.0
+     ],
+     [
+      568.36,
+      476.0
+     ],
+     [
+      568.36,
+      324.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    568.4,
+    248.0,
+    263.3,
+    304.0
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 700.0,
+   "y": 248.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 831.64,
+   "y": 324.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 831.64,
+   "y": 476.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_4",
+   "x": 700.0,
+   "y": 552.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_5",
+   "x": 568.36,
+   "y": 476.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_6",
+   "x": 568.36,
+   "y": 324.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "triangle",
+   "role": "caption",
+   "associated_object": "triangle_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    258.0,
+    579.0,
+    85.0,
+    22.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "M",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    689.0,
+    218.5,
+    23.0,
+    16.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "N",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    842.1,
+    305.8,
+    19.0,
+    16.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "O",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    842.1,
+    480.2,
+    18.0,
+    16.0
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "P",
+   "role": "vertex_label",
+   "associated_object": "point_4",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    691.0,
+    567.5,
+    16.0,
+    16.0
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "Q",
+   "role": "vertex_label",
+   "associated_object": "point_5",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    539.9,
+    480.2,
+    18.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "R",
+   "role": "vertex_label",
+   "associated_object": "point_6",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    539.9,
+    305.8,
+    16.0,
+    16.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_1",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "point_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_2",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "point_2"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_3",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_3"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_4",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_4"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_5",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "point_5"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_6",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "point_6"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

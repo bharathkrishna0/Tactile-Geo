@@ -1,0 +1,240 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_085",
+ "file": "images/math_085.png",
+ "mask_file": "masks/math_085.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "adversarial",
+ "category": "F_shapes_polygons",
+ "diagram_type": "polygons",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [
+  "dashed"
+ ],
+ "adversarial_focus": "every line dashed",
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261086
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "polygon_1",
+   "type": "polygon",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      300.0,
+      248.0
+     ],
+     [
+      407.48,
+      292.52
+     ],
+     [
+      452.0,
+      400.0
+     ],
+     [
+      407.48,
+      507.48
+     ],
+     [
+      300.0,
+      552.0
+     ],
+     [
+      192.52,
+      507.48
+     ],
+     [
+      148.0,
+      400.0
+     ],
+     [
+      192.52,
+      292.52
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    148.0,
+    248.0,
+    304.0,
+    304.0
+   ]
+  },
+  {
+   "id": "triangle_1",
+   "type": "triangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      700.0,
+      248.0
+     ],
+     [
+      831.64,
+      476.0
+     ],
+     [
+      568.36,
+      476.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    568.4,
+    248.0,
+    263.3,
+    228.0
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 700.0,
+   "y": 248.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 831.64,
+   "y": 476.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 568.36,
+   "y": 476.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "octagon",
+   "role": "caption",
+   "associated_object": "polygon_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    255.0,
+    581.0,
+    89.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "P",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    691.0,
+    218.5,
+    16.0,
+    16.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "Q",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    842.1,
+    480.2,
+    18.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "R",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    539.9,
+    480.2,
+    16.0,
+    16.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "polygon_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "point_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_2",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "point_2"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_3",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_3"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

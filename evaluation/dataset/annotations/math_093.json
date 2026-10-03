@@ -1,0 +1,688 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_093",
+ "file": "images/math_093.jpg",
+ "mask_file": "masks/math_093.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "adversarial",
+ "category": "J_fractions_number_lines",
+ "diagram_type": "number_line_or_fraction",
+ "layout": "figure",
+ "conditions": [
+  "photographed",
+  "shadow"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": "phone photo with a hard shadow",
+ "degradation_parameters": {
+  "perspective_jitter": 0.035,
+  "shadow": "hard-edged diagonal shadow",
+  "jpeg_quality": 70
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261094
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "number_line_1",
+   "type": "number_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      81.18,
+      393.5
+     ],
+     [
+      946.53,
+      376.89
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    81.2,
+    376.9,
+    865.3,
+    16.6
+   ]
+  },
+  {
+   "id": "tick_1",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      126.74,
+      382.28
+     ],
+     [
+      126.55,
+      403.0
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    126.5,
+    382.3,
+    0.2,
+    20.7
+   ]
+  },
+  {
+   "id": "tick_2",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      207.91,
+      380.77
+     ],
+     [
+      207.84,
+      401.39
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    207.8,
+    380.8,
+    0.1,
+    20.6
+   ]
+  },
+  {
+   "id": "tick_3",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      288.31,
+      379.28
+     ],
+     [
+      288.35,
+      399.79
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    288.3,
+    379.3,
+    0.0,
+    20.5
+   ]
+  },
+  {
+   "id": "tick_4",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      367.95,
+      377.8
+     ],
+     [
+      368.09,
+      398.21
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    367.9,
+    377.8,
+    0.1,
+    20.4
+   ]
+  },
+  {
+   "id": "tick_5",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      446.83,
+      376.33
+     ],
+     [
+      447.08,
+      396.65
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    446.8,
+    376.3,
+    0.2,
+    20.3
+   ]
+  },
+  {
+   "id": "tick_6",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      524.98,
+      374.88
+     ],
+     [
+      525.32,
+      395.1
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    525.0,
+    374.9,
+    0.3,
+    20.2
+   ]
+  },
+  {
+   "id": "tick_7",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      602.39,
+      373.44
+     ],
+     [
+      602.84,
+      393.56
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    602.4,
+    373.4,
+    0.5,
+    20.1
+   ]
+  },
+  {
+   "id": "tick_8",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      679.09,
+      372.02
+     ],
+     [
+      679.63,
+      392.04
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    679.1,
+    372.0,
+    0.5,
+    20.0
+   ]
+  },
+  {
+   "id": "tick_9",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      755.07,
+      370.6
+     ],
+     [
+      755.71,
+      390.54
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    755.1,
+    370.6,
+    0.6,
+    19.9
+   ]
+  },
+  {
+   "id": "tick_10",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      830.35,
+      369.21
+     ],
+     [
+      831.09,
+      389.04
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    830.4,
+    369.2,
+    0.7,
+    19.8
+   ]
+  },
+  {
+   "id": "tick_11",
+   "type": "tick",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      904.94,
+      367.82
+     ],
+     [
+      905.77,
+      387.56
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    904.9,
+    367.8,
+    0.8,
+    19.7
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 288.33,
+   "y": 389.53,
+   "role": "marked_point",
+   "drawn_as_dot": true,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 830.72,
+   "y": 379.12,
+   "role": "marked_point",
+   "drawn_as_dot": true,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "-2",
+   "role": "tick_label",
+   "associated_object": "tick_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    114.9,
+    418.3,
+    22.9,
+    17.1
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "-1",
+   "role": "tick_label",
+   "associated_object": "tick_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    196.5,
+    416.6,
+    22.6,
+    17.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "0",
+   "role": "tick_label",
+   "associated_object": "tick_3",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    281.3,
+    415.1,
+    14.2,
+    16.8
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "1",
+   "role": "tick_label",
+   "associated_object": "tick_4",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    361.2,
+    413.4,
+    14.2,
+    16.7
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "2",
+   "role": "tick_label",
+   "associated_object": "tick_5",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    440.3,
+    411.8,
+    14.1,
+    16.6
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "3",
+   "role": "tick_label",
+   "associated_object": "tick_6",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    518.7,
+    410.1,
+    14.1,
+    16.5
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "4",
+   "role": "tick_label",
+   "associated_object": "tick_7",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    596.4,
+    408.6,
+    14.0,
+    16.4
+   ]
+  },
+  {
+   "id": "label_8",
+   "text": "5",
+   "role": "tick_label",
+   "associated_object": "tick_8",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    673.3,
+    407.0,
+    14.0,
+    16.4
+   ]
+  },
+  {
+   "id": "label_9",
+   "text": "6",
+   "role": "tick_label",
+   "associated_object": "tick_9",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    749.5,
+    405.4,
+    13.9,
+    16.3
+   ]
+  },
+  {
+   "id": "label_10",
+   "text": "7",
+   "role": "tick_label",
+   "associated_object": "tick_10",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    825.0,
+    403.8,
+    13.9,
+    16.2
+   ]
+  },
+  {
+   "id": "label_11",
+   "text": "8",
+   "role": "tick_label",
+   "associated_object": "tick_11",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    899.8,
+    402.3,
+    13.8,
+    16.1
+   ]
+  },
+  {
+   "id": "label_12",
+   "text": "P",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    278.2,
+    348.5,
+    19.2,
+    20.8
+   ]
+  },
+  {
+   "id": "label_13",
+   "text": "Q",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    818.9,
+    339.4,
+    21.7,
+    25.1
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "ON",
+   "source": "tick_1",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "tick_1"
+  },
+  {
+   "type": "ON",
+   "source": "tick_2",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "tick_2"
+  },
+  {
+   "type": "ON",
+   "source": "tick_3",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "tick_3"
+  },
+  {
+   "type": "ON",
+   "source": "tick_4",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "tick_4"
+  },
+  {
+   "type": "ON",
+   "source": "tick_5",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "tick_5"
+  },
+  {
+   "type": "ON",
+   "source": "tick_6",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "tick_6"
+  },
+  {
+   "type": "ON",
+   "source": "tick_7",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "tick_7"
+  },
+  {
+   "type": "ON",
+   "source": "tick_8",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_8",
+   "target": "tick_8"
+  },
+  {
+   "type": "ON",
+   "source": "tick_9",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_9",
+   "target": "tick_9"
+  },
+  {
+   "type": "ON",
+   "source": "tick_10",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_10",
+   "target": "tick_10"
+  },
+  {
+   "type": "ON",
+   "source": "tick_11",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_11",
+   "target": "tick_11"
+  },
+  {
+   "type": "ON",
+   "source": "point_1",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_12",
+   "target": "point_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "number_line_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_13",
+   "target": "point_2"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

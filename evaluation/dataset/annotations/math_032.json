@@ -1,0 +1,364 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_032",
+ "file": "images/math_032.jpg",
+ "mask_file": "masks/math_032.png",
+ "width": 1100,
+ "height": 1556,
+ "difficulty": "moderate",
+ "category": "B_worksheet_geometry",
+ "diagram_type": "worksheet_with_geometry_questions",
+ "layout": "worksheet",
+ "conditions": [
+  "scanned"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": -0.75,
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261033
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "ray_1",
+   "type": "ray",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      354.12,
+      1232.38
+     ],
+     [
+      797.24,
+      1238.17
+     ]
+    ],
+    "arrowheads": 1
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    354.1,
+    1232.4,
+    443.1,
+    5.8
+   ]
+  },
+  {
+   "id": "ray_2",
+   "type": "ray",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      354.12,
+      1232.38
+     ],
+     [
+      179.18,
+      825.22
+     ]
+    ],
+    "arrowheads": 1
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    179.2,
+    825.2,
+    174.9,
+    407.2
+   ]
+  },
+  {
+   "id": "angle_marker_1",
+   "type": "angle_marker",
+   "geometry": {
+    "kind": "arc",
+    "center": [
+     354.12,
+     1232.38
+    ],
+    "radius": 48.4,
+    "start_deg": -114,
+    "end_deg": 0
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    335.0,
+    1184.0,
+    67.5,
+    49.0
+   ],
+   "outline": [
+    [
+     335.02,
+     1187.92
+    ],
+    [
+     339.11,
+     1186.37
+    ],
+    [
+     343.33,
+     1185.2
+    ],
+    [
+     347.63,
+     1184.42
+    ],
+    [
+     351.99,
+     1184.03
+    ],
+    [
+     356.37,
+     1184.04
+    ],
+    [
+     360.73,
+     1184.44
+    ],
+    [
+     365.03,
+     1185.23
+    ],
+    [
+     369.24,
+     1186.41
+    ],
+    [
+     373.34,
+     1187.96
+    ],
+    [
+     377.27,
+     1189.88
+    ],
+    [
+     381.01,
+     1192.14
+    ],
+    [
+     384.54,
+     1194.73
+    ],
+    [
+     387.81,
+     1197.63
+    ],
+    [
+     390.82,
+     1200.82
+    ],
+    [
+     393.52,
+     1204.26
+    ],
+    [
+     395.9,
+     1207.93
+    ],
+    [
+     397.93,
+     1211.81
+    ],
+    [
+     399.61,
+     1215.85
+    ],
+    [
+     400.92,
+     1220.02
+    ],
+    [
+     401.84,
+     1224.3
+    ],
+    [
+     402.38,
+     1228.64
+    ],
+    [
+     402.52,
+     1233.02
+    ]
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 354.12,
+   "y": 1232.38,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "Class IX Mathematics - Worksheet 5",
+   "role": "title",
+   "associated_object": null,
+   "font_px": 34,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    69.1,
+    49.7,
+    689.3,
+    35.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "Name: ____________________   Date: ___________",
+   "role": "name_line",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    68.5,
+    103.7,
+    509.2,
+    27.6
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "1. Find the value of x. Give reasons.",
+   "role": "question_text",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    67.8,
+    163.7,
+    319.2,
+    19.2
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "U",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    328.3,
+    1237.0,
+    18.2,
+    14.2
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "V",
+   "role": "vertex_label",
+   "associated_object": "ray_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    798.7,
+    1252.0,
+    16.2,
+    14.2
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "T",
+   "role": "vertex_label",
+   "associated_object": "ray_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    153.4,
+    812.3,
+    14.2,
+    14.2
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "114\u00b0",
+   "role": "angle_label",
+   "associated_object": "angle_marker_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    371.0,
+    1158.2,
+    53.2,
+    16.7
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "ray_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "ray_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "ray_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "ray_2"
+  },
+  {
+   "type": "ANGLE_AT",
+   "source": "angle_marker_1",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "angle_marker_1"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": [
+  "label_1",
+  "label_2",
+  "label_3"
+ ]
+}

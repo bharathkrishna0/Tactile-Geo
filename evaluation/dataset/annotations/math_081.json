@@ -1,0 +1,759 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_081",
+ "file": "images/math_081.png",
+ "mask_file": "masks/math_081.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "adversarial",
+ "category": "A_geometry_figure",
+ "diagram_type": "triangle_quadrilateral_geometry",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [
+  "handwriting"
+ ],
+ "adversarial_focus": "handwritten working drawn over the figure",
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261082
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "triangle_1",
+   "type": "triangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      587.8,
+      118.59
+     ],
+     [
+      126.07,
+      704.0
+     ],
+     [
+      843.22,
+      704.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    126.1,
+    118.6,
+    717.2,
+    585.4
+   ]
+  },
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      587.8,
+      118.59
+     ],
+     [
+      587.8,
+      704.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "dashed": true,
+   "bbox": [
+    587.8,
+    118.6,
+    0.0,
+    585.4
+   ]
+  },
+  {
+   "id": "right_angle_marker_1",
+   "type": "right_angle_marker",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      608.8,
+      704.0
+     ],
+     [
+      608.8,
+      683.0
+     ],
+     [
+      587.8,
+      683.0
+     ]
+    ],
+    "vertex": [
+     587.8,
+     704.0
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    587.8,
+    683.0,
+    21.0,
+    21.0
+   ]
+  },
+  {
+   "id": "handwriting_1",
+   "type": "handwriting",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      576.11,
+      515.63
+     ],
+     [
+      583.27,
+      513.47
+     ],
+     [
+      588.15,
+      507.8
+     ],
+     [
+      588.22,
+      500.32
+     ],
+     [
+      584.87,
+      493.63
+     ],
+     [
+      579.84,
+      488.09
+     ],
+     [
+      574.72,
+      482.64
+     ],
+     [
+      577.09,
+      475.55
+     ],
+     [
+      574.47,
+      468.55
+     ],
+     [
+      567.85,
+      472.02
+     ],
+     [
+      564.18,
+      478.54
+     ],
+     [
+      561.91,
+      485.67
+     ],
+     [
+      567.15,
+      491.01
+     ],
+     [
+      574.31,
+      493.17
+     ],
+     [
+      580.81,
+      489.48
+     ],
+     [
+      582.19,
+      482.12
+     ],
+     [
+      582.52,
+      474.65
+     ],
+     [
+      590.0,
+      474.96
+     ],
+     [
+      595.34,
+      469.73
+     ],
+     [
+      597.19,
+      462.48
+     ],
+     [
+      604.64,
+      463.06
+     ]
+    ]
+   },
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "note": "pencil working / scribble",
+   "bbox": [
+    561.9,
+    462.5,
+    42.7,
+    53.1
+   ]
+  },
+  {
+   "id": "handwriting_2",
+   "type": "handwriting",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      603.42,
+      309.08
+     ],
+     [
+      601.88,
+      314.43
+     ],
+     [
+      602.44,
+      319.98
+     ],
+     [
+      598.5,
+      323.91
+     ],
+     [
+      593.05,
+      322.76
+     ],
+     [
+      587.79,
+      324.61
+     ],
+     [
+      588.05,
+      330.17
+     ],
+     [
+      585.19,
+      334.96
+     ],
+     [
+      582.69,
+      339.94
+     ],
+     [
+      585.07,
+      344.98
+     ],
+     [
+      588.12,
+      349.64
+     ],
+     [
+      591.9,
+      353.73
+     ],
+     [
+      597.07,
+      355.81
+     ],
+     [
+      602.37,
+      357.54
+     ],
+     [
+      602.91,
+      363.08
+     ],
+     [
+      607.02,
+      366.84
+     ],
+     [
+      611.53,
+      370.11
+     ],
+     [
+      612.36,
+      375.62
+     ],
+     [
+      614.95,
+      380.56
+     ],
+     [
+      619.36,
+      383.95
+     ],
+     [
+      624.61,
+      385.84
+     ],
+     [
+      630.16,
+      385.34
+     ],
+     [
+      633.08,
+      390.08
+     ],
+     [
+      638.65,
+      390.28
+     ]
+    ]
+   },
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "note": "pencil working / scribble",
+   "bbox": [
+    582.7,
+    309.1,
+    56.0,
+    81.2
+   ]
+  },
+  {
+   "id": "handwriting_3",
+   "type": "handwriting",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      222.96,
+      299.67
+     ],
+     [
+      228.7,
+      301.2
+     ],
+     [
+      234.48,
+      302.57
+     ],
+     [
+      239.97,
+      304.86
+     ],
+     [
+      245.84,
+      303.99
+     ],
+     [
+      251.44,
+      301.99
+     ],
+     [
+      256.62,
+      304.89
+     ],
+     [
+      262.33,
+      306.54
+     ],
+     [
+      267.09,
+      303.0
+     ],
+     [
+      272.21,
+      299.97
+     ],
+     [
+      274.63,
+      294.55
+     ],
+     [
+      278.32,
+      289.89
+     ],
+     [
+      283.24,
+      286.56
+     ],
+     [
+      285.24,
+      280.96
+     ],
+     [
+      290.22,
+      277.73
+     ],
+     [
+      294.75,
+      281.57
+     ]
+    ]
+   },
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "note": "pencil working / scribble",
+   "bbox": [
+    223.0,
+    277.7,
+    71.8,
+    28.8
+   ]
+  },
+  {
+   "id": "handwriting_4",
+   "type": "handwriting",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      254.14,
+      520.5
+     ],
+     [
+      255.56,
+      524.54
+     ],
+     [
+      254.34,
+      528.46
+     ],
+     [
+      250.08,
+      532.12
+     ],
+     [
+      243.02,
+      535.43
+     ],
+     [
+      233.94,
+      538.26
+     ],
+     [
+      223.86,
+      540.54
+     ],
+     [
+      213.64,
+      542.19
+     ],
+     [
+      203.75,
+      543.16
+     ],
+     [
+      194.14,
+      543.42
+     ],
+     [
+      184.47,
+      542.96
+     ],
+     [
+      174.48,
+      541.8
+     ],
+     [
+      164.23,
+      539.98
+     ],
+     [
+      154.32,
+      537.54
+     ],
+     [
+      145.69,
+      534.57
+     ],
+     [
+      139.34,
+      531.16
+     ],
+     [
+      135.92,
+      527.41
+     ],
+     [
+      135.48,
+      523.45
+     ],
+     [
+      137.49,
+      519.39
+     ],
+     [
+      141.1,
+      515.37
+     ],
+     [
+      145.48,
+      511.51
+     ],
+     [
+      150.22,
+      507.94
+     ],
+     [
+      155.39,
+      504.75
+     ],
+     [
+      161.49,
+      502.06
+     ],
+     [
+      169.03,
+      499.95
+     ],
+     [
+      178.24,
+      498.48
+     ],
+     [
+      188.84,
+      497.7
+     ],
+     [
+      200.02,
+      497.64
+     ],
+     [
+      210.8,
+      498.29
+     ],
+     [
+      220.3,
+      499.63
+     ],
+     [
+      228.15,
+      501.63
+     ],
+     [
+      234.47,
+      504.22
+     ],
+     [
+      239.77,
+      507.33
+     ],
+     [
+      244.56,
+      510.84
+     ],
+     [
+      249.03,
+      514.66
+     ],
+     [
+      252.83,
+      518.66
+     ],
+     [
+      255.2,
+      522.71
+     ],
+     [
+      255.26,
+      526.7
+     ],
+     [
+      252.39,
+      530.5
+     ],
+     [
+      246.54,
+      533.98
+     ]
+    ]
+   },
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "note": "hand-drawn loop",
+   "bbox": [
+    135.5,
+    497.6,
+    120.1,
+    45.8
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 587.8,
+   "y": 118.59,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 126.07,
+   "y": 704.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 843.22,
+   "y": 704.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_4",
+   "x": 587.8,
+   "y": 704.0,
+   "role": "foot",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "L",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    583.5,
+    82.0,
+    18.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "M",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    88.9,
+    706.0,
+    28.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "N",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    855.4,
+    707.9,
+    23.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "O",
+   "role": "vertex_label",
+   "associated_object": "point_4",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    576.8,
+    721.0,
+    22.0,
+    20.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "VERTEX_OF",
+   "source": "point_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "point_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_2",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "point_2"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_3",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "point_3"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_4",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INSIDE",
+   "source": "line_segment_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_4"
+  },
+  {
+   "type": "PERPENDICULAR",
+   "source": "line_segment_1",
+   "target": "triangle_1"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": [
+  "handwriting_1",
+  "handwriting_2",
+  "handwriting_3",
+  "handwriting_4"
+ ]
+}

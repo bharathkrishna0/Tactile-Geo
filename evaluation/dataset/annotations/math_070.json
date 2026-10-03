@@ -1,0 +1,296 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_070",
+ "file": "images/math_070.jpg",
+ "mask_file": "masks/math_070.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "very_hard",
+ "category": "G_angles",
+ "diagram_type": "angles",
+ "layout": "figure",
+ "conditions": [
+  "photographed",
+  "blur"
+ ],
+ "content_stressors": [
+  "small_text"
+ ],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "perspective_jitter": 0.035,
+  "blur_sigma": 1.66,
+  "jpeg_quality": 70
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261071
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      142.19,
+      264.75
+     ],
+     [
+      876.95,
+      261.98
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    142.2,
+    262.0,
+    734.8,
+    2.8
+   ]
+  },
+  {
+   "id": "line_segment_2",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      133.88,
+      543.51
+     ],
+     [
+      884.59,
+      531.54
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    133.9,
+    531.5,
+    750.7,
+    12.0
+   ]
+  },
+  {
+   "id": "line_segment_3",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      374.43,
+      86.42
+     ],
+     [
+      808.81,
+      688.17
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    374.4,
+    86.4,
+    434.4,
+    601.8
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 502.18,
+   "y": 263.39,
+   "role": "intersection",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 697.9,
+   "y": 534.52,
+   "role": "intersection",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "l",
+   "role": "vertex_label",
+   "associated_object": "line_segment_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    885.9,
+    242.5,
+    6.0,
+    14.5
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "m",
+   "role": "vertex_label",
+   "associated_object": "line_segment_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    889.1,
+    516.0,
+    15.5,
+    10.3
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "t",
+   "role": "vertex_label",
+   "associated_object": "line_segment_3",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    818.6,
+    683.6,
+    7.1,
+    12.6
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "54\u00b0",
+   "role": "angle_label",
+   "associated_object": "point_1",
+   "font_px": 18,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    520.7,
+    241.3,
+    30.9,
+    12.8
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "x",
+   "role": "angle_label",
+   "associated_object": "point_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    664.4,
+    550.8,
+    10.9,
+    10.4
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "y",
+   "role": "angle_label",
+   "associated_object": "point_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    717.0,
+    549.9,
+    11.9,
+    15.5
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "PARALLEL",
+   "source": "line_segment_1",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "INTERSECTS",
+   "source": "line_segment_3",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INTERSECTS",
+   "source": "line_segment_3",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "ON",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_1",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "point_2"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

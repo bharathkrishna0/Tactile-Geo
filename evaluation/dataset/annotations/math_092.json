@@ -1,0 +1,330 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_092",
+ "file": "images/math_092.png",
+ "mask_file": "masks/math_092.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "adversarial",
+ "category": "G_angles",
+ "diagram_type": "angles",
+ "layout": "figure",
+ "conditions": [
+  "dark_page"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": "light chalk-style drawing on a dark page",
+ "degradation_parameters": {
+  "dark_page": "chalkboard (light ink on dark)"
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261093
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "ray_1",
+   "type": "ray",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      272.0,
+      643.2
+     ],
+     [
+      804.0,
+      643.2
+     ]
+    ],
+    "arrowheads": 1
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    272.0,
+    643.2,
+    532.0,
+    0.0
+   ]
+  },
+  {
+   "id": "ray_2",
+   "type": "ray",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      272.0,
+      643.2
+     ],
+     [
+      -69.96,
+      235.66
+     ]
+    ],
+    "arrowheads": 1
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    -70.0,
+    235.7,
+    342.0,
+    407.5
+   ]
+  },
+  {
+   "id": "angle_marker_1",
+   "type": "angle_marker",
+   "geometry": {
+    "kind": "arc",
+    "center": [
+     272.0,
+     643.2
+    ],
+    "radius": 66.0,
+    "start_deg": -130,
+    "end_deg": 0
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    229.6,
+    577.2,
+    108.4,
+    66.0
+   ],
+   "outline": [
+    [
+     229.58,
+     592.64
+    ],
+    [
+     234.14,
+     589.14
+    ],
+    [
+     239.0,
+     586.04
+    ],
+    [
+     244.11,
+     583.38
+    ],
+    [
+     249.43,
+     581.18
+    ],
+    [
+     254.92,
+     579.45
+    ],
+    [
+     260.54,
+     578.2
+    ],
+    [
+     266.25,
+     577.45
+    ],
+    [
+     272.0,
+     577.2
+    ],
+    [
+     277.75,
+     577.45
+    ],
+    [
+     283.46,
+     578.2
+    ],
+    [
+     289.08,
+     579.45
+    ],
+    [
+     294.57,
+     581.18
+    ],
+    [
+     299.89,
+     583.38
+    ],
+    [
+     305.0,
+     586.04
+    ],
+    [
+     309.86,
+     589.14
+    ],
+    [
+     314.42,
+     592.64
+    ],
+    [
+     318.67,
+     596.53
+    ],
+    [
+     322.56,
+     600.78
+    ],
+    [
+     326.06,
+     605.34
+    ],
+    [
+     329.16,
+     610.2
+    ],
+    [
+     331.82,
+     615.31
+    ],
+    [
+     334.02,
+     620.63
+    ],
+    [
+     335.75,
+     626.12
+    ],
+    [
+     337.0,
+     631.74
+    ],
+    [
+     337.75,
+     637.45
+    ],
+    [
+     338.0,
+     643.2
+    ]
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 272.0,
+   "y": 643.2,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "N",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    237.0,
+    648.2,
+    23.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "O",
+   "role": "vertex_label",
+   "associated_object": "ray_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    805.0,
+    660.2,
+    22.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "M",
+   "role": "vertex_label",
+   "associated_object": "ray_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    -110.0,
+    216.7,
+    28.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "130\u00b0",
+   "role": "angle_label",
+   "associated_object": "angle_marker_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    281.6,
+    533.3,
+    72.0,
+    22.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "ray_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "ray_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "ray_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "ray_2"
+  },
+  {
+   "type": "ANGLE_AT",
+   "source": "angle_marker_1",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "angle_marker_1"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

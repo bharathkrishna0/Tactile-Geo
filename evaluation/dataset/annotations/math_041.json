@@ -1,0 +1,885 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_041",
+ "file": "images/math_041.jpg",
+ "mask_file": "masks/math_041.png",
+ "width": 1100,
+ "height": 1556,
+ "difficulty": "hard",
+ "category": "B_worksheet_geometry",
+ "diagram_type": "worksheet_with_geometry_questions",
+ "layout": "worksheet",
+ "conditions": [
+  "scanned"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": -1.78,
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261042
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "triangle_1",
+   "type": "triangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      442.66,
+      294.22
+     ],
+     [
+      255.33,
+      737.06
+     ],
+     [
+      845.44,
+      755.41
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    255.3,
+    294.2,
+    590.1,
+    461.2
+   ]
+  },
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      442.66,
+      294.22
+     ],
+     [
+      428.72,
+      742.45
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "dashed": true,
+   "bbox": [
+    428.7,
+    294.2,
+    13.9,
+    448.2
+   ]
+  },
+  {
+   "id": "right_angle_marker_1",
+   "type": "right_angle_marker",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      444.11,
+      742.93
+     ],
+     [
+      444.59,
+      727.54
+     ],
+     [
+      429.19,
+      727.06
+     ]
+    ],
+    "vertex": [
+     428.72,
+     742.45
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    428.7,
+    727.1,
+    15.9,
+    15.9
+   ]
+  },
+  {
+   "id": "circle_1",
+   "type": "circle",
+   "geometry": {
+    "kind": "circle",
+    "center": [
+     537.51,
+     1179.56
+    ],
+    "radius": 184.7
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    353.0,
+    995.0,
+    369.0,
+    369.0
+   ],
+   "outline": [
+    [
+     722.03,
+     1185.3
+    ],
+    [
+     720.83,
+     1201.36
+    ],
+    [
+     718.23,
+     1217.25
+    ],
+    [
+     714.26,
+     1232.86
+    ],
+    [
+     708.94,
+     1248.06
+    ],
+    [
+     702.32,
+     1262.74
+    ],
+    [
+     694.44,
+     1276.79
+    ],
+    [
+     685.37,
+     1290.1
+    ],
+    [
+     675.17,
+     1302.56
+    ],
+    [
+     663.93,
+     1314.09
+    ],
+    [
+     651.72,
+     1324.6
+    ],
+    [
+     638.65,
+     1334.0
+    ],
+    [
+     624.8,
+     1342.23
+    ],
+    [
+     610.29,
+     1349.22
+    ],
+    [
+     595.23,
+     1354.92
+    ],
+    [
+     579.72,
+     1359.28
+    ],
+    [
+     563.9,
+     1362.28
+    ],
+    [
+     547.87,
+     1363.88
+    ],
+    [
+     531.77,
+     1364.08
+    ],
+    [
+     515.71,
+     1362.88
+    ],
+    [
+     499.81,
+     1360.28
+    ],
+    [
+     484.21,
+     1356.31
+    ],
+    [
+     469.0,
+     1350.99
+    ],
+    [
+     454.32,
+     1344.37
+    ],
+    [
+     440.27,
+     1336.49
+    ],
+    [
+     426.97,
+     1327.42
+    ],
+    [
+     414.5,
+     1317.22
+    ],
+    [
+     402.97,
+     1305.98
+    ],
+    [
+     392.46,
+     1293.77
+    ],
+    [
+     383.06,
+     1280.69
+    ],
+    [
+     374.83,
+     1266.85
+    ],
+    [
+     367.85,
+     1252.34
+    ],
+    [
+     362.15,
+     1237.27
+    ],
+    [
+     357.78,
+     1221.77
+    ],
+    [
+     354.79,
+     1205.95
+    ],
+    [
+     353.18,
+     1189.92
+    ],
+    [
+     352.98,
+     1173.82
+    ],
+    [
+     354.19,
+     1157.76
+    ],
+    [
+     356.78,
+     1141.86
+    ],
+    [
+     360.76,
+     1126.25
+    ],
+    [
+     366.07,
+     1111.05
+    ],
+    [
+     372.7,
+     1096.37
+    ],
+    [
+     380.57,
+     1082.32
+    ],
+    [
+     389.65,
+     1069.01
+    ],
+    [
+     399.84,
+     1056.55
+    ],
+    [
+     411.09,
+     1045.02
+    ],
+    [
+     423.29,
+     1034.51
+    ],
+    [
+     436.37,
+     1025.11
+    ],
+    [
+     450.22,
+     1016.88
+    ],
+    [
+     464.73,
+     1009.89
+    ],
+    [
+     479.79,
+     1004.19
+    ],
+    [
+     495.29,
+     999.83
+    ],
+    [
+     511.12,
+     996.84
+    ],
+    [
+     527.14,
+     995.23
+    ],
+    [
+     543.25,
+     995.03
+    ],
+    [
+     559.31,
+     996.23
+    ],
+    [
+     575.2,
+     998.83
+    ],
+    [
+     590.81,
+     1002.8
+    ],
+    [
+     606.01,
+     1008.12
+    ],
+    [
+     620.7,
+     1014.74
+    ],
+    [
+     634.74,
+     1022.62
+    ],
+    [
+     648.05,
+     1031.69
+    ],
+    [
+     660.52,
+     1041.89
+    ],
+    [
+     672.05,
+     1053.14
+    ],
+    [
+     682.55,
+     1065.34
+    ],
+    [
+     691.96,
+     1078.42
+    ],
+    [
+     700.18,
+     1092.26
+    ],
+    [
+     707.17,
+     1106.77
+    ],
+    [
+     712.87,
+     1121.84
+    ],
+    [
+     717.23,
+     1137.34
+    ],
+    [
+     720.23,
+     1153.17
+    ],
+    [
+     721.83,
+     1169.19
+    ],
+    [
+     722.03,
+     1185.3
+    ]
+   ]
+  },
+  {
+   "id": "line_segment_2",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      537.51,
+      1179.56
+     ],
+     [
+      716.22,
+      1133.24
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    537.5,
+    1133.2,
+    178.7,
+    46.3
+   ]
+  },
+  {
+   "id": "line_segment_3",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      431.26,
+      1330.53
+     ],
+     [
+      410.5,
+      1045.57
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    410.5,
+    1045.6,
+    20.8,
+    285.0
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 442.66,
+   "y": 294.22,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 255.33,
+   "y": 737.06,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 845.44,
+   "y": 755.41,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_4",
+   "x": 428.72,
+   "y": 742.45,
+   "role": "foot",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_5",
+   "x": 537.51,
+   "y": 1179.56,
+   "role": "centre",
+   "drawn_as_dot": true,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_6",
+   "x": 716.22,
+   "y": 1133.24,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_7",
+   "x": 431.26,
+   "y": 1330.53,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_8",
+   "x": 410.5,
+   "y": 1045.57,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "Class VI Mathematics - Worksheet 5",
+   "role": "title",
+   "associated_object": null,
+   "font_px": 34,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    81.9,
+    41.1,
+    689.5,
+    47.4
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "Name: ____________________   Date: ___________",
+   "role": "name_line",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    80.3,
+    95.1,
+    509.4,
+    36.8
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "1. In the figure, find the measure of the unknown angle.",
+   "role": "question_text",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    78.5,
+    155.1,
+    491.4,
+    35.3
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "K",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    429.8,
+    268.7,
+    17.4,
+    14.5
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "L",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    230.7,
+    740.3,
+    13.4,
+    14.4
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "M",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    853.0,
+    757.7,
+    21.4,
+    14.6
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "N",
+   "role": "vertex_label",
+   "associated_object": "point_4",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    419.9,
+    756.0,
+    17.4,
+    14.5
+   ]
+  },
+  {
+   "id": "label_8",
+   "text": "2. O is the centre of the circle. Find the length of the diameter.",
+   "role": "question_text",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    57.8,
+    820.2,
+    547.3,
+    37.0
+   ]
+  },
+  {
+   "id": "label_9",
+   "text": "O",
+   "role": "vertex_label",
+   "associated_object": "point_5",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    511.3,
+    1186.0,
+    16.4,
+    14.5
+   ]
+  },
+  {
+   "id": "label_10",
+   "text": "A",
+   "role": "vertex_label",
+   "associated_object": "point_6",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    726.1,
+    1122.0,
+    16.4,
+    14.5
+   ]
+  },
+  {
+   "id": "label_11",
+   "text": "5 cm",
+   "role": "measurement",
+   "associated_object": "line_segment_2",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    606.3,
+    1130.0,
+    42.4,
+    13.3
+   ]
+  },
+  {
+   "id": "label_12",
+   "text": "B",
+   "role": "vertex_label",
+   "associated_object": "point_7",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    412.6,
+    1340.5,
+    13.5,
+    15.4
+   ]
+  },
+  {
+   "id": "label_13",
+   "text": "C",
+   "role": "vertex_label",
+   "associated_object": "point_8",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    389.6,
+    1025.0,
+    15.4,
+    14.5
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "VERTEX_OF",
+   "source": "point_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_2",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_2"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_3",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "point_3"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_4",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INSIDE",
+   "source": "line_segment_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "point_4"
+  },
+  {
+   "type": "PERPENDICULAR",
+   "source": "line_segment_1",
+   "target": "triangle_1"
+  },
+  {
+   "type": "CENTER_OF",
+   "source": "point_5",
+   "target": "circle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_9",
+   "target": "point_5"
+  },
+  {
+   "type": "ON",
+   "source": "point_6",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_5",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_6",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_10",
+   "target": "point_6"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_11",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "INSIDE",
+   "source": "line_segment_3",
+   "target": "circle_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_7",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_7",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_12",
+   "target": "point_7"
+  },
+  {
+   "type": "ON",
+   "source": "point_8",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_8",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_13",
+   "target": "point_8"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": [
+  "label_1",
+  "label_2",
+  "label_3",
+  "label_8"
+ ]
+}
