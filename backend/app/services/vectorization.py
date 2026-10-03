@@ -164,11 +164,26 @@ def _contour_explained_by_lines(contour: np.ndarray, segments, stroke_half_width
     if not segments or len(points) == 0:
         return False
     tolerance = stroke_half_width + STROKE_BAND_TOLERANCE_PX
-    near = sum(
-        1 for point in points
-        if min(_point_segment_distance(point, a, b) for a, b in segments) <= tolerance
-    )
+    near = int(np.count_nonzero(_min_segment_distances(points, segments) <= tolerance))
     return near / len(points) >= COVERED_FRACTION
+
+
+def _min_segment_distances(points: np.ndarray, segments, chunk: int = 4096) -> np.ndarray:
+    """Distance from each point to its nearest segment (same formula as `_point_segment_distance`)."""
+    seg = np.asarray([(a[0], a[1], b[0], b[1]) for a, b in segments], dtype=np.float64)
+    sx, sy = seg[:, 0], seg[:, 1]
+    dx, dy = seg[:, 2] - sx, seg[:, 3] - sy
+    length_sq = dx * dx + dy * dy
+    safe = np.where(length_sq == 0, 1.0, length_sq)
+    pts = points.astype(np.float64)
+    out = np.empty(len(pts))
+    for start in range(0, len(pts), chunk):
+        px = pts[start:start + chunk, 0:1]
+        py = pts[start:start + chunk, 1:2]
+        t = np.clip(((px - sx) * dx + (py - sy) * dy) / safe, 0.0, 1.0)
+        t = np.where(length_sq == 0, 0.0, t)
+        out[start:start + chunk] = np.hypot(px - (sx + t * dx), py - (sy + t * dy)).min(axis=1)
+    return out
 
 
 def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list[dict]:
