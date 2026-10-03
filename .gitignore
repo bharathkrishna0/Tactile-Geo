@@ -27,3 +27,13 @@ frontend/vite.config.d.ts
 # OS
 .DS_Store
 Thumbs.db
+
+# Real worksheet images supplied for evaluation; not redistributed (see evaluation/dataset_real/*/README.md)
+evaluation/dataset_real/*/images/
+evaluation/reports/examples/real_*/
+# Per-image captures of real worksheets contain OCR'd source text; only summary.json is kept
+evaluation/results/real_*/per_image/
+# Superseded benchmark runs (see docs/evaluation/ACCURACY_REPORT.md, "Runs used")
+evaluation/results/model_a-all/
+evaluation/results/model_a_v2+model_b-accept_all-test/
+evaluation/results/model_a_v2+model_b-oracle-test/

@@ -1,0 +1,224 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_048",
+ "file": "images/math_048.jpg",
+ "mask_file": "masks/math_048.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "hard",
+ "category": "E_measurement",
+ "diagram_type": "measurement_diagram",
+ "layout": "figure",
+ "conditions": [
+  "scanned",
+  "low_contrast"
+ ],
+ "content_stressors": [
+  "small_text"
+ ],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": 0.08,
+  "contrast_range": "129-210",
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261049
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "rectangle_1",
+   "type": "rectangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      179.64,
+      144.46
+     ],
+     [
+      819.63,
+      143.54
+     ],
+     [
+      820.36,
+      655.54
+     ],
+     [
+      180.37,
+      656.46
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    179.6,
+    143.5,
+    640.7,
+    512.9
+   ]
+  },
+  {
+   "id": "dimension_line_1",
+   "type": "dimension_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      180.4,
+      680.66
+     ],
+     [
+      820.4,
+      679.74
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    180.4,
+    679.7,
+    640.0,
+    0.9
+   ]
+  },
+  {
+   "id": "dimension_line_2",
+   "type": "dimension_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      843.83,
+      143.51
+     ],
+     [
+      844.56,
+      655.51
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    843.8,
+    143.5,
+    0.7,
+    512.0
+   ]
+  }
+ ],
+ "points": [],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "8 cm",
+   "role": "measurement",
+   "associated_object": "dimension_line_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    473.4,
+    692.0,
+    55.0,
+    16.1
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "2 cm",
+   "role": "measurement",
+   "associated_object": "dimension_line_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    859.0,
+    391.4,
+    55.0,
+    16.1
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "Not drawn to scale",
+   "role": "instruction",
+   "associated_object": null,
+   "font_px": 14,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    178.6,
+    98.9,
+    107.0,
+    10.2
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "dimension_line_1"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "label_1",
+   "target": "dimension_line_1"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "dimension_line_1",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "dimension_line_2"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "label_2",
+   "target": "dimension_line_2"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "dimension_line_2",
+   "target": "rectangle_1"
+  }
+ ],
+ "dimensions": [
+  {
+   "id": "dim_1",
+   "value": "8",
+   "unit": "cm",
+   "object": "dimension_line_1",
+   "label": "label_1"
+  },
+  {
+   "id": "dim_2",
+   "value": "2",
+   "unit": "cm",
+   "object": "dimension_line_2",
+   "label": "label_2"
+  }
+ ],
+ "omittable_ids": [
+  "label_3"
+ ]
+}

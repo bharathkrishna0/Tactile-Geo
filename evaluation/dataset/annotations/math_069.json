@@ -1,0 +1,659 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_069",
+ "file": "images/math_069.jpg",
+ "mask_file": "masks/math_069.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "very_hard",
+ "category": "H_circles",
+ "diagram_type": "circle_geometry",
+ "layout": "figure",
+ "conditions": [
+  "scanned",
+  "skew",
+  "low_contrast"
+ ],
+ "content_stressors": [
+  "small_text"
+ ],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": 1.43,
+  "skew_deg": -5.01,
+  "contrast_range": "126-208",
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261070
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "circle_1",
+   "type": "circle",
+   "geometry": {
+    "kind": "circle",
+    "center": [
+     500.0,
+     400.0
+    ],
+    "radius": 242.36
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    258.1,
+    158.2,
+    483.7,
+    483.7
+   ],
+   "outline": [
+    [
+     741.45,
+     415.08
+    ],
+    [
+     739.22,
+     436.07
+    ],
+    [
+     735.16,
+     456.78
+    ],
+    [
+     729.32,
+     477.06
+    ],
+    [
+     721.73,
+     496.75
+    ],
+    [
+     712.45,
+     515.71
+    ],
+    [
+     701.56,
+     533.79
+    ],
+    [
+     689.13,
+     550.85
+    ],
+    [
+     675.27,
+     566.76
+    ],
+    [
+     660.06,
+     581.4
+    ],
+    [
+     643.65,
+     594.66
+    ],
+    [
+     626.13,
+     606.44
+    ],
+    [
+     607.66,
+     616.64
+    ],
+    [
+     588.37,
+     625.2
+    ],
+    [
+     568.41,
+     632.05
+    ],
+    [
+     547.92,
+     637.13
+    ],
+    [
+     527.07,
+     640.4
+    ],
+    [
+     506.02,
+     641.85
+    ],
+    [
+     484.92,
+     641.45
+    ],
+    [
+     463.93,
+     639.22
+    ],
+    [
+     443.22,
+     635.16
+    ],
+    [
+     422.94,
+     629.32
+    ],
+    [
+     403.25,
+     621.73
+    ],
+    [
+     384.29,
+     612.45
+    ],
+    [
+     366.21,
+     601.56
+    ],
+    [
+     349.15,
+     589.13
+    ],
+    [
+     333.24,
+     575.27
+    ],
+    [
+     318.6,
+     560.06
+    ],
+    [
+     305.34,
+     543.65
+    ],
+    [
+     293.56,
+     526.13
+    ],
+    [
+     283.36,
+     507.66
+    ],
+    [
+     274.8,
+     488.37
+    ],
+    [
+     267.95,
+     468.41
+    ],
+    [
+     262.87,
+     447.92
+    ],
+    [
+     259.6,
+     427.07
+    ],
+    [
+     258.15,
+     406.02
+    ],
+    [
+     258.55,
+     384.92
+    ],
+    [
+     260.78,
+     363.93
+    ],
+    [
+     264.84,
+     343.22
+    ],
+    [
+     270.68,
+     322.94
+    ],
+    [
+     278.27,
+     303.25
+    ],
+    [
+     287.55,
+     284.29
+    ],
+    [
+     298.44,
+     266.21
+    ],
+    [
+     310.87,
+     249.15
+    ],
+    [
+     324.73,
+     233.24
+    ],
+    [
+     339.94,
+     218.6
+    ],
+    [
+     356.35,
+     205.34
+    ],
+    [
+     373.87,
+     193.56
+    ],
+    [
+     392.34,
+     183.36
+    ],
+    [
+     411.63,
+     174.8
+    ],
+    [
+     431.59,
+     167.95
+    ],
+    [
+     452.08,
+     162.87
+    ],
+    [
+     472.93,
+     159.6
+    ],
+    [
+     493.98,
+     158.15
+    ],
+    [
+     515.08,
+     158.55
+    ],
+    [
+     536.07,
+     160.78
+    ],
+    [
+     556.78,
+     164.84
+    ],
+    [
+     577.06,
+     170.68
+    ],
+    [
+     596.75,
+     178.27
+    ],
+    [
+     615.71,
+     187.55
+    ],
+    [
+     633.79,
+     198.44
+    ],
+    [
+     650.85,
+     210.87
+    ],
+    [
+     666.76,
+     224.73
+    ],
+    [
+     681.4,
+     239.94
+    ],
+    [
+     694.66,
+     256.35
+    ],
+    [
+     706.44,
+     273.87
+    ],
+    [
+     716.64,
+     292.34
+    ],
+    [
+     725.2,
+     311.63
+    ],
+    [
+     732.05,
+     331.59
+    ],
+    [
+     737.13,
+     352.08
+    ],
+    [
+     740.4,
+     372.93
+    ],
+    [
+     741.85,
+     393.98
+    ],
+    [
+     741.45,
+     415.08
+    ]
+   ]
+  },
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      500.0,
+      400.0
+     ],
+     [
+      741.58,
+      412.79
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    500.0,
+    400.0,
+    241.6,
+    12.8
+   ]
+  },
+  {
+   "id": "line_segment_2",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      352.1,
+      591.44
+     ],
+     [
+      362.07,
+      201.25
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    352.1,
+    201.2,
+    10.0,
+    390.2
+   ]
+  },
+  {
+   "id": "line_segment_3",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      753.09,
+      195.36
+     ],
+     [
+      730.07,
+      630.21
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    730.1,
+    195.4,
+    23.0,
+    434.9
+   ]
+  },
+  {
+   "id": "right_angle_marker_1",
+   "type": "right_angle_marker",
+   "geometry": {
+    "kind": "polyline",
+    "points": [
+     [
+      728.4,
+      412.09
+     ],
+     [
+      727.7,
+      425.27
+     ],
+     [
+      740.88,
+      425.97
+     ]
+    ],
+    "vertex": [
+     741.58,
+     412.79
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    727.7,
+    412.1,
+    13.9,
+    13.9
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 500.0,
+   "y": 400.0,
+   "role": "centre",
+   "drawn_as_dot": true,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 741.58,
+   "y": 412.79,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 352.1,
+   "y": 591.44,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_4",
+   "x": 362.07,
+   "y": 201.25,
+   "role": "on_circle",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "O",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    473.1,
+    405.6,
+    16.8,
+    15.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "A",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    751.9,
+    407.3,
+    16.8,
+    15.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "5 cm",
+   "role": "measurement",
+   "associated_object": "line_segment_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    600.7,
+    379.3,
+    42.7,
+    14.6
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "B",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    332.4,
+    600.7,
+    13.9,
+    15.8
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "C",
+   "role": "vertex_label",
+   "associated_object": "point_4",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    343.3,
+    178.6,
+    15.8,
+    14.9
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "CENTER_OF",
+   "source": "point_1",
+   "target": "circle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "point_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_2",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "point_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INSIDE",
+   "source": "line_segment_2",
+   "target": "circle_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_3",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_3",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_3"
+  },
+  {
+   "type": "ON",
+   "source": "point_4",
+   "target": "circle_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_4",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_4"
+  },
+  {
+   "type": "PERPENDICULAR",
+   "source": "line_segment_3",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "line_segment_3"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

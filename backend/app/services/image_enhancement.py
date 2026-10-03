@@ -20,6 +20,10 @@ _SHARPEN_KERNEL = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]], dtype=np.float
 # Gaussian noise threshold (from image_quality._estimate_noise) beyond which we sharpen.
 _NOISE_BLUR = 3
 
+# Above this background grain (robust sigma of the high-pass in flat areas)
+# sharpening turns paper and sensor noise into ink-like texture.
+_GRAIN_NO_SHARPEN = 2.5
+
 # Below this median luminance the page itself is dark, so the ink may be the
 # lighter tone (chalkboard, inverted scan, underexposed light-on-dark print).
 _DARK_PAGE_MEDIAN = 128
@@ -47,7 +51,7 @@ def enhance_copy(image: np.ndarray) -> np.ndarray:
 
     gray = cv2.cvtColor(enhanced, cv2.COLOR_BGR2GRAY)
     noise = _estimate_noise(gray)
-    if noise >= _NOISE_BLUR:
+    if noise >= _NOISE_BLUR and background_grain(gray) <= _GRAIN_NO_SHARPEN:
         enhanced = cv2.filter2D(enhanced, -1, _SHARPEN_KERNEL)
 
     return normalize_polarity(enhanced)
@@ -80,6 +84,17 @@ def _estimate_noise(gray: np.ndarray) -> float:
     cropped = gray[h // 4:3 * h // 4, w // 4:3 * w // 4].astype(np.float64)
     laplacian = cv2.Laplacian(cropped, cv2.CV_64F)
     return float(np.std(laplacian))
+
+
+def background_grain(gray: np.ndarray) -> float:
+    """Robust noise sigma measured where the page is flat (no strokes or text)."""
+    g = gray.astype(np.float32)
+    high_pass = g - cv2.GaussianBlur(g, (0, 0), 1.5)
+    gradient = cv2.morphologyEx(gray, cv2.MORPH_GRADIENT, np.ones((5, 5), np.uint8))
+    flat = high_pass[gradient <= np.percentile(gradient, 50)]
+    if flat.size == 0:
+        return 0.0
+    return float(1.4826 * np.median(np.abs(flat - np.median(flat))))
 
 
 def ink_contrast_copy(image: np.ndarray) -> np.ndarray:

@@ -160,3 +160,11 @@ def test_tactile_svg_uses_configured_stroke_width():
     mm_per_px = tactile_svg.page_layout(200, 200).mm_per_px
     stroke_user = TACTILE_RULES.stroke_width_max_pt * tactile_svg.MM_PER_PT / mm_per_px
     assert f"stroke-width:{stroke_user:.3f}" in svg
+
+def test_retyped_straight_elements_keep_line_relationships():
+    x_axis = _line("x", (0, 100), (200, 100))
+    y_axis = _line("y", (0, 0), (0, 100))
+    x_axis.type = GeometryType.AXES
+    y_axis.type = GeometryType.ARROW
+    rels = geometry_relations.infer_relationships([x_axis, y_axis])
+    assert RelationshipType.PERPENDICULAR_LINES in {r.type for r in rels}

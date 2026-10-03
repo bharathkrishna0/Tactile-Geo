@@ -1,0 +1,295 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_031",
+ "file": "images/math_031.png",
+ "mask_file": "masks/math_031.png",
+ "width": 1100,
+ "height": 1556,
+ "difficulty": "moderate",
+ "category": "B_worksheet_geometry",
+ "diagram_type": "worksheet_with_geometry_questions",
+ "layout": "worksheet",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261032
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "polygon_1",
+   "type": "polygon",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      342.1,
+      362.12
+     ],
+     [
+      780.33,
+      446.25
+     ],
+     [
+      866.54,
+      1331.88
+     ],
+     [
+      233.46,
+      1263.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    233.5,
+    362.1,
+    633.1,
+    969.8
+   ]
+  },
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      342.1,
+      362.12
+     ],
+     [
+      866.54,
+      1331.88
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    342.1,
+    362.1,
+    524.4,
+    969.8
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 342.1,
+   "y": 362.12,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 780.33,
+   "y": 446.25,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_3",
+   "x": 866.54,
+   "y": 1331.88,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_4",
+   "x": 233.46,
+   "y": 1263.0,
+   "role": "vertex",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "Class VIII Mathematics - Worksheet 4",
+   "role": "title",
+   "associated_object": null,
+   "font_px": 34,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    60.0,
+    56.0,
+    714.0,
+    26.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "Name: ____________________   Date: ___________",
+   "role": "name_line",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    60.0,
+    110.0,
+    509.0,
+    21.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "1. In the figure, find the measure of the unknown angle.",
+   "role": "question_text",
+   "associated_object": null,
+   "font_px": 22,
+   "semantic_importance": "omittable",
+   "preserve_in_tactile": false,
+   "bbox": [
+    60.0,
+    170.0,
+    491.0,
+    20.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "T",
+   "role": "vertex_label",
+   "associated_object": "point_1",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    328.2,
+    338.0,
+    14.0,
+    14.0
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "U",
+   "role": "vertex_label",
+   "associated_object": "point_2",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    782.0,
+    422.9,
+    18.0,
+    14.0
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "V",
+   "role": "vertex_label",
+   "associated_object": "point_3",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    870.3,
+    1342.5,
+    16.0,
+    14.0
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "W",
+   "role": "vertex_label",
+   "associated_object": "point_4",
+   "font_px": 22,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    212.3,
+    1272.6,
+    20.0,
+    14.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "VERTEX_OF",
+   "source": "point_1",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_1"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_2",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_2"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_3",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "point_3"
+  },
+  {
+   "type": "VERTEX_OF",
+   "source": "point_4",
+   "target": "polygon_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "point_4"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ENDPOINT_OF",
+   "source": "point_3",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INSIDE",
+   "source": "line_segment_1",
+   "target": "polygon_1"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": [
+  "label_1",
+  "label_2",
+  "label_3"
+ ]
+}

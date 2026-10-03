@@ -1,0 +1,200 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_024",
+ "file": "images/math_024.png",
+ "mask_file": "masks/math_024.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "moderate",
+ "category": "E_measurement",
+ "diagram_type": "measurement_diagram",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261025
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "rectangle_1",
+   "type": "rectangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      180.0,
+      144.0
+     ],
+     [
+      820.0,
+      144.0
+     ],
+     [
+      820.0,
+      656.0
+     ],
+     [
+      180.0,
+      656.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    180.0,
+    144.0,
+    640.0,
+    512.0
+   ]
+  },
+  {
+   "id": "dimension_line_1",
+   "type": "dimension_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      180.0,
+      689.0
+     ],
+     [
+      820.0,
+      689.0
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    180.0,
+    689.0,
+    640.0,
+    0.0
+   ]
+  },
+  {
+   "id": "dimension_line_2",
+   "type": "dimension_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      853.0,
+      144.0
+     ],
+     [
+      853.0,
+      656.0
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    853.0,
+    144.0,
+    0.0,
+    512.0
+   ]
+  }
+ ],
+ "points": [],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "4 cm",
+   "role": "measurement",
+   "associated_object": "dimension_line_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    463.0,
+    704.0,
+    74.0,
+    22.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "7 cm",
+   "role": "measurement",
+   "associated_object": "dimension_line_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    873.0,
+    388.0,
+    74.0,
+    22.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "dimension_line_1"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "label_1",
+   "target": "dimension_line_1"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "dimension_line_1",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "dimension_line_2"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "label_2",
+   "target": "dimension_line_2"
+  },
+  {
+   "type": "DIMENSION_OF",
+   "source": "dimension_line_2",
+   "target": "rectangle_1"
+  }
+ ],
+ "dimensions": [
+  {
+   "id": "dim_1",
+   "value": "4",
+   "unit": "cm",
+   "object": "dimension_line_1",
+   "label": "label_1"
+  },
+  {
+   "id": "dim_2",
+   "value": "7",
+   "unit": "cm",
+   "object": "dimension_line_2",
+   "label": "label_2"
+  }
+ ],
+ "omittable_ids": []
+}

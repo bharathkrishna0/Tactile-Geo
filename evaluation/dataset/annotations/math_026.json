@@ -1,0 +1,269 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_026",
+ "file": "images/math_026.png",
+ "mask_file": "masks/math_026.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "moderate",
+ "category": "G_angles",
+ "diagram_type": "angles",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261027
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "line_segment_1",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      120.0,
+      278.4
+     ],
+     [
+      880.0,
+      278.4
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    120.0,
+    278.4,
+    760.0,
+    0.0
+   ]
+  },
+  {
+   "id": "line_segment_2",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      120.0,
+      552.0
+     ],
+     [
+      880.0,
+      552.0
+     ]
+    ],
+    "arrowheads": 2
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    120.0,
+    552.0,
+    760.0,
+    0.0
+   ]
+  },
+  {
+   "id": "line_segment_3",
+   "type": "line_segment",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      312.39,
+      96.0
+     ],
+     [
+      701.57,
+      704.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    312.4,
+    96.0,
+    389.2,
+    608.0
+   ]
+  }
+ ],
+ "points": [
+  {
+   "id": "point_1",
+   "x": 429.15,
+   "y": 278.4,
+   "role": "intersection",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  },
+  {
+   "id": "point_2",
+   "x": 604.28,
+   "y": 552.0,
+   "role": "intersection",
+   "drawn_as_dot": false,
+   "semantic_importance": "essential"
+  }
+ ],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "l",
+   "role": "vertex_label",
+   "associated_object": "line_segment_1",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    894.0,
+    249.4,
+    8.0,
+    21.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "m",
+   "role": "vertex_label",
+   "associated_object": "line_segment_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    887.0,
+    530.0,
+    22.0,
+    14.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "t",
+   "role": "vertex_label",
+   "associated_object": "line_segment_3",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    715.6,
+    697.0,
+    9.0,
+    17.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "57\u00b0",
+   "role": "angle_label",
+   "associated_object": "point_1",
+   "font_px": 25,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    455.1,
+    248.4,
+    44.0,
+    18.0
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "x",
+   "role": "angle_label",
+   "associated_object": "point_2",
+   "font_px": 30,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    557.3,
+    572.0,
+    15.0,
+    14.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "PARALLEL",
+   "source": "line_segment_1",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "INTERSECTS",
+   "source": "line_segment_3",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "INTERSECTS",
+   "source": "line_segment_3",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "ON",
+   "source": "point_1",
+   "target": "line_segment_1"
+  },
+  {
+   "type": "ON",
+   "source": "point_1",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "line_segment_2"
+  },
+  {
+   "type": "ON",
+   "source": "point_2",
+   "target": "line_segment_3"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "point_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "point_2"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

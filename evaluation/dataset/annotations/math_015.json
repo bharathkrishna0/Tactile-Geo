@@ -1,0 +1,327 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_015",
+ "file": "images/math_015.png",
+ "mask_file": "masks/math_015.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "easy",
+ "category": "K_tables_diagrams",
+ "diagram_type": "table_or_chart",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "adversarial_focus": null,
+ "degradation_parameters": {},
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261016
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "axis_1",
+   "type": "axis",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      196.0,
+      675.0
+     ],
+     [
+      900.0,
+      675.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    196.0,
+    675.0,
+    704.0,
+    0.0
+   ]
+  },
+  {
+   "id": "axis_2",
+   "type": "axis",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      196.0,
+      675.0
+     ],
+     [
+      196.0,
+      80.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    196.0,
+    80.0,
+    0.0,
+    595.0
+   ]
+  },
+  {
+   "id": "bar_1",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      262.0,
+      371.37
+     ],
+     [
+      372.0,
+      371.37
+     ],
+     [
+      372.0,
+      675.0
+     ],
+     [
+      262.0,
+      675.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    262.0,
+    371.4,
+    110.0,
+    303.6
+   ]
+  },
+  {
+   "id": "bar_2",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      438.0,
+      400.14
+     ],
+     [
+      548.0,
+      400.14
+     ],
+     [
+      548.0,
+      675.0
+     ],
+     [
+      438.0,
+      675.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    438.0,
+    400.1,
+    110.0,
+    274.9
+   ]
+  },
+  {
+   "id": "bar_3",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      614.0,
+      346.73
+     ],
+     [
+      724.0,
+      346.73
+     ],
+     [
+      724.0,
+      675.0
+     ],
+     [
+      614.0,
+      675.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    614.0,
+    346.7,
+    110.0,
+    328.3
+   ]
+  },
+  {
+   "id": "bar_4",
+   "type": "bar",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      790.0,
+      440.49
+     ],
+     [
+      900.0,
+      440.49
+     ],
+     [
+      900.0,
+      675.0
+     ],
+     [
+      790.0,
+      675.0
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    790.0,
+    440.5,
+    110.0,
+    234.5
+   ]
+  }
+ ],
+ "points": [],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "A",
+   "role": "tick_label",
+   "associated_object": "bar_1",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    309.0,
+    690.0,
+    17.0,
+    18.0
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "B",
+   "role": "tick_label",
+   "associated_object": "bar_2",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    485.0,
+    690.0,
+    16.0,
+    18.0
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "C",
+   "role": "tick_label",
+   "associated_object": "bar_3",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    661.0,
+    690.0,
+    17.0,
+    18.0
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "D",
+   "role": "tick_label",
+   "associated_object": "bar_4",
+   "font_px": 24,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    836.0,
+    690.0,
+    18.0,
+    18.0
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "PERPENDICULAR",
+   "source": "axis_1",
+   "target": "axis_2"
+  },
+  {
+   "type": "ON",
+   "source": "bar_1",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "bar_1"
+  },
+  {
+   "type": "ON",
+   "source": "bar_2",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "bar_2"
+  },
+  {
+   "type": "ON",
+   "source": "bar_3",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "bar_3"
+  },
+  {
+   "type": "ON",
+   "source": "bar_4",
+   "target": "axis_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "bar_4"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

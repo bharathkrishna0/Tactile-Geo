@@ -1,0 +1,984 @@
+{
+ "image_id": "math_005",
+ "difficulty": "easy",
+ "category": "G_angles",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "timings_ms": {
+  "preprocessing": 56.2,
+  "vectorization": 4.7,
+  "ocr": 9621.6,
+  "labels_braille": 1.5,
+  "preview_svg": 0.0,
+  "semantic_analysis": 0.2,
+  "simplification": 0.0,
+  "tactile_qa": 0.2,
+  "tactile_svg": 0.1,
+  "total": 9690.0
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 2,
+   "strict": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 1,
+    "precision": 1.0,
+    "recall": 0.6667,
+    "f1": 0.8
+   },
+   "structural": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 1,
+    "precision": 1.0,
+    "recall": 0.6667,
+    "f1": 0.8
+   },
+   "essential_found_strict": 2,
+   "essential_found_structural": 2,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {},
+   "per_gt_type": {
+    "ray": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "angle_marker": {
+     "gt": 1,
+     "found_strict": 0,
+     "found_structural": 0
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 2,
+     "true_positive": 2
+    }
+   },
+   "type_correct": 0,
+   "type_total": 2,
+   "type_confusion": {
+    "ray->line_segment": 2
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.8139645932110666,
+     1.201147996111455
+    ],
+    "endpoint_px": [
+     1.2403124237432934,
+     1.5154780172128852
+    ],
+    "angle_deg": [
+     0.21580229218790237,
+     0.08599441239879013
+    ],
+    "length_rel": [
+     0.001872619426720555,
+     0.005488668536046977
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [
+    "angle_marker_1"
+   ]
+  },
+  "objects_final": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 2,
+   "strict": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 1,
+    "precision": 1.0,
+    "recall": 0.6667,
+    "f1": 0.8
+   },
+   "structural": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 1,
+    "precision": 1.0,
+    "recall": 0.6667,
+    "f1": 0.8
+   },
+   "essential_found_strict": 2,
+   "essential_found_structural": 2,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {},
+   "per_gt_type": {
+    "ray": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "angle_marker": {
+     "gt": 1,
+     "found_strict": 0,
+     "found_structural": 0
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 2,
+     "true_positive": 2
+    }
+   },
+   "type_correct": 0,
+   "type_total": 2,
+   "type_confusion": {
+    "ray->line_segment": 2
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.8139645932110666,
+     1.201147996111455
+    ],
+    "endpoint_px": [
+     1.2403124237432934,
+     1.5154780172128852
+    ],
+    "angle_deg": [
+     0.21580229218790237,
+     0.08599441239879013
+    ],
+    "length_rel": [
+     0.001872619426720555,
+     0.005488668536046977
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [
+    "angle_marker_1"
+   ]
+  },
+  "points": {
+   "gt": 1,
+   "found": 1,
+   "recall": 1.0,
+   "error_px": [
+    1.2000000000000455
+   ]
+  },
+  "labels": {
+   "gt_essential": 4,
+   "predicted": 3,
+   "detected": 3,
+   "detection_recall": 0.75,
+   "detection_precision": 1.0,
+   "char_errors": 2,
+   "chars": 7,
+   "cer": 0.2857,
+   "cer_detected_only": 0.1667,
+   "word_errors": 2,
+   "words": 4,
+   "wer": 0.5,
+   "exact_match": 2,
+   "exact_match_normalized": 2,
+   "quantitative_labels": 1,
+   "quantitative_preserved": 0,
+   "association_total": 3,
+   "association_correct": 2,
+   "braille_total": 3,
+   "braille_exact": 2,
+   "braille_consistent": 3,
+   "braille_cell_errors": 2,
+   "braille_cells": 12,
+   "reading_order_pairs": 3,
+   "reading_order_concordant": 3,
+   "per_label": [
+    {
+     "id": "label_1",
+     "gt": "T",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_2",
+     "gt": "U",
+     "pred": "U",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_3",
+     "gt": "S",
+     "pred": "S",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_4",
+     "gt": "109\u00b0",
+     "pred": "109o",
+     "detected": true,
+     "char_errors": 1
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 2,
+   "gt_unsupported": {
+    "LABELS": 4,
+    "ANGLE_AT": 1
+   },
+   "found": 2,
+   "recall": 1.0,
+   "predicted_supported_type": 5,
+   "predicted_mappable": 5,
+   "predicted_mappable_correct": 2,
+   "precision_lower_bound": 0.4,
+   "by_type": {
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2
+    },
+    "INTERSECTS": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 1
+    },
+    "ON": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 2
+    }
+   }
+  },
+  "relationships_final": {
+   "gt_supported": 2,
+   "gt_unsupported": {
+    "LABELS": 4,
+    "ANGLE_AT": 1
+   },
+   "found": 2,
+   "recall": 1.0,
+   "predicted_supported_type": 5,
+   "predicted_mappable": 5,
+   "predicted_mappable_correct": 2,
+   "precision_lower_bound": 0.4,
+   "by_type": {
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2
+    },
+    "INTERSECTS": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 1
+    },
+    "ON": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 2
+    }
+   }
+  },
+  "simplification": {
+   "actions": {},
+   "removed": 0,
+   "merged": 0,
+   "modified": 0,
+   "newly_inferred": 0,
+   "gt_found_before": 2,
+   "gt_found_after": 2,
+   "essential_lost_ids": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 0
+  },
+  "qa": {
+   "passes": true,
+   "score": 97,
+   "issues": {
+    "overlap": 3,
+    "isolated_element": 1
+   },
+   "blocking": []
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 5,
+    "line": 2,
+    "circle": 26,
+    "title": 3
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 3,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 56.2,
+   "vectorization": 4.7,
+   "ocr": 9621.6,
+   "labels_braille": 1.5,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.2,
+   "simplification": 0.0,
+   "tactile_qa": 0.2,
+   "tactile_svg": 0.1,
+   "total": 9690.0
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "brightness",
+     "severity": "warning",
+     "message": "Image is very bright. Some details may be washed out.",
+     "value": 253.2,
+     "threshold": 225.0
+    },
+    {
+     "check": "contrast",
+     "severity": "warning",
+     "message": "Image has low contrast. Diagram lines may be hard to distinguish.",
+     "value": 20.9,
+     "threshold": 25.0
+    }
+   ],
+   "image_width": 1000,
+   "image_height": 800
+  },
+  "raw_shapes": 2,
+  "ocr_labels": [
+   {
+    "text": "S",
+    "bbox": [
+     [
+      62,
+      118
+     ],
+     [
+      82,
+      118
+     ],
+     [
+      82,
+      144
+     ],
+     [
+      62,
+      144
+     ]
+    ],
+    "confidence": 0.916,
+    "braille": "\u2830\u2820\u280e",
+    "reading_order": 1
+   },
+   {
+    "text": "109o",
+    "bbox": [
+     [
+      298,
+      537
+     ],
+     [
+      373,
+      537
+     ],
+     [
+      373,
+      569
+     ],
+     [
+      298,
+      569
+     ]
+    ],
+    "confidence": 0.392,
+    "braille": "\u283c\u2801\u281a\u280a\u2815",
+    "reading_order": 2
+   },
+   {
+    "text": "U",
+    "bbox": [
+     [
+      804,
+      657
+     ],
+     [
+      830,
+      657
+     ],
+     [
+      830,
+      682
+     ],
+     [
+      804,
+      682
+     ]
+    ],
+    "confidence": 0.999,
+    "braille": "\u2830\u2820\u2825",
+    "reading_order": 3
+   }
+  ],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       803,
+       644
+      ],
+      "end": [
+       272,
+       642
+      ],
+      "length": 531.0
+     },
+     "bbox": [
+      272,
+      642,
+      531,
+      2
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_6"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       272,
+       642
+      ],
+      "end": [
+       99,
+       142
+      ],
+      "length": 529.08
+     },
+     "bbox": [
+      99,
+      142,
+      173,
+      500
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_4"
+    },
+    {
+     "id": "el_2",
+     "type": "point",
+     "geometry": {
+      "position": [
+       272,
+       642
+      ]
+     },
+     "bbox": [
+      269,
+      639,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       272,
+       642
+      ],
+      "arms": [
+       [
+        803,
+        644
+       ],
+       [
+        99,
+        142
+       ]
+      ],
+      "degrees": 109.3
+     },
+     "bbox": [
+      267,
+      637,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "text_label",
+     "geometry": {
+      "text": "S",
+      "braille": "\u2830\u2820\u280e",
+      "position": [
+       56,
+       115
+      ]
+     },
+     "bbox": [
+      62,
+      118,
+      20,
+      26
+     ],
+     "confidence": 0.916,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "S",
+     "braille": "\u2830\u2820\u280e",
+     "associated_element_id": "el_1",
+     "reading_order": 1
+    },
+    {
+     "id": "el_5",
+     "type": "text_label",
+     "geometry": {
+      "text": "109o",
+      "braille": "\u283c\u2801\u281a\u280a\u2815",
+      "position": [
+       336,
+       553
+      ]
+     },
+     "bbox": [
+      298,
+      537,
+      75,
+      32
+     ],
+     "confidence": 0.392,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "109o",
+     "braille": "\u283c\u2801\u281a\u280a\u2815",
+     "associated_element_id": null,
+     "reading_order": 2
+    },
+    {
+     "id": "el_6",
+     "type": "text_label",
+     "geometry": {
+      "text": "U",
+      "braille": "\u2830\u2820\u2825",
+      "position": [
+       825,
+       678
+      ]
+     },
+     "bbox": [
+      804,
+      657,
+      26,
+      25
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "U",
+     "braille": "\u2830\u2820\u2825",
+     "associated_element_id": "el_0",
+     "reading_order": 3
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_2",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_2_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_2",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_2",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_2_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_2",
+      "el_1"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "review_flags": [
+    "Low-confidence angle detected \u2014 may be noise. Review before export.",
+    "Low-confidence text_label detected \u2014 may be noise. Review before export."
+   ]
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       803,
+       644
+      ],
+      "end": [
+       272,
+       642
+      ],
+      "length": 531.0
+     },
+     "bbox": [
+      272,
+      642,
+      531,
+      2
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_6"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       272,
+       642
+      ],
+      "end": [
+       99,
+       142
+      ],
+      "length": 529.08
+     },
+     "bbox": [
+      99,
+      142,
+      173,
+      500
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_4"
+    },
+    {
+     "id": "el_2",
+     "type": "point",
+     "geometry": {
+      "position": [
+       272,
+       642
+      ]
+     },
+     "bbox": [
+      269,
+      639,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       272,
+       642
+      ],
+      "arms": [
+       [
+        803,
+        644
+       ],
+       [
+        99,
+        142
+       ]
+      ],
+      "degrees": 109.3
+     },
+     "bbox": [
+      267,
+      637,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "text_label",
+     "geometry": {
+      "text": "S",
+      "braille": "\u2830\u2820\u280e",
+      "position": [
+       56,
+       115
+      ]
+     },
+     "bbox": [
+      62,
+      118,
+      20,
+      26
+     ],
+     "confidence": 0.916,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "S",
+     "braille": "\u2830\u2820\u280e",
+     "associated_element_id": "el_1",
+     "reading_order": 1
+    },
+    {
+     "id": "el_5",
+     "type": "text_label",
+     "geometry": {
+      "text": "109o",
+      "braille": "\u283c\u2801\u281a\u280a\u2815",
+      "position": [
+       336,
+       553
+      ]
+     },
+     "bbox": [
+      298,
+      537,
+      75,
+      32
+     ],
+     "confidence": 0.392,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "109o",
+     "braille": "\u283c\u2801\u281a\u280a\u2815",
+     "associated_element_id": null,
+     "reading_order": 2
+    },
+    {
+     "id": "el_6",
+     "type": "text_label",
+     "geometry": {
+      "text": "U",
+      "braille": "\u2830\u2820\u2825",
+      "position": [
+       825,
+       678
+      ]
+     },
+     "bbox": [
+      804,
+      657,
+      26,
+      25
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "U",
+     "braille": "\u2830\u2820\u2825",
+     "associated_element_id": "el_0",
+     "reading_order": 3
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_2",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_2_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_2",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_2",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_2_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_2",
+      "el_1"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "actions": [],
+   "removed_count": 0,
+   "merged_count": 0
+  },
+  "qa": {
+   "passes": true,
+   "score_0_100": 97,
+   "issues": [
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_1 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_2 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_1 and el_2 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "1 feature(s) have no label (el_2); consider adding labels for the learner.",
+     "element_id": "el_2"
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-143.55 -55.04 1287.11 910.08\" width=\"297mm\" height=\"210mm\" data-mm-per-px=\"0.23075\" role=\"img\" aria-label=\"Tactile representation of 4 geometry features and 3 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:3.058; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-143.55\" y=\"-55.04\" width=\"1287.11\" height=\"910.08\" fill=\"white\"/><g class=\"stroke\"><line data-element-id=\"el_0\" x1=\"803.0\" y1=\"644.0\" x2=\"272.0\" y2=\"642.0\"/><line data-element-id=\"el_1\" x1=\"272.0\" y1=\"642.0\" x2=\"99.0\" y2=\"142.0\"/><circle data-element-id=\"el_2\" cx=\"272.0\" cy=\"642.0\" r=\"3.1\"/></g><g class=\"tactile-braille\"><g data-element-id=\"el_4\" class=\"braille\" role=\"img\" aria-label=\"S\" data-braille=\"\u2830\u2820\u280e\"><title>S</title><circle cx=\"35.4\" cy=\"115.0\" r=\"3.25\"/><circle cx=\"35.4\" cy=\"125.8\" r=\"3.25\"/><circle cx=\"61.4\" cy=\"125.8\" r=\"3.25\"/><circle cx=\"76.6\" cy=\"115.0\" r=\"3.25\"/><circle cx=\"76.6\" cy=\"125.8\" r=\"3.25\"/><circle cx=\"87.4\" cy=\"104.2\" r=\"3.25\"/></g><g data-element-id=\"el_5\" class=\"braille\" role=\"img\" aria-label=\"109o\" data-braille=\"\u283c\u2801\u281a\u280a\u2815\"><title>109o</title><circle cx=\"278.6\" cy=\"563.8\" r=\"3.25\"/><circle cx=\"289.4\" cy=\"542.2\" r=\"3.25\"/><circle cx=\"289.4\" cy=\"553.0\" r=\"3.25\"/><circle cx=\"289.4\" cy=\"563.8\" r=\"3.25\"/><circle cx=\"304.6\" cy=\"542.2\" r=\"3.25\"/><circle cx=\"330.6\" cy=\"553.0\" r=\"3.25\"/><circle cx=\"341.4\" cy=\"542.2\" r=\"3.25\"/><circle cx=\"341.4\" cy=\"553.0\" r=\"3.25\"/><circle cx=\"356.6\" cy=\"553.0\" r=\"3.25\"/><circle cx=\"367.4\" cy=\"542.2\" r=\"3.25\"/><circle cx=\"382.6\" cy=\"542.2\" r=\"3.25\"/><circle cx=\"382.6\" cy=\"563.8\" r=\"3.25\"/><circle cx=\"393.4\" cy=\"553.0\" r=\"3.25\"/></g><g data-element-id=\"el_6\" class=\"braille\" role=\"img\" aria-label=\"U\" data-braille=\"\u2830\u2820\u2825\"><title>U</title><circle cx=\"804.4\" cy=\"678.0\" r=\"3.25\"/><circle cx=\"804.4\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"830.4\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"845.6\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"845.6\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"856.4\" cy=\"688.8\" r=\"3.25\"/></g></g></svg>",
+  "timings_ms": {
+   "preprocessing": 56.2,
+   "vectorization": 4.7,
+   "ocr": 9621.6,
+   "labels_braille": 1.5,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.2,
+   "simplification": 0.0,
+   "tactile_qa": 0.2,
+   "tactile_svg": 0.1,
+   "total": 9690.0
+  }
+ }
+}

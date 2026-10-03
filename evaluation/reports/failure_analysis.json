@@ -1,0 +1,599 @@
+{
+ "run": "model_a_v2-all",
+ "model_b_run": "model_a_v2+model_b-accept_all-test-relfix",
+ "unet_run": "model_a_v2+unet-test",
+ "ranking": "badness = 3*(1-essential recall) + (1-label recall) + FP share + 1 if QA blocks; failed images = 10",
+ "root_cause_counts_all_images": {
+  "ocr_misread_or_missed": 74,
+  "other": 5,
+  "closed_shape_split": 32,
+  "small_features_dropped": 6,
+  "type_vocabulary": 52,
+  "text_vectorised_as_geometry": 17,
+  "label_association": 45,
+  "right_angle_marker_missed": 21,
+  "binarisation_noise": 24,
+  "timeout_noise_explosion": 1
+ },
+ "failures": [
+  {
+   "image_id": "math_076",
+   "source_image": "evaluation/dataset/images/math_076.jpg",
+   "split": "test",
+   "difficulty": "very_hard",
+   "category": "L_mixed_worksheet",
+   "conditions": [
+    "photographed",
+    "skew"
+   ],
+   "badness": 10.0,
+   "expected": "{'axis': 2, 'bar': 6, 'triangle': 1, 'line_segment': 8, 'circle': 1}; labels ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'U']...",
+   "actual": "ImageTimeout: Model A exceeded 180 s",
+   "root_causes": [
+    "timeout_noise_explosion"
+   ],
+   "severity": "critical",
+   "possible_fix": [
+    "denoise before binarising; cap contour count per region; process large photos at reduced scale"
+   ],
+   "model_b_helped": "no (invalid_response)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "yes"
+  },
+  {
+   "image_id": "math_044",
+   "source_image": "evaluation/dataset/images/math_044.jpg",
+   "split": "train",
+   "difficulty": "hard",
+   "category": "L_mixed_worksheet",
+   "conditions": [
+    "photographed"
+   ],
+   "badness": 2.884,
+   "expected": "{'circle': 2, 'rectangle': 2, 'dimension_line': 2, 'axis': 2, 'line_segment': 1}; labels ['A', 'B', 'U', '17', '2', '19', '12 cm', '4 cm']...",
+   "actual": "{'line_segment': 30, 'rectangle': 2, 'circle': 1, 'point': 2, 'angle': 1}; essential found 7/9; labels 3/19 (CER 0.7805); QA blocked: braille_on_line",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "critical",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_099",
+   "source_image": "evaluation/dataset/images/math_099.png",
+   "split": "validation",
+   "difficulty": "adversarial",
+   "category": "K_tables_diagrams",
+   "conditions": [
+    "clean_digital",
+    "handwriting",
+    "overlapping"
+   ],
+   "badness": 2.85,
+   "expected": "{'rectangle': 2, 'triangle': 1}; labels ['x', 'y', 'x + y', '2', '5', '7', '5', '9']...",
+   "actual": "{'line_segment': 10, 'polygon': 3, 'point': 9, 'angle': 9}; essential found 2/3; labels 11/18 (CER 0.4); QA blocked: feature_below_minimum_size",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "closed_shape_split",
+    "ocr_misread_or_missed",
+    "label_association"
+   ],
+   "severity": "critical",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "join sides into triangles/polygons when endpoints coincide",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_031",
+   "source_image": "evaluation/dataset/images/math_031.png",
+   "split": "train",
+   "difficulty": "moderate",
+   "category": "B_worksheet_geometry",
+   "conditions": [
+    "clean_digital"
+   ],
+   "badness": 5.0,
+   "expected": "{'polygon': 1, 'line_segment': 1}; labels ['T', 'U', 'V', 'W']",
+   "actual": "{'line_segment': 2, 'polygon': 1}; essential found 0/2; labels 0/4 (CER 1.0); QA pass",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "ocr_misread_or_missed"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "upscale label crops before OCR; restrict charset for single-letter labels"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_063",
+   "source_image": "evaluation/dataset/images/math_063.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "L_mixed_worksheet",
+   "conditions": [
+    "photographed",
+    "low_contrast"
+   ],
+   "badness": 3.9,
+   "expected": "{'number_line': 1, 'bar': 1, 'line_segment': 6, 'circle': 2, 'polygon': 4, 'arrow': 1, 'rectangle': 1}; labels ['-2', '-1', '0', '1', '2', '3', '4', '5']...",
+   "actual": "{'line_segment': 43, 'polygon': 4, 'point': 6, 'angle': 7}; essential found 4/16; labels 0/44 (CER 1.0); QA pass",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "closed_shape_split",
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "right_angle_marker_missed",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "join sides into triangles/polygons when endpoints coincide",
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_086",
+   "source_image": "evaluation/dataset/images/math_086.jpg",
+   "split": "train",
+   "difficulty": "adversarial",
+   "category": "I_transformations",
+   "conditions": [
+    "scanned",
+    "broken_lines"
+   ],
+   "badness": 3.642,
+   "expected": "{'polygon': 2, 'line_segment': 1}; labels ['S', 'T', 'U', 'V', 'm', 'S\u2032', 'T\u2032', 'U\u2032']...",
+   "actual": "{'line_segment': 63, 'point': 11, 'angle': 8}; essential found 1/3; labels 3/9 (CER 0.7692); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_052",
+   "source_image": "evaluation/dataset/images/math_052.jpg",
+   "split": "train",
+   "difficulty": "hard",
+   "category": "J_fractions_number_lines",
+   "conditions": [
+    "photographed",
+    "small_text"
+   ],
+   "badness": 3.329,
+   "expected": "{'number_line': 1, 'bar': 1, 'line_segment': 3}; labels ['-5', '-4', '-3', '-2', '-1', '0', '1', '2']...",
+   "actual": "{'line_segment': 2}; essential found 1/5; labels 1/14 (CER 0.9643); QA pass",
+   "root_causes": [
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "unlikely: the error is downstream of segmentation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_051",
+   "source_image": "evaluation/dataset/images/math_051.jpg",
+   "split": "train",
+   "difficulty": "hard",
+   "category": "I_transformations",
+   "conditions": [
+    "scanned",
+    "small_text"
+   ],
+   "badness": 3.04,
+   "expected": "{'triangle': 2, 'arrow': 1}; labels ['R', 'S', 'T', 'R\u2032', 'S\u2032', 'T\u2032']",
+   "actual": "{'line_segment': 42, 'point': 8, 'angle': 6}; essential found 1/3; labels 1/6 (CER 0.8889); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_066",
+   "source_image": "evaluation/dataset/images/math_066.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "B_worksheet_geometry",
+   "conditions": [
+    "photographed",
+    "skew"
+   ],
+   "badness": 3.029,
+   "expected": "{'triangle': 1, 'line_segment': 5, 'rectangle': 3, 'dimension_line': 2, 'circle': 1, 'polygon': 1}; labels ['Q', 'R', 'S', 'T', '7 cm', 'l', 'm', 't']...",
+   "actual": "{'line_segment': 12, 'rectangle': 1, 'polygon': 2, 'point': 3, 'angle': 2}; essential found 6/13; labels 3/24 (CER 0.875); QA pass",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "ocr_misread_or_missed",
+    "label_association",
+    "right_angle_marker_missed",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_039",
+   "source_image": "evaluation/dataset/images/math_039.png",
+   "split": "train",
+   "difficulty": "moderate",
+   "category": "I_transformations",
+   "conditions": [
+    "clean_digital"
+   ],
+   "badness": 2.981,
+   "expected": "{'triangle': 2, 'arrow': 1}; labels ['I', 'J', 'K', 'I\u2032', 'J\u2032', 'K\u2032']",
+   "actual": "{'line_segment': 27, 'point': 6, 'angle': 6}; essential found 1/3; labels 1/6 (CER 0.8889); QA pass",
+   "root_causes": [
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "unlikely: the error is downstream of segmentation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_041",
+   "source_image": "evaluation/dataset/images/math_041.jpg",
+   "split": "train",
+   "difficulty": "hard",
+   "category": "B_worksheet_geometry",
+   "conditions": [
+    "scanned"
+   ],
+   "badness": 2.943,
+   "expected": "{'triangle': 1, 'line_segment': 3, 'circle': 1}; labels ['K', 'L', 'M', 'N', 'O', 'A', '5 cm', 'B']...",
+   "actual": "{'line_segment': 7, 'point': 3, 'angle': 3}; essential found 2/5; labels 0/9 (CER 1.0); QA pass",
+   "root_causes": [
+    "closed_shape_split",
+    "ocr_misread_or_missed",
+    "right_angle_marker_missed"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "join sides into triangles/polygons when endpoints coincide",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "unlikely: the error is downstream of segmentation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_045",
+   "source_image": "evaluation/dataset/images/math_045.jpg",
+   "split": "train",
+   "difficulty": "hard",
+   "category": "L_mixed_worksheet",
+   "conditions": [
+    "scanned"
+   ],
+   "badness": 2.893,
+   "expected": "{'polygon': 4, 'arrow': 1, 'axis': 2, 'triangle': 1}; labels ['R', 'S', 'T', 'U', 'R\u2032', 'S\u2032', 'T\u2032', 'U\u2032']...",
+   "actual": "{'line_segment': 31, 'point': 6, 'angle': 7}; essential found 3/8; labels 2/14 (CER 0.7917); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "type_vocabulary"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_074",
+   "source_image": "evaluation/dataset/images/math_074.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "A_geometry_figure",
+   "conditions": [
+    "scanned",
+    "skew",
+    "low_contrast",
+    "small_text"
+   ],
+   "badness": 2.8,
+   "expected": "{'triangle': 1, 'line_segment': 2}; labels ['N', 'O', 'P', 'Q', '11 cm']",
+   "actual": "{'triangle': 1}; essential found 1/3; labels 1/5 (CER 0.7778); QA pass",
+   "root_causes": [
+    "ocr_misread_or_missed",
+    "label_association",
+    "right_angle_marker_missed"
+   ],
+   "severity": "high",
+   "possible_fix": [
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "unlikely: the error is downstream of segmentation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_072",
+   "source_image": "evaluation/dataset/images/math_072.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "I_transformations",
+   "conditions": [
+    "scanned",
+    "blur",
+    "small_text"
+   ],
+   "badness": 2.8,
+   "expected": "{'polygon': 2, 'line_segment': 1}; labels ['B', 'C', 'D', 'E', 'm', 'B\u2032', 'C\u2032', 'D\u2032']...",
+   "actual": "{'line_segment': 8, 'polygon': 3}; essential found 2/3; labels 0/9 (CER 1.0); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_068",
+   "source_image": "evaluation/dataset/images/math_068.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "D_coordinate_geometry",
+   "conditions": [
+    "photographed",
+    "low_contrast",
+    "small_text"
+   ],
+   "badness": 2.725,
+   "expected": "{'axis': 2, 'polygon': 1}; labels ['O', 'V(5, 4)', 'W(6, 4)', 'X(7, 7)', 'Y(6, 7)']",
+   "actual": "{'line_segment': 52, 'polygon': 4, 'point': 7, 'angle': 4}; essential found 2/3; labels 1/5 (CER 1.0); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_077",
+   "source_image": "evaluation/dataset/images/math_077.jpg",
+   "split": "train",
+   "difficulty": "very_hard",
+   "category": "B_worksheet_geometry",
+   "conditions": [
+    "scanned",
+    "blur"
+   ],
+   "badness": 2.722,
+   "expected": "{'line_segment': 8, 'circle': 2, 'polygon': 2, 'triangle': 2}; labels ['l', 'm', 't', '49\u00b0', 'x', 'y', 'O', 'A']...",
+   "actual": "{'line_segment': 7, 'polygon': 4, 'triangle': 1, 'point': 1}; essential found 7/14; labels 0/23 (CER 1.0); QA pass",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "ocr_misread_or_missed",
+    "right_angle_marker_missed"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_015",
+   "source_image": "evaluation/dataset/images/math_015.png",
+   "split": "train",
+   "difficulty": "easy",
+   "category": "K_tables_diagrams",
+   "conditions": [
+    "clean_digital"
+   ],
+   "badness": 2.643,
+   "expected": "{'axis': 2, 'bar': 4}; labels ['A', 'B', 'C', 'D']",
+   "actual": "{'line_segment': 14, 'point': 8, 'angle': 10}; essential found 3/6; labels 2/4 (CER 0.5); QA pass",
+   "root_causes": [
+    "closed_shape_split",
+    "ocr_misread_or_missed",
+    "label_association",
+    "type_vocabulary"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "join sides into triangles/polygons when endpoints coincide",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "unlikely: the error is downstream of segmentation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_065",
+   "source_image": "evaluation/dataset/images/math_065.jpg",
+   "split": "validation",
+   "difficulty": "very_hard",
+   "category": "B_worksheet_geometry",
+   "conditions": [
+    "photographed",
+    "blur"
+   ],
+   "badness": 2.643,
+   "expected": "{'triangle': 3, 'circle': 2, 'polygon': 1, 'line_segment': 5, 'rectangle': 1, 'dimension_line': 2}; labels ['G', 'H', 'I', 'triangle', 'W', 'X', 'Y', 'T']...",
+   "actual": "{'line_segment': 27, 'circle': 1, 'rectangle': 1, 'polygon': 9, 'point': 7, 'angle': 5}; essential found 9/14; labels 0/18 (CER 1.0); QA pass",
+   "root_causes": [
+    "text_vectorised_as_geometry",
+    "closed_shape_split",
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "right_angle_marker_missed",
+    "type_vocabulary"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "mask OCR text boxes before vectorisation",
+    "join sides into triangles/polygons when endpoints coincide",
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "detect markers at T-junctions (foot of an altitude), not only where two edges end",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_073",
+   "source_image": "evaluation/dataset/images/math_073.jpg",
+   "split": "validation",
+   "difficulty": "very_hard",
+   "category": "K_tables_diagrams",
+   "conditions": [
+    "photographed",
+    "low_contrast",
+    "small_text"
+   ],
+   "badness": 2.601,
+   "expected": "{'axis': 2, 'bar': 6}; labels ['A', 'B', 'C', 'D', 'E', 'F']",
+   "actual": "{'line_segment': 21, 'point': 13, 'angle': 13}; essential found 5/8; labels 0/6 (CER 1.0); QA pass",
+   "root_causes": [
+    "closed_shape_split",
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "type_vocabulary"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "join sides into triangles/polygons when endpoints coincide",
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "add ray/arrow/tick/axis types to Model A's vocabulary"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  },
+  {
+   "image_id": "math_028",
+   "source_image": "evaluation/dataset/images/math_028.jpg",
+   "split": "train",
+   "difficulty": "moderate",
+   "category": "I_transformations",
+   "conditions": [
+    "photographed"
+   ],
+   "badness": 2.598,
+   "expected": "{'polygon': 2, 'line_segment': 1}; labels ['J', 'K', 'L', 'M', 'm', 'J\u2032', 'K\u2032', 'L\u2032']...",
+   "actual": "{'line_segment': 27, 'polygon': 2, 'point': 3, 'angle': 3}; essential found 2/3; labels 3/9 (CER 0.7692); QA pass",
+   "root_causes": [
+    "binarisation_noise",
+    "ocr_misread_or_missed",
+    "label_association"
+   ],
+   "severity": "medium",
+   "possible_fix": [
+    "grain-aware enhancement; adaptive threshold tuned for photos; learned foreground mask",
+    "upscale label crops before OCR; restrict charset for single-letter labels",
+    "associate labels to nearest vertex/segment with a distance budget"
+   ],
+   "model_b_helped": "NOT MEASURED (image not in that run)",
+   "unet_could_help": "possibly: a foreground mask removes paper grain/text before vectorisation",
+   "unet_measured": "NOT MEASURED (image not in that run)"
+  }
+ ]
+}

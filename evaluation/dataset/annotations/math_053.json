@@ -1,0 +1,615 @@
+{
+ "schema_version": "tactilegeo.math_gt.v1",
+ "image_id": "math_053",
+ "file": "images/math_053.jpg",
+ "mask_file": "masks/math_053.png",
+ "width": 1000,
+ "height": 800,
+ "difficulty": "hard",
+ "category": "K_tables_diagrams",
+ "diagram_type": "table_or_chart",
+ "layout": "figure",
+ "conditions": [
+  "scanned",
+  "low_contrast"
+ ],
+ "content_stressors": [
+  "small_text"
+ ],
+ "adversarial_focus": null,
+ "degradation_parameters": {
+  "scan_rotation_deg": -1.27,
+  "contrast_range": "135-200",
+  "jpeg_quality": 80
+ },
+ "source": {
+  "kind": "synthetic_rendered",
+  "generator": "evaluation.generator.build",
+  "dataset_version": "math100-v1",
+  "seed": 20261054
+ },
+ "annotation": {
+  "method": "render_time_exact",
+  "machine_assisted": false,
+  "verified": "exact_by_construction",
+  "notes": "Written from the drawing coordinates, then mapped through the same homography as the image."
+ },
+ "mask_definition": "255 = mathematical geometry ink (lines, shapes, arrows, ticks, axes, point dots); 0 = background, text, handwriting, decorations, grid lines, shading.",
+ "objects": [
+  {
+   "id": "rectangle_1",
+   "type": "rectangle",
+   "geometry": {
+    "kind": "polygon",
+    "points": [
+     [
+      107.17,
+      71.24
+     ],
+     [
+      906.97,
+      88.92
+     ],
+     [
+      900.56,
+      379.25
+     ],
+     [
+      100.75,
+      361.57
+     ]
+    ]
+   },
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    100.8,
+    71.2,
+    806.2,
+    308.0
+   ]
+  },
+  {
+   "id": "table_line_1",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      106.1,
+      119.63
+     ],
+     [
+      905.91,
+      137.31
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    106.1,
+    119.6,
+    799.8,
+    17.7
+   ]
+  },
+  {
+   "id": "table_line_2",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      105.03,
+      168.01
+     ],
+     [
+      904.84,
+      185.7
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    105.0,
+    168.0,
+    799.8,
+    17.7
+   ]
+  },
+  {
+   "id": "table_line_3",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      103.96,
+      216.4
+     ],
+     [
+      903.77,
+      234.08
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    104.0,
+    216.4,
+    799.8,
+    17.7
+   ]
+  },
+  {
+   "id": "table_line_4",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      102.89,
+      264.79
+     ],
+     [
+      902.7,
+      282.47
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    102.9,
+    264.8,
+    799.8,
+    17.7
+   ]
+  },
+  {
+   "id": "table_line_5",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      101.82,
+      313.18
+     ],
+     [
+      901.63,
+      330.86
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    101.8,
+    313.2,
+    799.8,
+    17.7
+   ]
+  },
+  {
+   "id": "table_line_6",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      373.77,
+      77.13
+     ],
+     [
+      367.35,
+      367.46
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    367.4,
+    77.1,
+    6.4,
+    290.3
+   ]
+  },
+  {
+   "id": "table_line_7",
+   "type": "table_line",
+   "geometry": {
+    "kind": "segment",
+    "points": [
+     [
+      640.37,
+      83.03
+     ],
+     [
+      633.95,
+      373.35
+     ]
+    ]
+   },
+   "semantic_importance": "supporting",
+   "preserve_in_tactile": true,
+   "bbox": [
+    634.0,
+    83.0,
+    6.4,
+    290.3
+   ]
+  }
+ ],
+ "points": [],
+ "labels": [
+  {
+   "id": "label_1",
+   "text": "x",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    234.8,
+    96.3,
+    9.2,
+    8.2
+   ]
+  },
+  {
+   "id": "label_2",
+   "text": "y",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    500.3,
+    102.1,
+    10.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_3",
+   "text": "x + y",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    753.9,
+    106.8,
+    37.3,
+    13.8
+   ]
+  },
+  {
+   "id": "label_4",
+   "text": "7",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    233.7,
+    140.7,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_5",
+   "text": "0",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    500.3,
+    146.6,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_6",
+   "text": "7",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    766.9,
+    152.4,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_7",
+   "text": "0",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    232.7,
+    189.1,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_8",
+   "text": "8",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    499.3,
+    194.9,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_9",
+   "text": "8",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    765.9,
+    200.8,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_10",
+   "text": "4",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    231.6,
+    237.4,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_11",
+   "text": "8",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    498.2,
+    243.3,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_12",
+   "text": "12",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    758.8,
+    249.1,
+    22.3,
+    12.5
+   ]
+  },
+  {
+   "id": "label_13",
+   "text": "3",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    230.5,
+    285.8,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_14",
+   "text": "2",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    497.1,
+    291.7,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_15",
+   "text": "5",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    763.7,
+    297.6,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_16",
+   "text": "4",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    229.5,
+    334.2,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_17",
+   "text": "6",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    496.1,
+    340.1,
+    11.3,
+    12.2
+   ]
+  },
+  {
+   "id": "label_18",
+   "text": "10",
+   "role": "table_cell",
+   "associated_object": "rectangle_1",
+   "font_px": 17,
+   "semantic_importance": "essential",
+   "preserve_in_tactile": true,
+   "bbox": [
+    756.7,
+    345.9,
+    22.3,
+    12.5
+   ]
+  }
+ ],
+ "relationships": [
+  {
+   "type": "LABELS",
+   "source": "label_1",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_2",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_3",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_4",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_5",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_6",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_7",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_8",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_9",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_10",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_11",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_12",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_13",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_14",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_15",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_16",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_17",
+   "target": "rectangle_1"
+  },
+  {
+   "type": "LABELS",
+   "source": "label_18",
+   "target": "rectangle_1"
+  }
+ ],
+ "dimensions": [],
+ "omittable_ids": []
+}

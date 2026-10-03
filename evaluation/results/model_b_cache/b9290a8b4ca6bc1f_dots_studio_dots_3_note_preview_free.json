@@ -1,0 +1,222 @@
+{
+ "status": "ok",
+ "result": {
+  "schema_version": "model_b.diag.v1",
+  "diagram_kind": "labelled_figure",
+  "diagram_description": "The image shows a simple rectangle with a horizontal dimension of 4 cm and a vertical dimension of 7 cm. The visual aspect ratio of the drawn rectangle is wider than tall, which contradicts the numerical labels of 4 cm width and 7 cm height, but the labels are clearly legible.",
+  "image_width": 1000,
+  "image_height": 800,
+  "prepared_width": 1000,
+  "prepared_height": 1000,
+  "provider": "openrouter",
+  "requested_model": "dots-studio/dots-3-note-preview:free",
+  "resolved_model": "dots-studio/dots-3-note-preview:free",
+  "upstream_provider": "AtlasCloud",
+  "request_id": "gen-1791061702-uAhKYd2VWNbwFZ5tZrRo",
+  "entities": [
+   {
+    "id": "b_e1",
+    "kind": "rectangle",
+    "geometry_type": "rectangle",
+    "region": {
+     "norm": [
+      0.18,
+      0.24,
+      0.82,
+      0.75
+     ],
+     "x": 180,
+     "y": 140,
+     "width": 640,
+     "height": 510
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Solid black lines forming a closed four-sided rectangular shape.",
+    "occluded": false,
+    "label": null,
+    "mapped": true
+   },
+   {
+    "id": "b_e2",
+    "kind": "dimension_annotation",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.18,
+      0.78,
+      0.82,
+      0.83
+     ],
+     "x": 180,
+     "y": 680,
+     "width": 640,
+     "height": 50
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Horizontal double-headed arrow with the text '4 cm' centered below it.",
+    "occluded": false,
+    "label": "4 cm",
+    "mapped": false
+   },
+   {
+    "id": "b_e3",
+    "kind": "dimension_annotation",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.84,
+      0.24,
+      0.95,
+      0.75
+     ],
+     "x": 840,
+     "y": 140,
+     "width": 110,
+     "height": 510
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Vertical double-headed arrow with the text '7 cm' placed to its right.",
+    "occluded": false,
+    "label": "7 cm",
+    "mapped": false
+   }
+  ],
+  "relationships": [
+   {
+    "id": "b_r1",
+    "kind": "dimension_of",
+    "relationship_type": null,
+    "from_id": "b_e2",
+    "to_id": "b_e1",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The horizontal dimension line with arrowheads spans the exact width of the rectangle's bottom edge.",
+    "mapped": false
+   },
+   {
+    "id": "b_r2",
+    "kind": "dimension_of",
+    "relationship_type": null,
+    "from_id": "b_e3",
+    "to_id": "b_e1",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The vertical dimension line with arrowheads spans the exact height of the rectangle's right edge.",
+    "mapped": false
+   }
+  ],
+  "diagram_relations": [
+   {
+    "id": "b_d9",
+    "kind": "right_triangle",
+    "subject_ids": [
+     "b_rect_1",
+     "b_dim_h",
+     "b_dim_v"
+    ],
+    "statement": "The diagram contains a single rectangle with dimension annotations.",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Black outline forming a four-sided polygon with four right angles."
+   }
+  ],
+  "text_items": [
+   {
+    "id": "b_t1",
+    "text": "4 cm",
+    "role": "measurement",
+    "region": {
+     "norm": [
+      0.45,
+      0.8,
+      0.55,
+      0.83
+     ],
+     "x": 450,
+     "y": 700,
+     "width": 100,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "Clear printed text '4 cm' under the horizontal arrow."
+   },
+   {
+    "id": "b_t2",
+    "text": "7 cm",
+    "role": "measurement",
+    "region": {
+     "norm": [
+      0.86,
+      0.48,
+      0.95,
+      0.52
+     ],
+     "x": 860,
+     "y": 380,
+     "width": 90,
+     "height": 40
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "Clear printed text '7 cm' to the right of the vertical arrow."
+   }
+  ],
+  "uncertainties": [
+   {
+    "id": "b_u1",
+    "subject_ids": [
+     "b_e1",
+     "b_e2",
+     "b_e3"
+    ],
+    "kind": "possible_second_interpretation",
+    "note": "The visual aspect ratio shows the horizontal side is longer than the vertical side, but the labels assign '4 cm' to the horizontal side and '7 cm' to the vertical side, indicating a scale discrepancy in the drawing versus the labels.",
+    "severity": "informational"
+   }
+  ],
+  "image_readable": true,
+  "image_quality_issues": [],
+  "truncated": false,
+  "finish_reason": "stop",
+  "usage": {
+   "prompt_tokens": 3024,
+   "completion_tokens": 3654,
+   "total_tokens": 6678,
+   "reasoning_tokens": 2067,
+   "cost": 0.0
+  },
+  "validation_warnings": [
+   "diagram relation d9 references unknown entity rect_1",
+   "diagram relation d9 references unknown entity dim_h",
+   "diagram relation d9 references unknown entity dim_v"
+  ]
+ },
+ "resolved_model": "dots-studio/dots-3-note-preview:free",
+ "truncated": false,
+ "usage": {
+  "prompt_tokens": 3024,
+  "completion_tokens": 3654,
+  "total_tokens": 6678,
+  "reasoning_tokens": 2067,
+  "cost": 0.0
+ },
+ "latency_ms": 37875.6
+}
