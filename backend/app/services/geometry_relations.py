@@ -62,8 +62,11 @@ def _point_to_segment_distance(point: tuple, start: tuple, end: tuple) -> float:
     return _point_distance(point, (px, py))
 
 
+STRAIGHT_TYPES = (GeometryType.LINE_SEGMENT, GeometryType.RAY, GeometryType.AXES, GeometryType.ARROW)
+
+
 def _is_line_like(element: DetectedElement) -> bool:
-    return element.type in (GeometryType.LINE_SEGMENT, GeometryType.RAY)
+    return element.type in STRAIGHT_TYPES and "start" in element.geometry and "end" in element.geometry
 
 
 def _angles(a: DetectedElement, b: DetectedElement) -> tuple[float, float] | None:

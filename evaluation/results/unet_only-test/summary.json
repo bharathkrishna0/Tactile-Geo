@@ -1,0 +1,574 @@
+{
+ "run_id": "unet_only-test",
+ "partial": true,
+ "note": "stopped by request after 11 of 15 test images; compare only on the same 11 images",
+ "images": [
+  "math_007",
+  "math_008",
+  "math_011",
+  "math_024",
+  "math_025",
+  "math_034",
+  "math_042",
+  "math_047",
+  "math_048",
+  "math_061",
+  "math_062"
+ ],
+ "manifest": {
+  "run_id": "unet_only-test",
+  "variant": "unet",
+  "split": "test",
+  "images": 15,
+  "seed": 0,
+  "date_utc": "2026-10-03T22:36:17+00:00",
+  "git_commit": "5733d2df269cbf696545f25f3cbcbb73a1033b36+dirty-backend",
+  "dataset_version": "math100-v1",
+  "dataset_seed": 20261002,
+  "model_a": {
+   "name": "TactileGeo Model A",
+   "entry": "app.services.pipeline.build_full_analysis",
+   "edge_sensitivity": 50,
+   "ocr": "EasyOCR (en)",
+   "braille": "en-ueb-g2.ctb"
+  },
+  "model_b": null,
+  "unet": {
+   "weights": "unet_small.pt",
+   "combine": "replace",
+   "threshold": 0.5,
+   "base": 16,
+   "step": 1000,
+   "val_dice": 0.9491,
+   "train_images": 70,
+   "seed": 0,
+   "crop": 256,
+   "parameters": 482449
+  },
+  "image_timeout_s": 600,
+  "matching_tolerance": "max(4 px, 1.5% of image diagonal), symmetric mean outline distance",
+  "python": "3.11.15",
+  "platform": "Linux-6.8.0-1061-aws-x86_64-with-glibc2.35"
+ },
+ "overall": {
+  "images": 11,
+  "failed": 0,
+  "failure_rate": 0.0,
+  "objects_semantic": {
+   "strict": {
+    "tp": 50,
+    "fp": 16,
+    "fn": 25,
+    "precision": 0.7576,
+    "recall": 0.6667,
+    "f1": 0.7092
+   },
+   "structural": {
+    "tp": 53,
+    "fp": 16,
+    "fn": 22,
+    "precision": 0.7681,
+    "recall": 0.7067,
+    "f1": 0.7361
+   },
+   "essential_recall_structural": 0.8846,
+   "essential_recall_strict": 0.8269,
+   "found_as_parts": 3,
+   "fragmented_linear": 0,
+   "closed_as_sides": 3,
+   "fp_reasons": {
+    "other": 8,
+    "on_text": 8
+   },
+   "on_omittable": 0,
+   "note": "failed images are excluded from precision/recall but included in essential recall denominators"
+  },
+  "objects_final": {
+   "strict": {
+    "tp": 50,
+    "fp": 14,
+    "fn": 25,
+    "precision": 0.7812,
+    "recall": 0.6667,
+    "f1": 0.7194
+   },
+   "structural": {
+    "tp": 53,
+    "fp": 14,
+    "fn": 22,
+    "precision": 0.791,
+    "recall": 0.7067,
+    "f1": 0.7465
+   },
+   "essential_recall_structural": 0.8846,
+   "essential_recall_strict": 0.8269,
+   "found_as_parts": 3,
+   "fragmented_linear": 0,
+   "closed_as_sides": 3,
+   "fp_reasons": {
+    "on_text": 7,
+    "other": 7
+   },
+   "on_omittable": 0,
+   "note": "failed images are excluded from precision/recall but included in essential recall denominators"
+  },
+  "per_gt_type": {
+   "axis": {
+    "gt": 10,
+    "found_strict": 10,
+    "found_structural": 10,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "bar": {
+    "gt": 1,
+    "found_strict": 0,
+    "found_structural": 1,
+    "recall_strict": 0.0,
+    "recall_structural": 1.0
+   },
+   "circle": {
+    "gt": 3,
+    "found_strict": 3,
+    "found_structural": 3,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "curve": {
+    "gt": 1,
+    "found_strict": 1,
+    "found_structural": 1,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "dimension_line": {
+    "gt": 6,
+    "found_strict": 5,
+    "found_structural": 5,
+    "recall_strict": 0.8333,
+    "recall_structural": 0.8333
+   },
+   "line_segment": {
+    "gt": 21,
+    "found_strict": 16,
+    "found_structural": 16,
+    "recall_strict": 0.7619,
+    "recall_structural": 0.7619
+   },
+   "polygon": {
+    "gt": 4,
+    "found_strict": 3,
+    "found_structural": 4,
+    "recall_strict": 0.75,
+    "recall_structural": 1.0
+   },
+   "rectangle": {
+    "gt": 3,
+    "found_strict": 2,
+    "found_structural": 3,
+    "recall_strict": 0.6667,
+    "recall_structural": 1.0
+   },
+   "table_line": {
+    "gt": 7,
+    "found_strict": 7,
+    "found_structural": 7,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "tick": {
+    "gt": 16,
+    "found_strict": 0,
+    "found_structural": 0,
+    "recall_strict": 0.0,
+    "recall_structural": 0.0
+   },
+   "triangle": {
+    "gt": 3,
+    "found_strict": 3,
+    "found_structural": 3,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   }
+  },
+  "per_pred_type": {
+   "circle": {
+    "predicted": 4,
+    "true_positive": 4,
+    "precision": 1.0
+   },
+   "line_segment": {
+    "predicted": 62,
+    "true_positive": 38,
+    "precision": 0.6129
+   },
+   "polygon": {
+    "predicted": 5,
+    "true_positive": 3,
+    "precision": 0.6
+   },
+   "rectangle": {
+    "predicted": 2,
+    "true_positive": 2,
+    "precision": 1.0
+   },
+   "triangle": {
+    "predicted": 3,
+    "true_positive": 3,
+    "precision": 1.0
+   }
+  },
+  "classification": {
+   "object_type_accuracy": 0.6327,
+   "matched_with_supported_type": 49,
+   "confusion": {
+    "line_segment->line_segment": 23,
+    "axes->line_segment": 10,
+    "arrow->line_segment": 5,
+    "triangle->triangle": 3,
+    "circle->circle": 2,
+    "rectangle->rectangle": 2,
+    "polygon->circle": 2,
+    "polygon->polygon": 1,
+    "circle->polygon": 1
+   },
+   "diagram_type_accuracy": "NOT MEASURED (Model A produces no diagram-level type)"
+  },
+  "right_angle_markers": {
+   "gt": 4,
+   "found": 0,
+   "predicted": 0,
+   "recall": 0.0
+  },
+  "geometry": {
+   "chamfer_px": {
+    "n": 50,
+    "p25": 0.917,
+    "p50": 1.259,
+    "p75": 1.656,
+    "p95": 5.156,
+    "mean": 1.721
+   },
+   "endpoint_px": {
+    "n": 38,
+    "p25": 0.99,
+    "p50": 1.517,
+    "p75": 2.826,
+    "p95": 18.371,
+    "mean": 5.181
+   },
+   "angle_deg": {
+    "n": 38,
+    "p25": 0.101,
+    "p50": 0.155,
+    "p75": 0.378,
+    "p95": 0.929,
+    "mean": 0.279
+   },
+   "length_rel": {
+    "n": 38,
+    "p25": 0.002,
+    "p50": 0.004,
+    "p75": 0.016,
+    "p95": 0.105,
+    "mean": 0.02
+   },
+   "polygon_iou": {
+    "n": 6,
+    "p25": 0.977,
+    "p50": 0.984,
+    "p75": 0.992,
+    "p95": 0.994,
+    "mean": 0.95
+   },
+   "vertex_count_match": {
+    "n": 6,
+    "p25": 1.0,
+    "p50": 1.0,
+    "p75": 1.0,
+    "p95": 1.0,
+    "mean": 1.0
+   },
+   "circle_center_px": {
+    "n": 2,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "circle_radius_rel": {
+    "n": 2,
+    "p25": 0.013,
+    "p50": 0.013,
+    "p75": 0.013,
+    "p95": 0.013,
+    "mean": 0.013
+   },
+   "point_localization_px": {
+    "n": 25,
+    "p25": 1.176,
+    "p50": 3.936,
+    "p75": 5.612,
+    "p95": 6.949,
+    "mean": 3.808
+   },
+   "point_recall": 0.7143
+  },
+  "ocr": {
+   "label_detection_recall": 0.268,
+   "label_detection_precision": 0.9808,
+   "cer": 0.7288,
+   "cer_detected_only": 0.3535,
+   "wer": 0.8077,
+   "exact_match_rate_detected": 0.6154,
+   "exact_match_rate_normalized_detected": 0.6154,
+   "label_association_accuracy": 0.2,
+   "association_evaluated": 25
+  },
+  "braille": {
+   "evaluated_labels": 21,
+   "end_to_end_exact": 0.6667,
+   "translation_consistency": 1.0,
+   "cell_error_rate": 0.2418,
+   "reading_order_concordance": 1.0,
+   "collision_violations": 0,
+   "on_line_violations": 0
+  },
+  "relationships_semantic": {
+   "recall": 0.1538,
+   "precision_lower_bound": 0.0463,
+   "f1_lower_bound": 0.0712,
+   "gt_supported": 65,
+   "gt_unsupported_by_type": {
+    "LABELS": 94,
+    "DIMENSION_OF": 14,
+    "VERTEX_OF": 17,
+    "INSIDE": 7
+   },
+   "by_type": {
+    "CENTER_OF": {
+     "gt": 3,
+     "found": 0,
+     "predicted_mappable": 0,
+     "recall": 0.0
+    },
+    "ON": {
+     "gt": 31,
+     "found": 0,
+     "predicted_mappable": 8,
+     "recall": 0.0
+    },
+    "ENDPOINT_OF": {
+     "gt": 16,
+     "found": 4,
+     "predicted_mappable": 8,
+     "recall": 0.25
+    },
+    "PERPENDICULAR": {
+     "gt": 9,
+     "found": 4,
+     "predicted_mappable": 81,
+     "recall": 0.4444
+    },
+    "INTERSECTS": {
+     "gt": 4,
+     "found": 0,
+     "predicted_mappable": 29,
+     "recall": 0.0
+    },
+    "PARALLEL": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 90,
+     "recall": 1.0
+    }
+   }
+  },
+  "relationships_final": {
+   "recall": 0.1538,
+   "precision_lower_bound": 0.0463,
+   "f1_lower_bound": 0.0712,
+   "gt_supported": 65,
+   "gt_unsupported_by_type": {
+    "LABELS": 94,
+    "DIMENSION_OF": 14,
+    "VERTEX_OF": 17,
+    "INSIDE": 7
+   },
+   "by_type": {
+    "CENTER_OF": {
+     "gt": 3,
+     "found": 0,
+     "predicted_mappable": 0,
+     "recall": 0.0
+    },
+    "ON": {
+     "gt": 31,
+     "found": 0,
+     "predicted_mappable": 8,
+     "recall": 0.0
+    },
+    "ENDPOINT_OF": {
+     "gt": 16,
+     "found": 4,
+     "predicted_mappable": 8,
+     "recall": 0.25
+    },
+    "PERPENDICULAR": {
+     "gt": 9,
+     "found": 4,
+     "predicted_mappable": 81,
+     "recall": 0.4444
+    },
+    "INTERSECTS": {
+     "gt": 4,
+     "found": 0,
+     "predicted_mappable": 29,
+     "recall": 0.0
+    },
+    "PARALLEL": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 90,
+     "recall": 1.0
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "merged_collinear": 1,
+    "simplified_contour": 3,
+    "removed_below_tactile_size": 1
+   },
+   "removed": 1,
+   "merged": 1,
+   "modified": 3,
+   "newly_inferred": 0,
+   "essential_found_before": 46,
+   "essential_found_after": 46,
+   "essential_removed_by_simplification": 0,
+   "semantic_preservation_rate": 1.0
+  },
+  "final_preservation": {
+   "essential_elements": 0.8846,
+   "relationships": 0.1538,
+   "labels": 0.268,
+   "quantitative_labels_exact": 0.1636
+  },
+  "tactile_qa": {
+   "pass_rate_all_images": 0.9091,
+   "issues": {
+    "overlap": 47,
+    "spacing": 10,
+    "isolated_element": 9,
+    "dangling_label": 9,
+    "feature_below_minimum_size": 1
+   },
+   "blocking_images": {
+    "feature_below_minimum_size": 1
+   }
+  },
+  "svg": {
+   "svg_rate_all_images": 1.0,
+   "valid_rate_of_present": 1.0,
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 1,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "images_over_40_features": 0,
+   "images_over_60_features": 0,
+   "embossed_features": {
+    "n": 11,
+    "p25": 2.5,
+    "p50": 4.0,
+    "p75": 7.5,
+    "p95": 25.5,
+    "mean": 8.0
+   }
+  },
+  "latency_ms": {
+   "labels_braille": {
+    "n": 11,
+    "p25": 5.65,
+    "p50": 9.3,
+    "p75": 25.95,
+    "p95": 135.2,
+    "mean": 33.109
+   },
+   "ocr": {
+    "n": 11,
+    "p25": 38215.7,
+    "p50": 58090.1,
+    "p75": 75642.1,
+    "p95": 337765.45,
+    "mean": 102706.491
+   },
+   "preprocessing": {
+    "n": 11,
+    "p25": 2727.4,
+    "p50": 3288.8,
+    "p75": 3492.55,
+    "p95": 4100.45,
+    "mean": 3201.491
+   },
+   "preview_svg": {
+    "n": 11,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p95": 0.0,
+    "mean": 0.0
+   },
+   "semantic_analysis": {
+    "n": 11,
+    "p25": 0.3,
+    "p50": 0.5,
+    "p75": 1.15,
+    "p95": 3.2,
+    "mean": 1.018
+   },
+   "simplification": {
+    "n": 11,
+    "p25": 0.1,
+    "p50": 0.1,
+    "p75": 0.15,
+    "p95": 0.8,
+    "mean": 0.218
+   },
+   "tactile_qa": {
+    "n": 11,
+    "p25": 0.6,
+    "p50": 1.4,
+    "p75": 2.8,
+    "p95": 13.6,
+    "mean": 3.536
+   },
+   "tactile_svg": {
+    "n": 11,
+    "p25": 0.2,
+    "p50": 0.2,
+    "p75": 0.35,
+    "p95": 2.2,
+    "mean": 0.582
+   },
+   "total": {
+    "n": 11,
+    "p25": 41393.2,
+    "p50": 60641.0,
+    "p75": 78738.5,
+    "p95": 342051.75,
+    "mean": 105981.791
+   },
+   "vectorization": {
+    "n": 11,
+    "p25": 17.55,
+    "p50": 22.4,
+    "p75": 30.3,
+    "p95": 48.35,
+    "mean": 26.218
+   }
+  }
+ }
+}

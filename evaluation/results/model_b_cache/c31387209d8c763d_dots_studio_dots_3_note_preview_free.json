@@ -1,0 +1,320 @@
+{
+ "status": "ok",
+ "result": {
+  "schema_version": "model_b.diag.v1",
+  "diagram_kind": "labelled_figure",
+  "diagram_description": "A simple geometry diagram showing a circle with center O, a point A on the circumference, and the radius segment OA labeled with a length of 4 cm.",
+  "image_width": 1000,
+  "image_height": 800,
+  "prepared_width": 1000,
+  "prepared_height": 1000,
+  "provider": "openrouter",
+  "requested_model": "dots-studio/dots-3-note-preview:free",
+  "resolved_model": "dots-studio/dots-3-note-preview:free",
+  "upstream_provider": "AtlasCloud",
+  "request_id": "gen-1791061476-2Ge8lGtTmzOF2CBSlhKe",
+  "entities": [
+   {
+    "id": "b_e1",
+    "kind": "circle",
+    "geometry_type": "circle",
+    "region": {
+     "norm": [
+      0.25,
+      0.25,
+      0.75,
+      0.75
+     ],
+     "x": 250,
+     "y": 150,
+     "width": 500,
+     "height": 500
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "A black circular line forming a closed loop representing a circle.",
+    "occluded": false,
+    "label": null,
+    "mapped": true
+   },
+   {
+    "id": "b_e2",
+    "kind": "point",
+    "geometry_type": "point",
+    "region": {
+     "norm": [
+      0.49,
+      0.49,
+      0.51,
+      0.51
+     ],
+     "x": 490,
+     "y": 390,
+     "width": 20,
+     "height": 20
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "A small black filled dot at the center of the circle, labeled O.",
+    "occluded": false,
+    "label": "O",
+    "mapped": true
+   },
+   {
+    "id": "b_e3",
+    "kind": "point",
+    "geometry_type": "point",
+    "region": {
+     "norm": [
+      0.64,
+      0.31,
+      0.66,
+      0.33
+     ],
+     "x": 640,
+     "y": 210,
+     "width": 20,
+     "height": 20
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The intersection point of the straight line segment and the circle circumference, labeled A.",
+    "occluded": false,
+    "label": "A",
+    "mapped": true
+   },
+   {
+    "id": "b_e4",
+    "kind": "line_segment",
+    "geometry_type": "line_segment",
+    "region": {
+     "norm": [
+      0.49,
+      0.32,
+      0.66,
+      0.5
+     ],
+     "x": 490,
+     "y": 220,
+     "width": 170,
+     "height": 180
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "A straight line segment connecting the center O to the point A on the circumference.",
+    "occluded": false,
+    "label": null,
+    "mapped": true
+   },
+   {
+    "id": "b_e5",
+    "kind": "dimension_annotation",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.54,
+      0.36,
+      0.6,
+      0.39
+     ],
+     "x": 540,
+     "y": 260,
+     "width": 60,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The text '4 cm' written near the segment OA indicating its measurement.",
+    "occluded": false,
+    "label": "4 cm",
+    "mapped": false
+   }
+  ],
+  "relationships": [
+   {
+    "id": "b_r1",
+    "kind": "center_of",
+    "relationship_type": "center_of",
+    "from_id": "b_e2",
+    "to_id": "b_e1",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The point O is visually positioned at the center of the circle.",
+    "mapped": true
+   },
+   {
+    "id": "b_r2",
+    "kind": "endpoint_of",
+    "relationship_type": "endpoint_of",
+    "from_id": "b_e2",
+    "to_id": "b_e4",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The segment starts at point O.",
+    "mapped": true
+   },
+   {
+    "id": "b_r3",
+    "kind": "endpoint_of",
+    "relationship_type": "endpoint_of",
+    "from_id": "b_e3",
+    "to_id": "b_e4",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The segment ends at point A.",
+    "mapped": true
+   },
+   {
+    "id": "b_r4",
+    "kind": "point_on",
+    "relationship_type": "point_on_circle",
+    "from_id": "b_e3",
+    "to_id": "b_e1",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Point A lies on the boundary of the circle.",
+    "mapped": true
+   },
+   {
+    "id": "b_r5",
+    "kind": "dimension_of",
+    "relationship_type": null,
+    "from_id": "b_e5",
+    "to_id": "b_e4",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The text '4 cm' represents the length of the segment OA.",
+    "mapped": false
+   }
+  ],
+  "diagram_relations": [
+   {
+    "id": "b_d1",
+    "kind": "has_dimension_annotations",
+    "subject_ids": [
+     "b_circle_1",
+     "b_segment_OA",
+     "b_dim_4cm"
+    ],
+    "statement": "The diagram contains a circle with a labeled radius segment OA of length 4 cm.",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The diagram shows a single circle with center O, a point A on the boundary, and a radius segment OA."
+   }
+  ],
+  "text_items": [
+   {
+    "id": "b_t1",
+    "text": "O",
+    "role": "vertex_label",
+    "region": {
+     "norm": [
+      0.46,
+      0.5,
+      0.49,
+      0.53
+     ],
+     "x": 460,
+     "y": 400,
+     "width": 30,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The letter O is printed near the center dot."
+   },
+   {
+    "id": "b_t2",
+    "text": "A",
+    "role": "vertex_label",
+    "region": {
+     "norm": [
+      0.66,
+      0.28,
+      0.69,
+      0.31
+     ],
+     "x": 660,
+     "y": 180,
+     "width": 30,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The letter A is printed near the boundary intersection."
+   },
+   {
+    "id": "b_t3",
+    "text": "4 cm",
+    "role": "measurement",
+    "region": {
+     "norm": [
+      0.54,
+      0.36,
+      0.6,
+      0.39
+     ],
+     "x": 540,
+     "y": 260,
+     "width": 60,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The text '4 cm' is printed near the segment."
+   }
+  ],
+  "uncertainties": [],
+  "image_readable": true,
+  "image_quality_issues": [],
+  "truncated": false,
+  "finish_reason": "stop",
+  "usage": {
+   "prompt_tokens": 3024,
+   "completion_tokens": 6788,
+   "total_tokens": 9812,
+   "reasoning_tokens": 4328,
+   "cost": 0.0
+  },
+  "validation_warnings": [
+   "diagram relation d1 references unknown entity circle_1",
+   "diagram relation d1 references unknown entity segment_OA",
+   "diagram relation d1 references unknown entity dim_4cm"
+  ]
+ },
+ "resolved_model": "dots-studio/dots-3-note-preview:free",
+ "truncated": false,
+ "usage": {
+  "prompt_tokens": 3024,
+  "completion_tokens": 6788,
+  "total_tokens": 9812,
+  "reasoning_tokens": 4328,
+  "cost": 0.0
+ },
+ "latency_ms": 67821.2
+}

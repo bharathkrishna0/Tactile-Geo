@@ -1,0 +1,1046 @@
+{
+ "image_id": "math_094",
+ "difficulty": "adversarial",
+ "category": "F_shapes_polygons",
+ "layout": "figure",
+ "conditions": [
+  "faded"
+ ],
+ "content_stressors": [
+  "thin_strokes"
+ ],
+ "timings_ms": {
+  "preprocessing": 65.3,
+  "vectorization": 6.2,
+  "ocr": 31588.4,
+  "labels_braille": 34.8,
+  "preview_svg": 0.0,
+  "semantic_analysis": 0.5,
+  "simplification": 0.1,
+  "tactile_qa": 3.0,
+  "tactile_svg": 0.2,
+  "total": 31707.9
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 19.21,
+   "gt_counted": 2,
+   "gt_essential": 2,
+   "predicted": 4,
+   "strict": {
+    "tp": 2,
+    "fp": 2,
+    "fn": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1": 0.6667
+   },
+   "structural": {
+    "tp": 2,
+    "fp": 2,
+    "fn": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1": 0.6667
+   },
+   "essential_found_strict": 2,
+   "essential_found_structural": 2,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {
+    "on_text": 2
+   },
+   "per_gt_type": {
+    "triangle": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "polygon": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "circle": {
+     "predicted": 2,
+     "true_positive": 1
+    },
+    "polygon": {
+     "predicted": 1,
+     "true_positive": 0
+    },
+    "triangle": {
+     "predicted": 1,
+     "true_positive": 1
+    }
+   },
+   "type_correct": 1,
+   "type_total": 2,
+   "type_confusion": {
+    "triangle->triangle": 1,
+    "polygon->circle": 1
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.6016662279547177,
+     5.171184365885743
+    ],
+    "endpoint_px": [],
+    "angle_deg": [],
+    "length_rel": [],
+    "polygon_iou": [
+     0.9913400182315406
+    ],
+    "vertex_count_match": [
+     1.0
+    ],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": []
+  },
+  "objects_final": {
+   "tau_px": 19.21,
+   "gt_counted": 2,
+   "gt_essential": 2,
+   "predicted": 2,
+   "strict": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+   },
+   "structural": {
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+   },
+   "essential_found_strict": 2,
+   "essential_found_structural": 2,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {},
+   "per_gt_type": {
+    "triangle": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "polygon": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "circle": {
+     "predicted": 1,
+     "true_positive": 1
+    },
+    "triangle": {
+     "predicted": 1,
+     "true_positive": 1
+    }
+   },
+   "type_correct": 1,
+   "type_total": 2,
+   "type_confusion": {
+    "triangle->triangle": 1,
+    "polygon->circle": 1
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.6016662279547177,
+     5.171184365885743
+    ],
+    "endpoint_px": [],
+    "angle_deg": [],
+    "length_rel": [],
+    "polygon_iou": [
+     0.9913400182315406
+    ],
+    "vertex_count_match": [
+     1.0
+    ],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": []
+  },
+  "points": {
+   "gt": 6,
+   "found": 1,
+   "recall": 0.1667,
+   "error_px": [
+    14.493088007736665
+   ]
+  },
+  "labels": {
+   "gt_essential": 7,
+   "predicted": 5,
+   "detected": 5,
+   "detection_recall": 0.7143,
+   "detection_precision": 1.0,
+   "char_errors": 2,
+   "chars": 14,
+   "cer": 0.1429,
+   "cer_detected_only": 0.0,
+   "word_errors": 2,
+   "words": 7,
+   "wer": 0.2857,
+   "exact_match": 5,
+   "exact_match_normalized": 5,
+   "quantitative_labels": 0,
+   "quantitative_preserved": 0,
+   "association_total": 5,
+   "association_correct": 0,
+   "braille_total": 5,
+   "braille_exact": 5,
+   "braille_consistent": 5,
+   "braille_cell_errors": 0,
+   "braille_cells": 20,
+   "reading_order_pairs": 10,
+   "reading_order_concordant": 10,
+   "per_label": [
+    {
+     "id": "label_1",
+     "gt": "triangle",
+     "pred": "triangle",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_2",
+     "gt": "M",
+     "pred": "M",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_3",
+     "gt": "N",
+     "pred": "N",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_4",
+     "gt": "O",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_5",
+     "gt": "P",
+     "pred": "P",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_6",
+     "gt": "Q",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_7",
+     "gt": "R",
+     "pred": "R",
+     "detected": true,
+     "char_errors": 0
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 0,
+   "gt_unsupported": {
+    "LABELS": 7,
+    "VERTEX_OF": 6
+   },
+   "found": 0,
+   "recall": null,
+   "predicted_supported_type": 0,
+   "predicted_mappable": 0,
+   "predicted_mappable_correct": 0,
+   "precision_lower_bound": null,
+   "by_type": {}
+  },
+  "relationships_final": {
+   "gt_supported": 0,
+   "gt_unsupported": {
+    "LABELS": 7,
+    "VERTEX_OF": 6
+   },
+   "found": 0,
+   "recall": null,
+   "predicted_supported_type": 0,
+   "predicted_mappable": 0,
+   "predicted_mappable_correct": 0,
+   "precision_lower_bound": null,
+   "by_type": {}
+  },
+  "simplification": {
+   "actions": {
+    "simplified_contour": 1,
+    "removed_below_tactile_size": 2
+   },
+   "removed": 2,
+   "merged": 0,
+   "modified": 1,
+   "newly_inferred": 0,
+   "gt_found_before": 2,
+   "gt_found_after": 2,
+   "essential_lost_ids": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 0
+  },
+  "qa": {
+   "passes": true,
+   "score": 99,
+   "issues": {
+    "isolated_element": 1
+   },
+   "blocking": []
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 7,
+    "circle": 52,
+    "polygon": 1,
+    "title": 5
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 2,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 65.3,
+   "vectorization": 6.2,
+   "ocr": 31588.4,
+   "labels_braille": 34.8,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.5,
+   "simplification": 0.1,
+   "tactile_qa": 3.0,
+   "tactile_svg": 0.2,
+   "total": 31707.9
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "brightness",
+     "severity": "warning",
+     "message": "Image is very bright. Some details may be washed out.",
+     "value": 254.6,
+     "threshold": 225.0
+    },
+    {
+     "check": "contrast",
+     "severity": "warning",
+     "message": "Image has low contrast. Diagram lines may be hard to distinguish.",
+     "value": 6.3,
+     "threshold": 25.0
+    },
+    {
+     "check": "noise",
+     "severity": "warning",
+     "message": "Image appears noisy. Results may contain artifacts.",
+     "value": 30.58,
+     "threshold": 30.0
+    },
+    {
+     "check": "skew",
+     "severity": "warning",
+     "message": "Image is rotated approximately 29.8 degrees.",
+     "value": 29.8,
+     "threshold": 5.0
+    }
+   ],
+   "image_width": 1000,
+   "image_height": 800
+  },
+  "raw_shapes": 4,
+  "ocr_labels": [
+   {
+    "text": "M",
+    "bbox": [
+     [
+      688,
+      214
+     ],
+     [
+      714,
+      214
+     ],
+     [
+      714,
+      236
+     ],
+     [
+      688,
+      236
+     ]
+    ],
+    "confidence": 0.999,
+    "braille": "\u2830\u2820\u280d",
+    "reading_order": 1
+   },
+   {
+    "text": "R",
+    "bbox": [
+     [
+      538,
+      302
+     ],
+     [
+      558,
+      302
+     ],
+     [
+      558,
+      324
+     ],
+     [
+      538,
+      324
+     ]
+    ],
+    "confidence": 0.407,
+    "braille": "\u2830\u2820\u2817",
+    "reading_order": 2
+   },
+   {
+    "text": "N",
+    "bbox": [
+     [
+      842,
+      302
+     ],
+     [
+      862,
+      302
+     ],
+     [
+      862,
+      326
+     ],
+     [
+      842,
+      326
+     ]
+    ],
+    "confidence": 0.999,
+    "braille": "\u2830\u2820\u281d",
+    "reading_order": 3
+   },
+   {
+    "text": "P",
+    "bbox": [
+     [
+      690,
+      566
+     ],
+     [
+      708,
+      566
+     ],
+     [
+      708,
+      586
+     ],
+     [
+      690,
+      586
+     ]
+    ],
+    "confidence": 0.982,
+    "braille": "\u2830\u2820\u280f",
+    "reading_order": 4
+   },
+   {
+    "text": "triangle",
+    "bbox": [
+     [
+      254,
+      576
+     ],
+     [
+      346,
+      576
+     ],
+     [
+      346,
+      606
+     ],
+     [
+      254,
+      606
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811",
+    "reading_order": 5
+   }
+  ],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       852,
+       489
+      ],
+      "radius": 7.72
+     },
+     "bbox": [
+      843,
+      480,
+      16,
+      15
+     ],
+     "confidence": 0.5,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_1",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        547,
+        480
+       ],
+       [
+        543,
+        483
+       ],
+       [
+        541,
+        490
+       ],
+       [
+        545,
+        495
+       ],
+       [
+        547,
+        495
+       ],
+       [
+        551,
+        499
+       ],
+       [
+        554,
+        499
+       ],
+       [
+        553,
+        499
+       ],
+       [
+        550,
+        495
+       ],
+       [
+        555,
+        492
+       ],
+       [
+        557,
+        485
+       ],
+       [
+        553,
+        480
+       ]
+      ],
+      "area": 190.5
+     },
+     "bbox": [
+      541,
+      480,
+      16,
+      19
+     ],
+     "confidence": 0.5,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_2",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       700,
+       400
+      ],
+      "radius": 138.16
+     },
+     "bbox": [
+      568,
+      248,
+      263,
+      304
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_4"
+    },
+    {
+     "id": "el_3",
+     "type": "triangle",
+     "geometry": {
+      "points": [
+       [
+        300,
+        248
+       ],
+       [
+        169,
+        476
+       ],
+       [
+        430,
+        476
+       ]
+      ],
+      "area": 29754.0
+     },
+     "bbox": [
+      169,
+      248,
+      261,
+      228
+     ],
+     "confidence": 0.77,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "text_label",
+     "geometry": {
+      "text": "M",
+      "braille": "\u2830\u2820\u280d",
+      "position": [
+       701,
+       217
+      ]
+     },
+     "bbox": [
+      688,
+      214,
+      26,
+      22
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "M",
+     "braille": "\u2830\u2820\u280d",
+     "associated_element_id": "el_2",
+     "reading_order": 1
+    },
+    {
+     "id": "el_5",
+     "type": "text_label",
+     "geometry": {
+      "text": "R",
+      "braille": "\u2830\u2820\u2817",
+      "position": [
+       524,
+       289
+      ]
+     },
+     "bbox": [
+      538,
+      302,
+      20,
+      22
+     ],
+     "confidence": 0.407,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "R",
+     "braille": "\u2830\u2820\u2817",
+     "associated_element_id": "el_2",
+     "reading_order": 2
+    },
+    {
+     "id": "el_6",
+     "type": "text_label",
+     "geometry": {
+      "text": "N",
+      "braille": "\u2830\u2820\u281d",
+      "position": [
+       876,
+       290
+      ]
+     },
+     "bbox": [
+      842,
+      302,
+      20,
+      24
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "N",
+     "braille": "\u2830\u2820\u281d",
+     "associated_element_id": "el_2",
+     "reading_order": 3
+    },
+    {
+     "id": "el_7",
+     "type": "text_label",
+     "geometry": {
+      "text": "P",
+      "braille": "\u2830\u2820\u280f",
+      "position": [
+       707,
+       584
+      ]
+     },
+     "bbox": [
+      690,
+      566,
+      18,
+      20
+     ],
+     "confidence": 0.982,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "P",
+     "braille": "\u2830\u2820\u280f",
+     "associated_element_id": "el_2",
+     "reading_order": 4
+    },
+    {
+     "id": "el_8",
+     "type": "text_label",
+     "geometry": {
+      "text": "triangle",
+      "braille": "\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811",
+      "position": [
+       300,
+       591
+      ]
+     },
+     "bbox": [
+      254,
+      576,
+      92,
+      30
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "triangle",
+     "braille": "\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811",
+     "associated_element_id": null,
+     "reading_order": 5
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_0_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_2_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_2"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "review_flags": [
+    "Low-confidence text_label detected \u2014 may be noise. Review before export."
+   ]
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_2",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       700,
+       400
+      ],
+      "radius": 138.16
+     },
+     "bbox": [
+      568,
+      248,
+      263,
+      304
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_4"
+    },
+    {
+     "id": "el_3",
+     "type": "triangle",
+     "geometry": {
+      "points": [
+       [
+        300,
+        248
+       ],
+       [
+        169,
+        476
+       ],
+       [
+        430,
+        476
+       ]
+      ],
+      "area": 29754.0
+     },
+     "bbox": [
+      169,
+      248,
+      261,
+      228
+     ],
+     "confidence": 0.77,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "text_label",
+     "geometry": {
+      "text": "M",
+      "braille": "\u2830\u2820\u280d",
+      "position": [
+       701,
+       217
+      ]
+     },
+     "bbox": [
+      688,
+      214,
+      26,
+      22
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "M",
+     "braille": "\u2830\u2820\u280d",
+     "associated_element_id": "el_2",
+     "reading_order": 1
+    },
+    {
+     "id": "el_5",
+     "type": "text_label",
+     "geometry": {
+      "text": "R",
+      "braille": "\u2830\u2820\u2817",
+      "position": [
+       524,
+       289
+      ]
+     },
+     "bbox": [
+      538,
+      302,
+      20,
+      22
+     ],
+     "confidence": 0.407,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "R",
+     "braille": "\u2830\u2820\u2817",
+     "associated_element_id": "el_2",
+     "reading_order": 2
+    },
+    {
+     "id": "el_6",
+     "type": "text_label",
+     "geometry": {
+      "text": "N",
+      "braille": "\u2830\u2820\u281d",
+      "position": [
+       876,
+       290
+      ]
+     },
+     "bbox": [
+      842,
+      302,
+      20,
+      24
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "N",
+     "braille": "\u2830\u2820\u281d",
+     "associated_element_id": "el_2",
+     "reading_order": 3
+    },
+    {
+     "id": "el_7",
+     "type": "text_label",
+     "geometry": {
+      "text": "P",
+      "braille": "\u2830\u2820\u280f",
+      "position": [
+       707,
+       584
+      ]
+     },
+     "bbox": [
+      690,
+      566,
+      18,
+      20
+     ],
+     "confidence": 0.982,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "P",
+     "braille": "\u2830\u2820\u280f",
+     "associated_element_id": "el_2",
+     "reading_order": 4
+    },
+    {
+     "id": "el_8",
+     "type": "text_label",
+     "geometry": {
+      "text": "triangle",
+      "braille": "\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811",
+      "position": [
+       300,
+       591
+      ]
+     },
+     "bbox": [
+      254,
+      576,
+      92,
+      30
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "triangle",
+     "braille": "\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811",
+     "associated_element_id": null,
+     "reading_order": 5
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_2_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_2"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "actions": [
+    {
+     "element_id": "el_1",
+     "action": "simplified_contour",
+     "detail": "Removed 9 redundant collinear vertices."
+    },
+    {
+     "element_id": "el_0",
+     "action": "removed_below_tactile_size",
+     "detail": "Unlabelled feature is 3.6mm on the printed sheet, below the 5mm touch minimum."
+    },
+    {
+     "element_id": "el_1",
+     "action": "removed_below_tactile_size",
+     "detail": "Unlabelled feature is 2.3mm on the printed sheet, below the 5mm touch minimum."
+    }
+   ],
+   "removed_count": 2,
+   "merged_count": 0
+  },
+  "qa": {
+   "passes": true,
+   "score_0_100": 99,
+   "issues": [
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "1 feature(s) have no label (el_3); consider adding labels for the learner.",
+     "element_id": "el_3"
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-143.55 -55.04 1287.11 910.08\" width=\"297mm\" height=\"210mm\" data-mm-per-px=\"0.23075\" role=\"img\" aria-label=\"Tactile representation of 2 geometry features and 5 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:3.058; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-143.55\" y=\"-55.04\" width=\"1287.11\" height=\"910.08\" fill=\"white\"/><g class=\"stroke\"><circle data-element-id=\"el_2\" cx=\"700.0\" cy=\"400.0\" r=\"138.2\"/><polygon data-element-id=\"el_3\" points=\"300.0,248.0 169.0,476.0 430.0,476.0\"/></g><g class=\"tactile-braille\"><g data-element-id=\"el_4\" class=\"braille\" role=\"img\" aria-label=\"M\" data-braille=\"\u2830\u2820\u280d\"><title>M</title><circle cx=\"680.4\" cy=\"217.0\" r=\"3.25\"/><circle cx=\"680.4\" cy=\"227.8\" r=\"3.25\"/><circle cx=\"706.4\" cy=\"227.8\" r=\"3.25\"/><circle cx=\"721.6\" cy=\"206.2\" r=\"3.25\"/><circle cx=\"721.6\" cy=\"227.8\" r=\"3.25\"/><circle cx=\"732.4\" cy=\"206.2\" r=\"3.25\"/></g><g data-element-id=\"el_5\" class=\"braille\" role=\"img\" aria-label=\"R\" data-braille=\"\u2830\u2820\u2817\"><title>R</title><circle cx=\"503.4\" cy=\"289.0\" r=\"3.25\"/><circle cx=\"503.4\" cy=\"299.8\" r=\"3.25\"/><circle cx=\"529.4\" cy=\"299.8\" r=\"3.25\"/><circle cx=\"544.6\" cy=\"278.2\" r=\"3.25\"/><circle cx=\"544.6\" cy=\"289.0\" r=\"3.25\"/><circle cx=\"544.6\" cy=\"299.8\" r=\"3.25\"/><circle cx=\"555.4\" cy=\"289.0\" r=\"3.25\"/></g><g data-element-id=\"el_6\" class=\"braille\" role=\"img\" aria-label=\"N\" data-braille=\"\u2830\u2820\u281d\"><title>N</title><circle cx=\"855.4\" cy=\"290.0\" r=\"3.25\"/><circle cx=\"855.4\" cy=\"300.8\" r=\"3.25\"/><circle cx=\"881.4\" cy=\"300.8\" r=\"3.25\"/><circle cx=\"896.6\" cy=\"279.2\" r=\"3.25\"/><circle cx=\"896.6\" cy=\"300.8\" r=\"3.25\"/><circle cx=\"907.4\" cy=\"279.2\" r=\"3.25\"/><circle cx=\"907.4\" cy=\"290.0\" r=\"3.25\"/></g><g data-element-id=\"el_7\" class=\"braille\" role=\"img\" aria-label=\"P\" data-braille=\"\u2830\u2820\u280f\"><title>P</title><circle cx=\"686.4\" cy=\"584.0\" r=\"3.25\"/><circle cx=\"686.4\" cy=\"594.8\" r=\"3.25\"/><circle cx=\"712.4\" cy=\"594.8\" r=\"3.25\"/><circle cx=\"727.6\" cy=\"573.2\" r=\"3.25\"/><circle cx=\"727.6\" cy=\"584.0\" r=\"3.25\"/><circle cx=\"727.6\" cy=\"594.8\" r=\"3.25\"/><circle cx=\"738.4\" cy=\"573.2\" r=\"3.25\"/></g><g data-element-id=\"el_8\" class=\"braille\" role=\"img\" aria-label=\"triangle\" data-braille=\"\u281e\u2817\u280a\u2801\u281d\u281b\u2807\u2811\"><title>triangle</title><circle cx=\"203.6\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"203.6\" cy=\"601.8\" r=\"3.25\"/><circle cx=\"214.4\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"214.4\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"229.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"229.6\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"229.6\" cy=\"601.8\" r=\"3.25\"/><circle cx=\"240.4\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"255.6\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"266.4\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"281.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"307.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"307.6\" cy=\"601.8\" r=\"3.25\"/><circle cx=\"318.4\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"318.4\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"333.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"333.6\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"344.4\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"344.4\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"359.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"359.6\" cy=\"591.0\" r=\"3.25\"/><circle cx=\"359.6\" cy=\"601.8\" r=\"3.25\"/><circle cx=\"385.6\" cy=\"580.2\" r=\"3.25\"/><circle cx=\"396.4\" cy=\"591.0\" r=\"3.25\"/></g></g></svg>",
+  "timings_ms": {
+   "preprocessing": 65.3,
+   "vectorization": 6.2,
+   "ocr": 31588.4,
+   "labels_braille": 34.8,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.5,
+   "simplification": 0.1,
+   "tactile_qa": 3.0,
+   "tactile_svg": 0.2,
+   "total": 31707.9
+  }
+ }
+}

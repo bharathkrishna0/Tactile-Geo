@@ -190,7 +190,7 @@ def coordinate_figure(s: Scene, box: Box, rng, level: int, fs: int) -> str:
 def measurement_figure(s: Scene, box: Box, rng, level: int, fs: int) -> str:
     """E: shapes with dimension lines and measured lengths."""
     x0, y0, x1, y1 = _frame(box, 0.18)
-    w, h = x1 - x0, y1 - y0
+    w = x1 - x0
     unit = str(rng.choice(["cm", "m", "mm"]))
     a, b = int(rng.integers(3, 15)), int(rng.integers(2, 10))
     if level >= 2 and rng.integers(0, 2):

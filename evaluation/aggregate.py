@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from .metrics import percentiles, prf, ratio
+from .metrics import normalize_text, percentiles, prf, ratio
 
 GEOMETRY_KEYS = ("chamfer_px", "endpoint_px", "angle_deg", "length_rel", "polygon_iou", "vertex_count_match",
                  "circle_center_px", "circle_radius_rel")
@@ -88,6 +88,8 @@ def summarize(rows: list[dict]) -> dict:
         "label_detection_recall": ratio(_sum(lab, "detected"), _sum(lab, "gt_essential")),
         "label_detection_precision": ratio(sum((l["detection_precision"] or 0) * l["predicted"] for l in lab), _sum(lab, "predicted")),
         "cer": ratio(_sum(lab, "char_errors"), _sum(lab, "chars")),
+        "cer_detected_only": ratio(sum(pl["char_errors"] for l in lab for pl in l["per_label"] if pl["detected"]),
+                                   sum(len(normalize_text(pl["gt"])) for l in lab for pl in l["per_label"] if pl["detected"])),
         "wer": ratio(_sum(lab, "word_errors"), _sum(lab, "words")),
         "exact_match_rate_detected": ratio(_sum(lab, "exact_match"), _sum(lab, "detected")),
         "exact_match_rate_normalized_detected": ratio(_sum(lab, "exact_match_normalized"), _sum(lab, "detected")),

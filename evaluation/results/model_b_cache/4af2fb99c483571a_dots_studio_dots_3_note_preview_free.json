@@ -1,0 +1,312 @@
+{
+ "status": "ok",
+ "result": {
+  "schema_version": "model_b.diag.v1",
+  "diagram_kind": "coordinate_plane",
+  "diagram_description": "A clean coordinate plane showing a single straight line segment plotted on a grid with x and y axes. The line is labeled with the equation y = 0.6x + 0.8. The axes have tick marks at odd integers 1, 3, 5, 7.",
+  "image_width": 1000,
+  "image_height": 800,
+  "prepared_width": 1000,
+  "prepared_height": 1000,
+  "provider": "openrouter",
+  "requested_model": "dots-studio/dots-3-note-preview:free",
+  "resolved_model": "dots-studio/dots-3-note-preview:free",
+  "upstream_provider": "AtlasCloud",
+  "request_id": "gen-1791061815-2rkJW9vC3ogcWuD1gdj8",
+  "entities": [
+   {
+    "id": "b_e1",
+    "kind": "axes",
+    "geometry_type": "axes",
+    "region": {
+     "norm": [
+      0.19,
+      0.18,
+      0.9,
+      0.75
+     ],
+     "x": 190,
+     "y": 80,
+     "width": 710,
+     "height": 570
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "Thick black horizontal and vertical lines with arrows represent the coordinate axes, surrounded by a light grey grid.",
+    "occluded": false,
+    "label": null,
+    "mapped": true
+   },
+   {
+    "id": "b_e2",
+    "kind": "line_segment",
+    "geometry_type": "line_segment",
+    "region": {
+     "norm": [
+      0.21,
+      0.36,
+      0.83,
+      0.68
+     ],
+     "x": 210,
+     "y": 260,
+     "width": 620,
+     "height": 320
+    },
+    "confidence": 0.7,
+    "confidence_level": "medium",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "A solid black line segment starts near the y-axis at height y=1 and extends upwards to the right, ending near x=7, y=5.",
+    "occluded": false,
+    "label": null,
+    "mapped": true
+   },
+   {
+    "id": "b_e3",
+    "kind": "unknown",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.55,
+      0.18,
+      0.75,
+      0.22
+     ],
+     "x": 550,
+     "y": 80,
+     "width": 200,
+     "height": 40
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The equation text is clearly printed in LaTeX-style font in the upper part of the grid.",
+    "occluded": false,
+    "label": "y = 0.6x + 0.8",
+    "mapped": false
+   },
+   {
+    "id": "b_e4",
+    "kind": "unknown",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.88,
+      0.75,
+      0.92,
+      0.79
+     ],
+     "x": 880,
+     "y": 650,
+     "width": 40,
+     "height": 40
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The letter 'x' is printed near the arrow head of the horizontal axis.",
+    "occluded": false,
+    "label": "x",
+    "mapped": false
+   },
+   {
+    "id": "b_e5",
+    "kind": "unknown",
+    "geometry_type": null,
+    "region": {
+     "norm": [
+      0.15,
+      0.16,
+      0.19,
+      0.19
+     ],
+     "x": 150,
+     "y": 60,
+     "width": 40,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The letter 'y' is printed near the arrow head of the vertical axis.",
+    "occluded": false,
+    "label": "y",
+    "mapped": false
+   }
+  ],
+  "relationships": [
+   {
+    "id": "b_r1",
+    "kind": "labels",
+    "relationship_type": "label_object",
+    "from_id": "b_e3",
+    "to_id": "b_e2",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The equation text 'y = 0.6x + 0.8' is positioned near the line segment and mathematically defines its slope and intercept.",
+    "mapped": true
+   },
+   {
+    "id": "b_r2",
+    "kind": "contains",
+    "relationship_type": null,
+    "from_id": "b_e1",
+    "to_id": "b_e2",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The line segment lies entirely within the grid area bounded by the x and y axes.",
+    "mapped": false
+   }
+  ],
+  "diagram_relations": [
+   {
+    "id": "b_d3",
+    "kind": "congruent_marking",
+    "subject_ids": [
+     "b_axes_coord",
+     "b_line_main"
+    ],
+    "statement": "coordinate_plane",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The image shows a coordinate grid with labeled horizontal x-axis and vertical y-axis, with a straight line segment plotted on it."
+   },
+   {
+    "id": "b_d4",
+    "kind": "has_axis_labels",
+    "subject_ids": [
+     "b_axes_coord"
+    ],
+    "statement": "axes have labels x and y with tick marks",
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "detection_kind": "observed",
+    "evidence": "The axes are labeled with variable letters 'x' and 'y', and numerical tick marks are present."
+   }
+  ],
+  "text_items": [
+   {
+    "id": "b_t1",
+    "text": "y = 0.6x + 0.8",
+    "role": "equation",
+    "region": {
+     "norm": [
+      0.55,
+      0.18,
+      0.75,
+      0.22
+     ],
+     "x": 550,
+     "y": 80,
+     "width": 200,
+     "height": 40
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The text 'y = 0.6x + 0.8' is clearly legible."
+   },
+   {
+    "id": "b_t2",
+    "text": "x",
+    "role": "axis_label",
+    "region": {
+     "norm": [
+      0.88,
+      0.75,
+      0.92,
+      0.79
+     ],
+     "x": 880,
+     "y": 650,
+     "width": 40,
+     "height": 40
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The label 'x' is clearly legible at the bottom right."
+   },
+   {
+    "id": "b_t3",
+    "text": "y",
+    "role": "axis_label",
+    "region": {
+     "norm": [
+      0.15,
+      0.16,
+      0.19,
+      0.19
+     ],
+     "x": 150,
+     "y": 60,
+     "width": 40,
+     "height": 30
+    },
+    "confidence": 0.9,
+    "confidence_level": "high",
+    "needs_review": false,
+    "evidence": "The label 'y' is clearly legible at the top left."
+   }
+  ],
+  "uncertainties": [
+   {
+    "id": "b_u1",
+    "subject_ids": [
+     "b_e2"
+    ],
+    "kind": "possible_second_interpretation",
+    "note": "The exact start and end coordinates of the line segment are not marked with explicit dots, but visually start near (0.2, 1) and end near (6.8, 5).",
+    "severity": "informational"
+   },
+   {
+    "id": "b_u2",
+    "subject_ids": [
+     "b_e1"
+    ],
+    "kind": "ambiguous_symbol",
+    "note": "The grid lines are spaced differently on the x-axis (~95 pixels per unit) compared to the y-axis (~75 pixels per unit), which might imply non-uniform scaling, but no explicit scale indicators are present.",
+    "severity": "informational"
+   }
+  ],
+  "image_readable": true,
+  "image_quality_issues": [],
+  "truncated": false,
+  "finish_reason": "stop",
+  "usage": {
+   "prompt_tokens": 3024,
+   "completion_tokens": 7873,
+   "total_tokens": 10897,
+   "reasoning_tokens": 5365,
+   "cost": 0.0
+  },
+  "validation_warnings": [
+   "diagram relation d3 references unknown entity axes_coord",
+   "diagram relation d3 references unknown entity line_main",
+   "diagram relation d4 references unknown entity axes_coord"
+  ]
+ },
+ "resolved_model": "dots-studio/dots-3-note-preview:free",
+ "truncated": false,
+ "usage": {
+  "prompt_tokens": 3024,
+  "completion_tokens": 7873,
+  "total_tokens": 10897,
+  "reasoning_tokens": 5365,
+  "cost": 0.0
+ },
+ "latency_ms": 82779.7
+}

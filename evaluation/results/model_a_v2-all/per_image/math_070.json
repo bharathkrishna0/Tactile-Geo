@@ -1,0 +1,691 @@
+{
+ "image_id": "math_070",
+ "difficulty": "very_hard",
+ "category": "G_angles",
+ "layout": "figure",
+ "conditions": [
+  "photographed",
+  "blur"
+ ],
+ "content_stressors": [
+  "small_text"
+ ],
+ "timings_ms": {
+  "preprocessing": 131.8,
+  "vectorization": 8.0,
+  "ocr": 12411.9,
+  "labels_braille": 0.1,
+  "preview_svg": 0.0,
+  "semantic_analysis": 0.4,
+  "simplification": 0.2,
+  "tactile_qa": 0.2,
+  "tactile_svg": 0.2,
+  "total": 12558.7
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 4,
+   "strict": {
+    "tp": 3,
+    "fp": 1,
+    "fn": 0,
+    "precision": 0.75,
+    "recall": 1.0,
+    "f1": 0.8571
+   },
+   "structural": {
+    "tp": 3,
+    "fp": 1,
+    "fn": 0,
+    "precision": 0.75,
+    "recall": 1.0,
+    "f1": 0.8571
+   },
+   "essential_found_strict": 3,
+   "essential_found_structural": 3,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {
+    "on_text": 1
+   },
+   "per_gt_type": {
+    "line_segment": {
+     "gt": 3,
+     "found_strict": 3,
+     "found_structural": 3
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 3,
+     "true_positive": 3
+    },
+    "polygon": {
+     "predicted": 1,
+     "true_positive": 0
+    }
+   },
+   "type_correct": 3,
+   "type_total": 3,
+   "type_confusion": {
+    "line_segment->line_segment": 3
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     1.4133828158078874,
+     1.2708631809233641,
+     0.8197825585200424
+    ],
+    "endpoint_px": [
+     1.435245959746048,
+     1.7296417128861727,
+     0.8693144191450003
+    ],
+    "angle_deg": [
+     0.13825868960029197,
+     0.07656777002813442,
+     0.017640075337304495
+    ],
+    "length_rel": [
+     0.003042410030507491,
+     0.003029968526683926,
+     0.001854665154281898
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": []
+  },
+  "objects_final": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 3,
+   "strict": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+   },
+   "structural": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+   },
+   "essential_found_strict": 3,
+   "essential_found_structural": 3,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {},
+   "per_gt_type": {
+    "line_segment": {
+     "gt": 3,
+     "found_strict": 3,
+     "found_structural": 3
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 3,
+     "true_positive": 3
+    }
+   },
+   "type_correct": 3,
+   "type_total": 3,
+   "type_confusion": {
+    "line_segment->line_segment": 3
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     1.4133828158078874,
+     1.2708631809233641,
+     0.8197825585200424
+    ],
+    "endpoint_px": [
+     1.435245959746048,
+     1.7296417128861727,
+     0.8693144191450003
+    ],
+    "angle_deg": [
+     0.13825868960029197,
+     0.07656777002813442,
+     0.017640075337304495
+    ],
+    "length_rel": [
+     0.003042410030507491,
+     0.003029968526683926,
+     0.001854665154281898
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": []
+  },
+  "points": {
+   "gt": 2,
+   "found": 0,
+   "recall": 0.0,
+   "error_px": []
+  },
+  "labels": {
+   "gt_essential": 6,
+   "predicted": 0,
+   "detected": 0,
+   "detection_recall": 0.0,
+   "detection_precision": null,
+   "char_errors": 8,
+   "chars": 8,
+   "cer": 1.0,
+   "cer_detected_only": null,
+   "word_errors": 6,
+   "words": 6,
+   "wer": 1.0,
+   "exact_match": 0,
+   "exact_match_normalized": 0,
+   "quantitative_labels": 1,
+   "quantitative_preserved": 0,
+   "association_total": 0,
+   "association_correct": 0,
+   "braille_total": 0,
+   "braille_exact": 0,
+   "braille_consistent": 0,
+   "braille_cell_errors": 0,
+   "braille_cells": 0,
+   "reading_order_pairs": 0,
+   "reading_order_concordant": 0,
+   "per_label": [
+    {
+     "id": "label_1",
+     "gt": "l",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_2",
+     "gt": "m",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_3",
+     "gt": "t",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_4",
+     "gt": "54\u00b0",
+     "pred": "",
+     "detected": false,
+     "char_errors": 3
+    },
+    {
+     "id": "label_5",
+     "gt": "x",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_6",
+     "gt": "y",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 7,
+   "gt_unsupported": {
+    "LABELS": 6
+   },
+   "found": 1,
+   "recall": 0.1429,
+   "predicted_supported_type": 1,
+   "predicted_mappable": 1,
+   "predicted_mappable_correct": 1,
+   "precision_lower_bound": 1.0,
+   "by_type": {
+    "PARALLEL": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1
+    },
+    "INTERSECTS": {
+     "gt": 2,
+     "found": 0,
+     "predicted_mappable": 0
+    },
+    "ON": {
+     "gt": 4,
+     "found": 0,
+     "predicted_mappable": 0
+    }
+   }
+  },
+  "relationships_final": {
+   "gt_supported": 7,
+   "gt_unsupported": {
+    "LABELS": 6
+   },
+   "found": 1,
+   "recall": 0.1429,
+   "predicted_supported_type": 1,
+   "predicted_mappable": 1,
+   "predicted_mappable_correct": 1,
+   "precision_lower_bound": 1.0,
+   "by_type": {
+    "PARALLEL": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1
+    },
+    "INTERSECTS": {
+     "gt": 2,
+     "found": 0,
+     "predicted_mappable": 0
+    },
+    "ON": {
+     "gt": 4,
+     "found": 0,
+     "predicted_mappable": 0
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "simplified_contour": 1,
+    "removed_below_tactile_size": 1
+   },
+   "removed": 1,
+   "merged": 0,
+   "modified": 1,
+   "newly_inferred": 0,
+   "gt_found_before": 3,
+   "gt_found_after": 3,
+   "essential_lost_ids": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 0
+  },
+  "qa": {
+   "passes": true,
+   "score": 99,
+   "issues": {
+    "isolated_element": 1
+   },
+   "blocking": []
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 2,
+    "line": 3
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 3,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 131.8,
+   "vectorization": 8.0,
+   "ocr": 12411.9,
+   "labels_braille": 0.1,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.4,
+   "simplification": 0.2,
+   "tactile_qa": 0.2,
+   "tactile_svg": 0.2,
+   "total": 12558.7
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "contrast",
+     "severity": "warning",
+     "message": "Image has low contrast. Diagram lines may be hard to distinguish.",
+     "value": 21.8,
+     "threshold": 25.0
+    }
+   ],
+   "image_width": 1000,
+   "image_height": 800
+  },
+  "raw_shapes": 4,
+  "ocr_labels": [],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       878,
+       263
+      ],
+      "end": [
+       141,
+       264
+      ],
+      "length": 737.0
+     },
+     "bbox": [
+      141,
+      263,
+      737,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       885,
+       533
+      ],
+      "end": [
+       132,
+       544
+      ],
+      "length": 753.08
+     },
+     "bbox": [
+      132,
+      533,
+      753,
+      11
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       809,
+       688
+      ],
+      "end": [
+       374,
+       85
+      ],
+      "length": 743.53
+     },
+     "bbox": [
+      374,
+      85,
+      435,
+      603
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        903,
+        517
+       ],
+       [
+        902,
+        516
+       ],
+       [
+        899,
+        516
+       ],
+       [
+        898,
+        515
+       ],
+       [
+        897,
+        516
+       ],
+       [
+        891,
+        516
+       ],
+       [
+        890,
+        517
+       ],
+       [
+        890,
+        524
+       ],
+       [
+        891,
+        525
+       ],
+       [
+        895,
+        525
+       ],
+       [
+        896,
+        524
+       ],
+       [
+        898,
+        524
+       ],
+       [
+        899,
+        525
+       ],
+       [
+        903,
+        525
+       ]
+      ],
+      "area": 113.5
+     },
+     "bbox": [
+      890,
+      515,
+      13,
+      10
+     ],
+     "confidence": 0.5,
+     "source": "contour",
+     "associated_label_id": null
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "review_flags": []
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       878,
+       263
+      ],
+      "end": [
+       141,
+       264
+      ],
+      "length": 737.0
+     },
+     "bbox": [
+      141,
+      263,
+      737,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       885,
+       533
+      ],
+      "end": [
+       132,
+       544
+      ],
+      "length": 753.08
+     },
+     "bbox": [
+      132,
+      533,
+      753,
+      11
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       809,
+       688
+      ],
+      "end": [
+       374,
+       85
+      ],
+      "length": 743.53
+     },
+     "bbox": [
+      374,
+      85,
+      435,
+      603
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "actions": [
+    {
+     "element_id": "el_3",
+     "action": "simplified_contour",
+     "detail": "Removed 11 redundant collinear vertices."
+    },
+    {
+     "element_id": "el_3",
+     "action": "removed_below_tactile_size",
+     "detail": "Unlabelled feature is 1.8mm on the printed sheet, below the 5mm touch minimum."
+    }
+   ],
+   "removed_count": 1,
+   "merged_count": 0
+  },
+  "qa": {
+   "passes": true,
+   "score_0_100": 99,
+   "issues": [
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "3 feature(s) have no label (el_0, el_1, el_2); consider adding labels for the learner.",
+     "element_id": null
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-143.55 -55.04 1287.11 910.08\" width=\"297mm\" height=\"210mm\" data-mm-per-px=\"0.23075\" role=\"img\" aria-label=\"Tactile representation of 3 geometry features and 0 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:3.058; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-143.55\" y=\"-55.04\" width=\"1287.11\" height=\"910.08\" fill=\"white\"/><g class=\"stroke\"><line data-element-id=\"el_0\" x1=\"878.0\" y1=\"263.0\" x2=\"141.0\" y2=\"264.0\"/><line data-element-id=\"el_1\" x1=\"885.0\" y1=\"533.0\" x2=\"132.0\" y2=\"544.0\"/><line data-element-id=\"el_2\" x1=\"809.0\" y1=\"688.0\" x2=\"374.0\" y2=\"85.0\"/></g><g class=\"tactile-braille\"></g></svg>",
+  "timings_ms": {
+   "preprocessing": 131.8,
+   "vectorization": 8.0,
+   "ocr": 12411.9,
+   "labels_braille": 0.1,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.4,
+   "simplification": 0.2,
+   "tactile_qa": 0.2,
+   "tactile_svg": 0.2,
+   "total": 12558.7
+  }
+ }
+}
