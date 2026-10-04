@@ -1,0 +1,427 @@
+{
+  "version": 1,
+  "title": "Favourite Fruits pie chart",
+  "description": "Successful TactileGeo demonstration",
+  "is_precomputed_demo": true,
+  "provenance": {
+    "generator": "backend/scripts/build_template_demo.py",
+    "model_a": "Real Model A pipeline run (OpenCV + EasyOCR + Liblouis) at build time.",
+    "model_b": {
+      "model": "dots-studio/dots-3-note-preview:free",
+      "provider": "openrouter",
+      "elapsed_s": 75.0,
+      "note": "Recorded from one live OpenRouter call and replayed; Template mode makes no call."
+    },
+    "teacher": "Demo decisions: accept findings that strongly match a Model A element without contradicting it."
+  },
+  "image": {
+    "width": 1200,
+    "height": 900
+  },
+  "model_a": {
+    "element_count": 60,
+    "by_type": {
+      "line_segment": 35,
+      "point": 9,
+      "angle": 8,
+      "text_label": 4,
+      "rectangle": 3,
+      "circle": 1
+    },
+    "relationship_count": 327,
+    "relationships_by_type": {
+      "parallel_lines": 219,
+      "intersects": 28,
+      "point_on_line": 20,
+      "perpendicular_lines": 19,
+      "endpoint_of": 19,
+      "connected_lines": 13,
+      "angle_between": 7,
+      "circle_center": 1,
+      "point_on_circle": 1
+    },
+    "labels": [
+      {
+        "id": "el_56",
+        "text": "Favourite Fruits"
+      },
+      {
+        "id": "el_57",
+        "text": "Apple"
+      },
+      {
+        "id": "el_58",
+        "text": "Mango"
+      },
+      {
+        "id": "el_59",
+        "text": "Banana"
+      }
+    ],
+    "review_flags": 7
+  },
+  "model_b": {
+    "diagram_kind": "not_a_geometry_diagram",
+    "description": "The image is a statistical pie chart titled 'Favourite Fruits', showing three sectors representing Apple (plain white), Mango (striped), and Banana (dotted), with a corresponding legend on the right. Geometrically, it consists of a circle divided into three sectors by a vertical line segment and a tilted line segment, alongside a rectangular legend box containing three smaller rectangular pattern swatches and text labels. It is a statistical chart rather than a pure geometric diagram, but contains basic geometric entities like circles, line segments, and rectangles.",
+    "entities": [
+      {
+        "id": "b_e1",
+        "kind": "circle",
+        "confidence_level": "high",
+        "evidence": "A large black circle outline defining the boundary of the pie chart."
+      },
+      {
+        "id": "b_e2",
+        "kind": "line_segment",
+        "confidence_level": "high",
+        "evidence": "A straight vertical line segment starting from the top edge of the circle, passing through the center, and ending at the bottom edge."
+      },
+      {
+        "id": "b_e3",
+        "kind": "line_segment",
+        "confidence_level": "high",
+        "evidence": "A straight tilted line segment starting from the center of the circle and ending on the left boundary, dividing the dotted and striped sectors."
+      },
+      {
+        "id": "b_e4",
+        "kind": "rectangle",
+        "confidence_level": "high",
+        "evidence": "A large black rectangular border enclosing the legend items."
+      },
+      {
+        "id": "b_e5",
+        "kind": "rectangle",
+        "confidence_level": "high",
+        "evidence": "A small plain white rectangle representing the 'Apple' sector pattern."
+      },
+      {
+        "id": "b_e6",
+        "kind": "rectangle",
+        "confidence_level": "high",
+        "evidence": "A small rectangle filled with diagonal stripes representing the 'Mango' sector pattern."
+      },
+      {
+        "id": "b_e7",
+        "kind": "rectangle",
+        "confidence_level": "high",
+        "evidence": "A small rectangle filled with a dotted pattern representing the 'Banana' sector pattern."
+      },
+      {
+        "id": "b_e8",
+        "kind": "unknown",
+        "confidence_level": "high",
+        "evidence": "The title text 'Favourite Fruits' centered at the top of the image."
+      },
+      {
+        "id": "b_e9",
+        "kind": "unknown",
+        "confidence_level": "high",
+        "evidence": "The text label 'Apple' next to the plain white rectangle symbol in the legend."
+      },
+      {
+        "id": "b_e10",
+        "kind": "unknown",
+        "confidence_level": "high",
+        "evidence": "The text label 'Mango' next to the striped rectangle symbol in the legend."
+      },
+      {
+        "id": "b_e11",
+        "kind": "unknown",
+        "confidence_level": "high",
+        "evidence": "The text label 'Banana' next to the dotted rectangle symbol in the legend."
+      }
+    ],
+    "text_items": [
+      {
+        "text": "Favourite Fruits",
+        "role": "caption"
+      },
+      {
+        "text": "Apple",
+        "role": "legend"
+      },
+      {
+        "text": "Mango",
+        "role": "legend"
+      },
+      {
+        "text": "Banana",
+        "role": "legend"
+      }
+    ],
+    "relationships": [
+      {
+        "kind": "intersects",
+        "from_id": "b_e2",
+        "to_id": "b_e3",
+        "evidence": "The vertical line segment (e2) and the tilted line segment (e3) meet at the center of the pie chart circle (e1)."
+      },
+      {
+        "kind": "endpoint_of",
+        "from_id": "b_e2",
+        "to_id": "b_e1",
+        "evidence": "The vertical line segment (e2) divides the circle (e1) into two halves, representing the boundary of the Apple sector."
+      },
+      {
+        "kind": "endpoint_of",
+        "from_id": "b_e3",
+        "to_id": "b_e1",
+        "evidence": "The tilted line segment (e3) divides the left half of the circle (e1) into the Banana and Mango sectors."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e5",
+        "to_id": "b_e1",
+        "evidence": "The plain white sector corresponds to the plain white rectangle symbol (e5) labeled 'Apple' (e9)."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e6",
+        "to_id": "b_e1",
+        "evidence": "The striped sector corresponds to the striped rectangle symbol (e6) labeled 'Mango' (e10)."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e7",
+        "to_id": "b_e1",
+        "evidence": "The dotted sector corresponds to the dotted rectangle symbol (e7) labeled 'Banana' (e11)."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e9",
+        "to_id": "b_e5",
+        "evidence": "The text label 'Apple' (e9) is placed adjacent to the plain white rectangle symbol (e5) inside the legend box (e4)."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e10",
+        "to_id": "b_e6",
+        "evidence": "The text label 'Mango' (e10) is placed adjacent to the striped rectangle symbol (e6) inside the legend box (e4)."
+      },
+      {
+        "kind": "labels",
+        "from_id": "b_e11",
+        "to_id": "b_e7",
+        "evidence": "The text label 'Banana' (e11) is placed adjacent to the dotted rectangle symbol (e7) inside the legend box (e4)."
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "ambiguous_symbol",
+        "severity": "informational",
+        "note": "The exact sector angles are not numerically labeled, so the visual proportions are approximate and represent the relative sizes of the fruits but have no written values."
+      },
+      {
+        "kind": "possible_second_interpretation",
+        "severity": "informational",
+        "note": "The image is a statistical pie chart rather than a pure geometric diagram, so geometric relationships are representational rather than theorematic."
+      }
+    ]
+  },
+  "fusion": {
+    "summary": {
+      "agreements": 10,
+      "candidate_additions": 1,
+      "disagreements": 55,
+      "diagram_relations": 1,
+      "text_notes": 4,
+      "uncertainties": 2
+    },
+    "reviews": [
+      {
+        "model_b_id": "b_e1",
+        "model_b_kind": "circle",
+        "model_a_id": "el_38",
+        "model_a_type": "circle",
+        "correspondence": "strong",
+        "decision": "accept",
+        "applied": true,
+        "detail": "Teacher confirmed el_38; it is protected from simplification."
+      },
+      {
+        "model_b_id": "b_e2",
+        "model_b_kind": "line_segment",
+        "model_a_id": null,
+        "model_a_type": null,
+        "correspondence": "none",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Only Model B reports this. It stays a candidate until a teacher confirms it on the image."
+      },
+      {
+        "model_b_id": "b_e3",
+        "model_b_kind": "line_segment",
+        "model_a_id": "el_2",
+        "model_a_type": "line_segment",
+        "correspondence": "strong",
+        "decision": "accept",
+        "applied": true,
+        "detail": "Teacher confirmed el_2; it is protected from simplification."
+      },
+      {
+        "model_b_id": "b_e4",
+        "model_b_kind": "rectangle",
+        "model_a_id": "el_37",
+        "model_a_type": "rectangle",
+        "correspondence": "strong",
+        "decision": "accept",
+        "applied": true,
+        "detail": "Teacher confirmed el_37; it is protected from simplification."
+      },
+      {
+        "model_b_id": "b_e5",
+        "model_b_kind": "rectangle",
+        "model_a_id": "el_36",
+        "model_a_type": "rectangle",
+        "correspondence": "strong",
+        "decision": "accept",
+        "applied": true,
+        "detail": "Teacher confirmed el_36; it is protected from simplification."
+      },
+      {
+        "model_b_id": "b_e6",
+        "model_b_kind": "rectangle",
+        "model_a_id": "el_32",
+        "model_a_type": "line_segment",
+        "correspondence": "strong",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Model A reads a line_segment; Model B reads a rectangle."
+      },
+      {
+        "model_b_id": "b_e7",
+        "model_b_kind": "rectangle",
+        "model_a_id": "el_35",
+        "model_a_type": "rectangle",
+        "correspondence": "strong",
+        "decision": "accept",
+        "applied": true,
+        "detail": "Teacher confirmed el_35; it is protected from simplification."
+      },
+      {
+        "model_b_id": "b_e8",
+        "model_b_kind": "unknown",
+        "model_a_id": "el_56",
+        "model_a_type": "text_label",
+        "correspondence": "strong",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Model A reads a text_label; Model B reads a unknown."
+      },
+      {
+        "model_b_id": "b_e9",
+        "model_b_kind": "unknown",
+        "model_a_id": "el_57",
+        "model_a_type": "text_label",
+        "correspondence": "strong",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Model A reads a text_label; Model B reads a unknown."
+      },
+      {
+        "model_b_id": "b_e10",
+        "model_b_kind": "unknown",
+        "model_a_id": "el_58",
+        "model_a_type": "text_label",
+        "correspondence": "strong",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Model A reads a text_label; Model B reads a unknown."
+      },
+      {
+        "model_b_id": "b_e11",
+        "model_b_kind": "unknown",
+        "model_a_id": "el_59",
+        "model_a_type": "text_label",
+        "correspondence": "strong",
+        "decision": "undecided",
+        "applied": false,
+        "detail": "Model A reads a text_label; Model B reads a unknown."
+      }
+    ],
+    "applied": 5,
+    "not_applied": 0,
+    "coordinates_changed": 0
+  },
+  "simplification": {
+    "before": 60,
+    "after": 46,
+    "removed": 0,
+    "merged": 14,
+    "actions": {
+      "merged_collinear": 11
+    },
+    "explanations": [
+      "Merged collinear segments el_4 into el_1.",
+      "Merged collinear segments el_5, el_8 into el_3.",
+      "Merged collinear segments el_7 into el_6.",
+      "Merged collinear segments el_11, el_18 into el_9.",
+      "Merged collinear segments el_24, el_26 into el_10.",
+      "Merged collinear segments el_15 into el_12.",
+      "Merged collinear segments el_19 into el_13.",
+      "Merged collinear segments el_25 into el_14.",
+      "Merged collinear segments el_28 into el_17.",
+      "Merged collinear segments el_33 into el_20.",
+      "Merged collinear segments el_31 into el_30."
+    ]
+  },
+  "braille": {
+    "table": "en-ueb-g2.ctb",
+    "labels": [
+      {
+        "id": "el_56",
+        "text": "Favourite Fruits",
+        "braille": "⠠⠋⠁⠧⠳⠗⠊⠞⠑⠀⠠⠋⠗⠥⠊⠞⠎",
+        "position_mm": [
+          123.5,
+          4.1
+        ]
+      },
+      {
+        "id": "el_57",
+        "text": "Apple",
+        "braille": "⠠⠁⠏⠏⠇⠑",
+        "position_mm": [
+          196.1,
+          73.0
+        ]
+      },
+      {
+        "id": "el_58",
+        "text": "Mango",
+        "braille": "⠠⠍⠁⠝⠛⠕",
+        "position_mm": [
+          196.5,
+          97.0
+        ]
+      },
+      {
+        "id": "el_59",
+        "text": "Banana",
+        "braille": "⠠⠃⠁⠝⠁⠝⠁",
+        "position_mm": [
+          219.5,
+          140.5
+        ]
+      }
+    ]
+  },
+  "qa": {
+    "passes": true,
+    "score": 73,
+    "errors": [],
+    "issues_by_check": {
+      "overlap": 25,
+      "spacing": 18,
+      "isolated_element": 1
+    }
+  },
+  "final": {
+    "page": "A4 landscape",
+    "width_mm": 297.0,
+    "height_mm": 210.0,
+    "stroke_width_pt": 2.0,
+    "feature_count": 42,
+    "label_count": 4
+  }
+}
