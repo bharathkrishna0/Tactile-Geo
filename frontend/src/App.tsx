@@ -6,6 +6,7 @@ import Inspector from './components/Inspector'
 import ModelBPanel from './components/ModelBPanel'
 import OriginalView from './components/OriginalView'
 import TactileOutputView from './components/TactileOutputView'
+import TemplateDemo from './components/TemplateDemo'
 import ViewTabs from './components/ViewTabs'
 import { exportBlockReason } from './lib/exportGate'
 import {
@@ -49,6 +50,9 @@ function defaultSelection(result: AnalysisResult | null): string | null {
 
 export default function App() {
   const inputRef = useRef<HTMLInputElement>(null)
+  const templateButtonRef = useRef<HTMLButtonElement>(null)
+  const [templateMode, setTemplateMode] = useState(false)
+  const returningFromTemplate = useRef(false)
   const [file, setFile] = useState<File | null>(null)
   const [fileUrl, setFileUrl] = useState<string | null>(null)
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
@@ -151,11 +155,33 @@ export default function App() {
     ...(analysis?.simplified_geometry?.explanations ?? []).map(message => ({ stage: 'simplification', message })),
   ]
 
+  function exitTemplate() {
+    returningFromTemplate.current = true
+    setTemplateMode(false)
+  }
+
+  useEffect(() => {
+    if (!templateMode && returningFromTemplate.current) {
+      returningFromTemplate.current = false
+      templateButtonRef.current?.focus()
+    }
+  }, [templateMode])
+
   return (
     <main className="page"><section className="content">
       <p className="eyebrow">TACTILEGEO</p>
       <h1>Turn a worksheet into a tactile diagram.</h1>
       <p className="intro">Upload a clear PNG or JPG. TactileGeo extracts the geometry, shows its confidence, lets a teacher correct it, and produces a print-ready tactile SVG.</p>
+
+      {templateMode ? (
+        <TemplateDemo onExit={exitTemplate} />
+      ) : (<>
+      <div className="mode-bar">
+        <span className="mode-badge live">LIVE PROCESSING</span>
+        <button type="button" ref={templateButtonRef} className="template-button" onClick={() => setTemplateMode(true)}>
+          Template (Demo)
+        </button>
+      </div>
 
       <input ref={inputRef} className="visually-hidden" type="file" accept="image/png,image/jpeg" aria-label="Choose a worksheet image" onChange={onFileChange} />
       <div className="drop-zone" onDragOver={(event) => event.preventDefault()} onDrop={onDrop}>
@@ -256,6 +282,7 @@ export default function App() {
           />
         </div>
       )}
+      </>)}
     </section></main>
   )
 }
