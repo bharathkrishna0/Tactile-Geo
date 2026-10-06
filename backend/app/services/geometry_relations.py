@@ -87,15 +87,116 @@ def infer_relationships(elements: list[DetectedElement]) -> list[ElementRelation
         relationships.append(rel)
 
     points = [e for e in elements if e.type is GeometryType.POINT]
-    lines = [e for e in elements if _is_line_like(e)]
+    all_lines = [e for e in elements if _is_line_like(e)]
+    ticks = [e for e in all_lines if e.semantic_properties.get("role") == "tick"]
+    lines = [e for e in all_lines if e.semantic_properties.get("role") != "tick"]
     circles = [e for e in elements if e.type is GeometryType.CIRCLE]
+    polygons = [e for e in elements if e.type in POLYGON_TYPES and len(e.geometry.get("points") or []) >= 3]
 
     _infer_line_pairs(_add, lines)
+    _infer_line_polygon(_add, lines, polygons)
     _infer_point_line(_add, points, lines)
     _infer_point_circle(_add, points, circles)
     _infer_circle_center(_add, circles, points)
+    _infer_point_vertex(_add, points, polygons)
+    _infer_ticks(_add, ticks, lines)
 
     return relationships
+
+
+POLYGON_TYPES = (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON)
+ANGLE_TOLERANCE_DEG = 2.0
+TOUCH_PX = 10.0
+# Parallel lines worth stating face each other: their projections overlap and
+# the gap between them is not much larger than the shorter line.
+PARALLEL_MIN_OVERLAP = 0.3
+PARALLEL_MAX_GAP_RATIO = 1.5
+VERTEX_PX = 8.0
+
+
+def _length(start, end) -> float:
+    return _point_distance(start, end)
+
+
+def _parallel_pair_faces(a: DetectedElement, b: DetectedElement) -> bool:
+    a0, a1 = _line_endpoints(a)
+    b0, b1 = _line_endpoints(b)
+    length_a = _length(a0, a1)
+    if length_a == 0:
+        return False
+    ux, uy = (a1[0] - a0[0]) / length_a, (a1[1] - a0[1]) / length_a
+    tb = sorted(((p[0] - a0[0]) * ux + (p[1] - a0[1]) * uy) for p in (b0, b1))
+    overlap = min(length_a, tb[1]) - max(0.0, tb[0])
+    shorter = min(length_a, _length(b0, b1))
+    if shorter == 0 or overlap < PARALLEL_MIN_OVERLAP * shorter:
+        return False
+    mid = ((b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2)
+    gap = abs((mid[0] - a0[0]) * -uy + (mid[1] - a0[1]) * ux)
+    return gap <= PARALLEL_MAX_GAP_RATIO * shorter
+
+
+def _sides(polygon: DetectedElement) -> list[tuple[tuple, tuple]]:
+    points = [tuple(p) for p in polygon.geometry["points"]]
+    return [(points[i], points[(i + 1) % len(points)]) for i in range(len(points))]
+
+
+def _infer_line_polygon(add, lines: list[DetectedElement], polygons: list[DetectedElement]) -> None:
+    """A line that meets a polygon side at a right angle (an altitude, a perpendicular)."""
+    for line in lines:
+        start, end = _line_endpoints(line)
+        line_angle = _line_angle_deg(start, end)
+        for polygon in polygons:
+            for side in _sides(polygon):
+                diff = abs((line_angle - _line_angle_deg(*side) + 90) % 180 - 90)
+                if abs(diff - 90) >= ANGLE_TOLERANCE_DEG:
+                    continue
+                touches = any(_point_to_segment_distance(p, *side) < TOUCH_PX for p in (start, end))
+                if touches and min(_length(*side), _length(start, end)) > TOUCH_PX:
+                    add(ElementRelationship(
+                        id=f"rel_{line.id}_{polygon.id}_perp",
+                        type=RelationshipType.PERPENDICULAR_LINES,
+                        element_ids=[line.id, polygon.id],
+                        confidence=0.8,
+                        confidence_level=ConfidenceLevel.HIGH,
+                        needs_review=False,
+                        explanation=f"Line {line.id} meets a side of {polygon.id} at a right angle.",
+                    ))
+                    break
+
+
+def _infer_point_vertex(add, points: list[DetectedElement], polygons: list[DetectedElement]) -> None:
+    for point in points:
+        pos = tuple(point.geometry["position"])
+        for polygon in polygons:
+            if any(_point_distance(pos, tuple(v)) <= VERTEX_PX for v in polygon.geometry["points"]):
+                add(ElementRelationship(
+                    id=f"rel_{point.id}_{polygon.id}_vertex",
+                    type=RelationshipType.VERTEX_OF,
+                    element_ids=[point.id, polygon.id],
+                    confidence=0.9,
+                    confidence_level=ConfidenceLevel.HIGH,
+                    needs_review=False,
+                    explanation=f"Point {point.id} is a vertex of {polygon.id}.",
+                ))
+
+
+def _infer_ticks(add, ticks: list[DetectedElement], lines: list[DetectedElement]) -> None:
+    """Each recovered tick lies on the line it was drawn across."""
+    for tick in ticks:
+        t0, t1 = _line_endpoints(tick)
+        mid = ((t0[0] + t1[0]) / 2, (t0[1] + t1[1]) / 2)
+        host = min(lines, key=lambda line: _point_to_segment_distance(mid, *_line_endpoints(line)), default=None)
+        if host is None or _point_to_segment_distance(mid, *_line_endpoints(host)) > TOUCH_PX:
+            continue
+        add(ElementRelationship(
+            id=f"rel_{tick.id}_{host.id}_lies_on",
+            type=RelationshipType.LIES_ON,
+            element_ids=[tick.id, host.id],
+            confidence=0.85,
+            confidence_level=ConfidenceLevel.HIGH,
+            needs_review=False,
+            explanation=f"Tick {tick.id} is drawn across line {host.id}.",
+        ))
 
 
 def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
@@ -107,7 +208,7 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
             a_angle, b_angle = angles
             diff = abs((a_angle - b_angle + 90) % 180 - 90)
 
-            if diff < 2.0:
+            if diff < ANGLE_TOLERANCE_DEG and _parallel_pair_faces(a, b):
                 add(ElementRelationship(
                     id=f"rel_{a.id}_{b.id}_parallel",
                     type=RelationshipType.PARALLEL_LINES,
@@ -117,7 +218,7 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
                     needs_review=False,
                     explanation=f"Lines {a.id} and {b.id} share the same orientation.",
                 ))
-            elif abs(diff - 90) < 2.0:
+            elif abs(diff - 90) < ANGLE_TOLERANCE_DEG and (_segments_intersect_or_connect(a, b) or _segments_cross(a, b)):
                 add(ElementRelationship(
                     id=f"rel_{a.id}_{b.id}_perp",
                     type=RelationshipType.PERPENDICULAR_LINES,
@@ -164,6 +265,16 @@ def _segments_share_endpoint(a: DetectedElement, b: DetectedElement) -> bool:
     b0, b1 = _line_endpoints(b)
     return (_endpoint_near(a0, b0) or _endpoint_near(a0, b1)
             or _endpoint_near(a1, b0) or _endpoint_near(a1, b1))
+
+
+def _segments_cross(a: DetectedElement, b: DetectedElement) -> bool:
+    a0, a1 = _line_endpoints(a)
+    b0, b1 = _line_endpoints(b)
+
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    return orient(a0, a1, b0) * orient(a0, a1, b1) < 0 and orient(b0, b1, a0) * orient(b0, b1, a1) < 0
 
 
 def _segments_intersect_or_connect(a: DetectedElement, b: DetectedElement) -> bool:

@@ -167,3 +167,72 @@ def test_summarize_counts_failed_images():
     rows = [{"score": {"failed": True, "error": "x", "gt_essential": 4}, "timings_ms": {"total": 10}}]
     s = summarize(rows)
     assert s["failed"] == 1 and s["failure_rate"] == 1.0
+
+
+# ----------------------------------------------------------- line grouping
+def test_line_grouping_classifies_edges():
+    gt = gt_doc([seg("a", (100, 100), (500, 100)), seg("b", (100, 300), (500, 300)),
+                 seg("c", (100, 500), (500, 500)), seg("d", (100, 700), (500, 700))])
+    preds = [
+        pline("p1", (101, 100), (499, 101)),                                 # a: once
+        pline("p2", (100, 300), (290, 300)), pline("p3", (310, 300), (500, 300)),  # b: fragmented
+        pline("p4", (100, 500), (500, 500)), pline("p5", (102, 502), (498, 502)),  # c: duplicated
+    ]                                                                         # d: missed
+    g = metrics.score_line_grouping(gt, preds)
+    assert (g["edges"], g["correct"], g["fragmented"], g["duplicated"], g["missed"]) == (4, 1, 1, 1, 1)
+    assert g["over_segmentation_rate"] == round(1 / 3, 4)
+    assert g["missed_rate"] == 0.25
+
+
+def test_line_grouping_counts_polygon_sides():
+    gt = gt_doc([tri("t", TRI)])
+    whole = metrics.score_line_grouping(gt, [ppoly("p", TRI)])
+    assert whole["edges"] == 3 and whole["correct"] == 3
+    sides = metrics.score_line_grouping(gt, [pline(f"s{k}", TRI[k], TRI[(k + 1) % 3]) for k in range(3)])
+    assert sides["correct"] == 3
+
+
+def test_line_grouping_ignores_omittable_and_crossing_lines():
+    gt = gt_doc([seg("g", (0, 50), (1000, 50), typ="grid_line", importance="omittable"),
+                 seg("a", (100, 100), (500, 100))])
+    g = metrics.score_line_grouping(gt, [pline("x", (300, 0), (300, 400))])
+    assert g["edges"] == 1 and g["missed"] == 1
+
+
+# --------------------------------------------------- semantic preservation
+def test_semantic_preservation_counts_unsupported_relations_as_lost():
+    gt = gt_doc([seg("a", (100, 100), (500, 100))],
+                labels=[{"id": "l1", "text": "A", "semantic_importance": "essential", "associated_object": "a"}],
+                relationships=[{"type": "LABELS", "source": "l1", "target": "a"},
+                               {"type": "INSIDE", "source": "a", "target": "a"}])
+    objects = {"essential_found_structural": 1, "gt_essential": 1, "_found_ids": {"a"}}
+    labels = {"per_label": [{"id": "l1", "detected": True, "char_errors": 0}], "exact_match_normalized": 1,
+              "gt_essential": 1, "association_correct": 1}
+    spr = metrics.semantic_preservation(gt, objects, labels, {"found": 0})
+    assert spr["components"]["relationships"] == {"preserved": 0, "total": 1, "rate": 0.0}
+    assert spr["preserved"] == 3 and spr["total"] == 4 and spr["rate"] == 0.75
+
+
+# ------------------------------------------------------------------ QA gate
+def test_qa_gate_status_and_unblocked_critical():
+    ok_svg = {"present": True, "valid": True, "out_of_bounds": 0}
+    warn = {"issues": [{"check": "spacing", "severity": "warning"}]}
+    assert metrics.qa_gate({"issues": []}, ok_svg, 0)["status"] == "PASS"
+    g = metrics.qa_gate(warn, {**ok_svg, "out_of_bounds": 2}, 1)
+    assert g["status"] == "WARNING"
+    assert g["critical_unblocked"] == ["essential_removed_by_simplification", "out_of_bounds"]
+    blocked = metrics.qa_gate({"issues": [{"check": "braille_collision", "severity": "error"}]}, ok_svg, 0)
+    assert blocked["status"] == "BLOCKED" and blocked["critical_unblocked"] == []
+    assert blocked["critical_present"] == ["braille_collision"]
+
+
+def test_relationship_by_type_precision_counts():
+    gt = gt_doc([seg("a", (100, 100), (500, 100)), seg("b", (100, 300), (500, 300))],
+                relationships=[{"type": "PARALLEL", "source": "a", "target": "b"}])
+    preds = [pline("p1", (100, 100), (500, 100)), pline("p2", (100, 300), (500, 300))]
+    rels = [{"type": "parallel_lines", "element_ids": ["p1", "p2"]},
+            {"type": "perpendicular_lines", "element_ids": ["p1", "p2"]}]
+    s = metrics.score_relationships(gt, preds, rels, {"a": ["p1"], "b": ["p2"]})
+    assert s["by_type"]["PARALLEL"]["predicted_correct"] == 1
+    assert s["by_type"]["PERPENDICULAR"]["predicted_correct"] == 0
+    assert s["by_type"]["PERPENDICULAR"]["predicted"] == 1

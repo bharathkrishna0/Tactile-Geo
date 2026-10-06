@@ -91,38 +91,70 @@ def _marker_size(binary: np.ndarray, vertex, u1, u2, max_size: float, min_size: 
     return None
 
 
+def _t_corners(a, b):
+    """Corners at a T-junction: ``b`` ends on the interior of ``a``.
+
+    The square can sit on either side of the through edge, so both arms of
+    ``a`` are returned as candidates.
+    """
+    for through, stem in ((a, b), (b, a)):
+        (x1, y1), (x2, y2) = through
+        (x3, y3), (x4, y4) = stem
+        denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        if abs(denominator) < 1e-9:
+            continue
+        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denominator
+        vertex = (x1 + t * (x2 - x1), y1 + t * (y2 - y1))
+        near_stem = min(stem, key=lambda point: math.dist(point, vertex))
+        if math.dist(near_stem, vertex) > VERTEX_TOLERANCE_PX:
+            continue
+        if min(math.dist(vertex, through[0]), math.dist(vertex, through[1])) <= VERTEX_TOLERANCE_PX:
+            continue
+        if not 0.0 < t < 1.0:
+            continue
+        far_stem = stem[1] if near_stem == stem[0] else stem[0]
+        return [(vertex, through[0], far_stem), (vertex, through[1], far_stem)]
+    return []
+
+
 def detect_right_angle_markers(binary: np.ndarray, shapes: list[dict], stroke_half_width: float = 1.0) -> list[dict]:
-    """Corners between perpendicular edges that carry a drawn right-angle square."""
+    """Corners and T-junctions between perpendicular edges that carry a drawn right-angle square."""
     edges = _edges(shapes)
     min_size = max(MIN_MARKER_PX, math.ceil(2 * stroke_half_width) + 2)
     markers: list[dict] = []
     for i, a in enumerate(edges):
         for b in edges[i + 1:]:
             corner = _corner(a, b)
-            if corner is None:
-                continue
-            vertex, far_a, far_b = corner
-            if any(math.dist(vertex, m["vertex"]) <= VERTEX_TOLERANCE_PX for m in markers):
-                continue
-            len_a, len_b = math.dist(vertex, far_a), math.dist(vertex, far_b)
-            if min(len_a, len_b) < max(MIN_ARM_PX, 2 * min_size):
-                continue
-            u1 = ((far_a[0] - vertex[0]) / len_a, (far_a[1] - vertex[1]) / len_a)
-            u2 = ((far_b[0] - vertex[0]) / len_b, (far_b[1] - vertex[1]) / len_b)
-            angle = math.degrees(math.acos(max(-1.0, min(1.0, u1[0] * u2[0] + u1[1] * u2[1]))))
-            if abs(angle - 90.0) > PERPENDICULAR_TOLERANCE_DEG:
-                continue
-            max_size = min(MAX_MARKER_PX, MAX_MARKER_ARM_FRACTION * min(len_a, len_b))
-            size = _marker_size(binary, vertex, u1, u2, max_size, min_size)
-            if size is None:
-                continue
-            markers.append({
-                "vertex": (round(vertex[0]), round(vertex[1])),
-                "arms": [(round(far_a[0]), round(far_a[1])), (round(far_b[0]), round(far_b[1]))],
-                "size": size,
-                "degrees": round(angle, 1),
-            })
+            candidates = [corner] if corner is not None else _t_corners(a, b)
+            for vertex, far_a, far_b in candidates:
+                marker = _marker_at(binary, vertex, far_a, far_b, min_size, markers)
+                if marker:
+                    markers.append(marker)
+                    break
     return markers
+
+
+def _marker_at(binary: np.ndarray, vertex, far_a, far_b, min_size: int, markers: list[dict]) -> dict | None:
+    if any(math.dist(vertex, m["vertex"]) <= VERTEX_TOLERANCE_PX for m in markers):
+        return None
+    len_a, len_b = math.dist(vertex, far_a), math.dist(vertex, far_b)
+    if min(len_a, len_b) < max(MIN_ARM_PX, 2 * min_size):
+        return None
+    u1 = ((far_a[0] - vertex[0]) / len_a, (far_a[1] - vertex[1]) / len_a)
+    u2 = ((far_b[0] - vertex[0]) / len_b, (far_b[1] - vertex[1]) / len_b)
+    angle = math.degrees(math.acos(max(-1.0, min(1.0, u1[0] * u2[0] + u1[1] * u2[1]))))
+    if abs(angle - 90.0) > PERPENDICULAR_TOLERANCE_DEG:
+        return None
+    max_size = min(MAX_MARKER_PX, MAX_MARKER_ARM_FRACTION * min(len_a, len_b))
+    size = _marker_size(binary, vertex, u1, u2, max_size, min_size)
+    if size is None:
+        return None
+    return {
+        "vertex": (round(vertex[0]), round(vertex[1])),
+        "arms": [(round(far_a[0]), round(far_a[1])), (round(far_b[0]), round(far_b[1]))],
+        "size": size,
+        "degrees": round(angle, 1),
+    }
 
 
 def drop_marker_strokes(shapes: list[dict], markers: list[dict]) -> list[dict]:

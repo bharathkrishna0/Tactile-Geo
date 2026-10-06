@@ -32,6 +32,8 @@ class RelationshipType(str, Enum):
     CIRCLE_CENTER = "circle_center"
     CENTER_OF = "center_of"
     ENDPOINT_OF = "endpoint_of"
+    VERTEX_OF = "vertex_of"
+    LIES_ON = "lies_on"
     ANGLE_BETWEEN = "angle_between"
     ANGLE_ASSOCIATION = "angle_association"
     LABEL_OBJECT = "label_object"

@@ -110,11 +110,15 @@ def summarize(rows: list[dict]) -> dict:
         by_type: dict[str, dict] = {}
         for r in rel:
             for t, d in r["by_type"].items():
-                agg = by_type.setdefault(t, {"gt": 0, "found": 0, "predicted_mappable": 0})
+                agg = by_type.setdefault(t, {"gt": 0, "found": 0, "predicted": 0, "predicted_mappable": 0,
+                                             "predicted_correct": 0})
                 for k in agg:
-                    agg[k] += d[k]
+                    agg[k] += d.get(k, 0)
         for d in by_type.values():
             d["recall"] = ratio(d["found"], d["gt"])
+            d["precision"] = ratio(d["predicted_correct"], d["predicted_mappable"])
+            d["f1"] = (round(2 * d["recall"] * d["precision"] / (d["recall"] + d["precision"]), 4)
+                       if d["recall"] and d["precision"] else None)
         rec = ratio(_sum(rel, "found"), _sum(rel, "gt_supported"))
         prec = ratio(_sum(rel, "predicted_mappable_correct"), _sum(rel, "predicted_mappable"))
         out[label] = {
@@ -141,6 +145,39 @@ def summarize(rows: list[dict]) -> dict:
         "labels": ratio(lab_ok, _sum(lab, "gt_essential")),
         "quantitative_labels_exact": ratio(_sum(lab, "quantitative_preserved"), _sum(lab, "quantitative_labels")),
     }
+    for key in ("line_grouping", "line_grouping_final"):
+        lg = [s[key] for s in scored if key in s]
+        if lg:
+            edges = _sum(lg, "edges")
+            detected = edges - _sum(lg, "missed")
+            out[key] = {
+                **{k: _sum(lg, k) for k in ("edges", "correct", "partial", "fragmented", "duplicated", "missed")},
+                "correct_grouping_rate": ratio(_sum(lg, "correct"), edges),
+                "over_segmentation_rate": ratio(_sum(lg, "fragmented"), detected),
+                "duplicate_rate": ratio(_sum(lg, "duplicated"), detected),
+                "missed_rate": ratio(_sum(lg, "missed"), edges),
+            }
+    spr = [s["semantic_preservation"] for s in scored if "semantic_preservation" in s]
+    if spr:
+        names = spr[0]["components"].keys()
+        fail_ess = sum(r["score"].get("gt_essential", 0) for r in failed)
+        out["semantic_preservation"] = {
+            "rate": ratio(_sum(spr, "preserved"), _sum(spr, "total") + fail_ess),
+            "preserved": _sum(spr, "preserved"), "total": _sum(spr, "total") + fail_ess,
+            "components": {n: {"preserved": sum(x["components"][n]["preserved"] for x in spr),
+                               "total": sum(x["components"][n]["total"] for x in spr),
+                               "rate": ratio(sum(x["components"][n]["preserved"] for x in spr),
+                                             sum(x["components"][n]["total"] for x in spr))} for n in names},
+            "note": "failed images add their essential objects to the denominator only",
+        }
+    gates = [s["qa_gate"] for s in scored if "qa_gate" in s]
+    if gates:
+        out["qa_gate"] = {
+            "status": dict(Counter(g["status"] for g in gates)),
+            "images_with_critical_problem": sum(1 for g in gates if g["critical_present"]),
+            "critical_unblocked_images": sum(1 for g in gates if g["critical_unblocked"]),
+            "critical_unblocked": dict(sum((Counter(g["critical_unblocked"]) for g in gates), Counter())),
+        }
     qa = [s["qa"] for s in scored]
     svg = [s["svg"] for s in scored]
     out["tactile_qa"] = {
