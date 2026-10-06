@@ -1,4 +1,7 @@
 """Geometry, relationship and OCR changes measured on the math benchmark."""
+import math
+from dataclasses import replace
+
 import cv2
 import numpy as np
 
@@ -83,6 +86,19 @@ def test_short_ticks_are_lengthened_to_the_touch_minimum():
     assert length_mm >= TACTILE_RULES.minimum_feature_size_mm
     assert out.geometry["start"][0] == out.geometry["end"][0] == 400
     assert any(a.action == "enlarged_tick" and a.element_id == "tick" for a in simplified.actions)
+
+
+
+def test_over_budget_sheet_drops_background_grid_before_the_figure():
+    grid = [_line(f"grid{i}", (100, 20 + 25 * i), (900, 20 + 25 * i)) for i in range(31)]
+    figure = []
+    for k in range(15):
+        angle = math.radians(10 + 22 * k)
+        line = _line(f"fig{k}", (500, 400), (500 + 200 * math.cos(angle), 400 + 200 * math.sin(angle)))
+        figure.append(replace(line, confidence=0.6))
+    simplified = simplify_geometry(SemanticGeometry(image_width=1000, image_height=800, elements=grid + figure))
+    removed = {a.element_id for a in simplified.actions if a.action == "removed_density_budget"}
+    assert removed and all(eid.startswith("grid") for eid in removed)
 
 
 # --- relationships -------------------------------------------------------------

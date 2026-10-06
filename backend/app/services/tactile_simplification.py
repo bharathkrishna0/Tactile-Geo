@@ -195,9 +195,48 @@ def _enlarge_ticks(
     return result, actions, explanations
 
 
-def _budget_priority(element: DetectedElement, mm_per_px: float) -> tuple[int, float, float]:
-    # Lowest first: unlabelled junction dots, then low-confidence, then small features.
-    return (0 if element.type is GeometryType.POINT else 1, element.confidence, element_extent(element) * mm_per_px)
+GRID_AXIS_TOLERANCE_DEG = 3.0
+GRID_MIN_LENGTH_PX = 80.0
+GRID_MIN_FAMILY = 5
+GRID_DISTINCT_OFFSET_PX = 10.0
+
+
+def _grid_lines(elements: list[DetectedElement]) -> set[str]:
+    """Long axis-aligned segments in a family of five or more distinct parallel rows or columns.
+
+    A regular family like this is background grid or ruling, so it gives way
+    to the figure when the sheet is over the feature budget.
+    """
+    families: dict[str, list[tuple[float, str]]] = {"horizontal": [], "vertical": []}
+    for element in elements:
+        if element.type is not GeometryType.LINE_SEGMENT:
+            continue
+        start, end = element.geometry.get("start"), element.geometry.get("end")
+        if not start or not end or math.dist(start, end) < GRID_MIN_LENGTH_PX:
+            continue
+        angle = math.degrees(math.atan2(end[1] - start[1], end[0] - start[0])) % 180
+        if min(angle, 180 - angle) <= GRID_AXIS_TOLERANCE_DEG:
+            families["horizontal"].append(((start[1] + end[1]) / 2, element.id))
+        elif abs(angle - 90) <= GRID_AXIS_TOLERANCE_DEG:
+            families["vertical"].append(((start[0] + end[0]) / 2, element.id))
+    grid: set[str] = set()
+    for members in families.values():
+        offsets = sorted(offset for offset, _ in members)
+        distinct = sum(1 for i, offset in enumerate(offsets) if i == 0 or offset - offsets[i - 1] > GRID_DISTINCT_OFFSET_PX)
+        if distinct >= GRID_MIN_FAMILY:
+            grid.update(element_id for _, element_id in members)
+    return grid
+
+
+def _budget_priority(element: DetectedElement, mm_per_px: float, grid: set[str]) -> tuple[int, int, float, float]:
+    # Lowest first: unlabelled junction dots, then grid lines, then
+    # low-confidence, then small features.
+    return (
+        0 if element.type is GeometryType.POINT else 1,
+        0 if element.id in grid else 1,
+        element.confidence,
+        element_extent(element) * mm_per_px,
+    )
 
 
 def _fit_tactile_budget(
@@ -228,7 +267,11 @@ def _fit_tactile_budget(
     embossed = [e for e in elements if is_embossed_geometry(e) and e.id not in removed]
     excess = len(embossed) - target
     if excess > 0:
-        candidates = sorted((e for e in embossed if not is_protected(e)), key=lambda e: _budget_priority(e, mm_per_px))
+        grid = _grid_lines(embossed)
+        candidates = sorted(
+            (e for e in embossed if not is_protected(e)),
+            key=lambda e: _budget_priority(e, mm_per_px, grid),
+        )
         for element in candidates[:excess]:
             removed.add(element.id)
             actions.append(SimplificationAction(

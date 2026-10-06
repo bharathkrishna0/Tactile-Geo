@@ -103,11 +103,11 @@ def element_json(el, reading_order: dict[str, int] | None = None) -> dict:
         out["braille"] = el.geometry.get("braille", "")
         out["associated_element_id"] = el.associated_label_id
         out["association"] = _plain((el.semantic_properties or {}).get("association"))
+        if reading_order is not None:
+            out["reading_order"] = reading_order.get(el.id)
     role = (el.semantic_properties or {}).get("role")
     if role:
         out["role"] = role
-        if reading_order is not None:
-            out["reading_order"] = reading_order.get(el.id)
     return out
 
 
