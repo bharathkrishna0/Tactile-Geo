@@ -35,6 +35,7 @@ KEY_METRICS = [
     ("Circle centre error px, P50", ("geometry", "circle_center_px", "p50")),
     ("Point recall", ("geometry", "point_recall")),
     ("Right-angle marker recall", ("right_angle_markers", "recall")),
+    ("Angle-arc marker recall", ("angle_markers", "recall")),
     ("Label detection recall", ("ocr", "label_detection_recall")),
     ("OCR CER (all essential labels; missed label = all chars wrong)", ("ocr", "cer")),
     ("OCR CER (detected labels only)", ("ocr", "cer_detected_only")),

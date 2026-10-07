@@ -236,3 +236,16 @@ def test_relationship_by_type_precision_counts():
     assert s["by_type"]["PARALLEL"]["predicted_correct"] == 1
     assert s["by_type"]["PERPENDICULAR"]["predicted_correct"] == 0
     assert s["by_type"]["PERPENDICULAR"]["predicted"] == 1
+
+
+def test_angle_at_scored_against_angle_arc_elements():
+    arc = {"id": "m", "type": "angle_marker", "geometry": {"kind": "arc", "center": [300, 400]},
+           "semantic_importance": "essential"}
+    gt = gt_doc([arc], points=[{"id": "P", "x": 300, "y": 400}],
+                relationships=[{"type": "ANGLE_AT", "source": "m", "target": "P"}])
+    preds = [{"id": "a1", "type": "angle", "geometry": {"vertex": [302, 401], "angle_marker": True}},
+             {"id": "p1", "type": "point", "geometry": {"position": [301, 400]}}]
+    rels = [{"type": "angle_association", "element_ids": ["a1", "p1"]}]
+    s = metrics.score_relationships(gt, preds, rels, {})
+    assert s["by_type"]["ANGLE_AT"]["found"] == 1
+    assert s["by_type"]["ANGLE_AT"]["predicted_correct"] == 1

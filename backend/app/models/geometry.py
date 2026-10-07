@@ -36,6 +36,7 @@ class RelationshipType(str, Enum):
     LIES_ON = "lies_on"
     ANGLE_BETWEEN = "angle_between"
     ANGLE_ASSOCIATION = "angle_association"
+    EQUAL_LENGTH = "equal_length"
     LABEL_OBJECT = "label_object"
 
 

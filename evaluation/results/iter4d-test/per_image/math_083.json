@@ -1,0 +1,2032 @@
+{
+ "image_id": "math_083",
+ "difficulty": "adversarial",
+ "category": "H_circles",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [
+  "decorations"
+ ],
+ "timings_ms": {
+  "preprocessing": 80.6,
+  "vectorization": 73.3,
+  "ocr": 10803.5,
+  "labels_braille": 6.5,
+  "preview_svg": 0.0,
+  "semantic_analysis": 1.3,
+  "simplification": 0.1,
+  "tactile_qa": 3.7,
+  "tactile_svg": 0.2,
+  "total": 11019.5
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 8,
+   "strict": {
+    "tp": 3,
+    "fp": 5,
+    "fn": 0,
+    "precision": 0.375,
+    "recall": 1.0,
+    "f1": 0.5455
+   },
+   "structural": {
+    "tp": 3,
+    "fp": 5,
+    "fn": 0,
+    "precision": 0.375,
+    "recall": 1.0,
+    "f1": 0.5455
+   },
+   "essential_found_strict": 3,
+   "essential_found_structural": 3,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {
+    "other": 2,
+    "on_distractor": 3
+   },
+   "per_gt_type": {
+    "circle": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "line_segment": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 4,
+     "true_positive": 2
+    },
+    "polygon": {
+     "predicted": 3,
+     "true_positive": 0
+    },
+    "circle": {
+     "predicted": 1,
+     "true_positive": 1
+    }
+   },
+   "type_correct": 3,
+   "type_total": 3,
+   "type_confusion": {
+    "circle->circle": 1,
+    "line_segment->line_segment": 2
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     4.288724096663626,
+     1.3927743070368321,
+     1.3239243338189066
+    ],
+    "endpoint_px": [
+     3.3500720591814317,
+     2.55793148205142
+    ],
+    "angle_deg": [
+     0.3432908934768193,
+     0.28791272921277766
+    ],
+    "length_rel": [
+     0.015148518330167353,
+     0.013137799152416458
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [
+     1.0
+    ],
+    "circle_radius_rel": [
+     0.01798115079365077
+    ]
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [],
+   "found_ids": [
+    "circle_1",
+    "line_segment_1",
+    "line_segment_2"
+   ]
+  },
+  "objects_final": {
+   "tau_px": 19.21,
+   "gt_counted": 3,
+   "gt_essential": 3,
+   "predicted": 6,
+   "strict": {
+    "tp": 3,
+    "fp": 3,
+    "fn": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1": 0.6667
+   },
+   "structural": {
+    "tp": 3,
+    "fp": 3,
+    "fn": 0,
+    "precision": 0.5,
+    "recall": 1.0,
+    "f1": 0.6667
+   },
+   "essential_found_strict": 3,
+   "essential_found_structural": 3,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {
+    "other": 2,
+    "on_distractor": 1
+   },
+   "per_gt_type": {
+    "circle": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "line_segment": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 4,
+     "true_positive": 2
+    },
+    "polygon": {
+     "predicted": 1,
+     "true_positive": 0
+    },
+    "circle": {
+     "predicted": 1,
+     "true_positive": 1
+    }
+   },
+   "type_correct": 3,
+   "type_total": 3,
+   "type_confusion": {
+    "circle->circle": 1,
+    "line_segment->line_segment": 2
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     4.288724096663626,
+     1.3927743070368321,
+     1.3239243338189066
+    ],
+    "endpoint_px": [
+     3.3500720591814317,
+     2.55793148205142
+    ],
+    "angle_deg": [
+     0.3432908934768193,
+     0.28791272921277766
+    ],
+    "length_rel": [
+     0.015148518330167353,
+     0.013137799152416458
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [
+     1.0
+    ],
+    "circle_radius_rel": [
+     0.01798115079365077
+    ]
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [],
+   "found_ids": [
+    "circle_1",
+    "line_segment_1",
+    "line_segment_2"
+   ]
+  },
+  "points": {
+   "gt": 4,
+   "found": 4,
+   "recall": 1.0,
+   "error_px": [
+    0.0,
+    1.601124604770079,
+    1.6453874923555056,
+    3.470475471747334
+   ]
+  },
+  "labels": {
+   "gt_essential": 5,
+   "predicted": 5,
+   "detected": 5,
+   "detection_recall": 1.0,
+   "detection_precision": 1.0,
+   "char_errors": 1,
+   "chars": 8,
+   "cer": 0.125,
+   "cer_detected_only": 0.125,
+   "word_errors": 1,
+   "words": 6,
+   "wer": 0.1667,
+   "exact_match": 4,
+   "exact_match_normalized": 4,
+   "quantitative_labels": 1,
+   "quantitative_preserved": 1,
+   "association_total": 5,
+   "association_correct": 4,
+   "braille_total": 5,
+   "braille_exact": 4,
+   "braille_consistent": 5,
+   "braille_cell_errors": 2,
+   "braille_cells": 15,
+   "reading_order_pairs": 10,
+   "reading_order_concordant": 10,
+   "per_label": [
+    {
+     "id": "label_1",
+     "gt": "O",
+     "pred": "0",
+     "detected": true,
+     "char_errors": 1
+    },
+    {
+     "id": "label_2",
+     "gt": "A",
+     "pred": "A",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_3",
+     "gt": "7 cm",
+     "pred": "7 cm",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_4",
+     "gt": "B",
+     "pred": "B",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_5",
+     "gt": "C",
+     "pred": "C",
+     "detected": true,
+     "char_errors": 0
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 8,
+   "gt_unsupported": {
+    "LABELS": 5,
+    "INSIDE": 1
+   },
+   "found": 8,
+   "recall": 1.0,
+   "predicted_supported_type": 14,
+   "predicted_mappable": 12,
+   "predicted_mappable_correct": 8,
+   "precision_lower_bound": 0.6667,
+   "by_type": {
+    "CENTER_OF": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1,
+     "predicted_correct": 1,
+     "predicted": 1
+    },
+    "ON": {
+     "gt": 3,
+     "found": 3,
+     "predicted_mappable": 7,
+     "predicted_correct": 3,
+     "predicted": 7
+    },
+    "ENDPOINT_OF": {
+     "gt": 4,
+     "found": 4,
+     "predicted_mappable": 4,
+     "predicted_correct": 4,
+     "predicted": 4
+    },
+    "PARALLEL": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 0,
+     "predicted": 1
+    },
+    "VERTEX_OF": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 0,
+     "predicted": 1
+    }
+   }
+  },
+  "relationships_final": {
+   "gt_supported": 8,
+   "gt_unsupported": {
+    "LABELS": 5,
+    "INSIDE": 1
+   },
+   "found": 8,
+   "recall": 1.0,
+   "predicted_supported_type": 13,
+   "predicted_mappable": 12,
+   "predicted_mappable_correct": 8,
+   "precision_lower_bound": 0.6667,
+   "by_type": {
+    "CENTER_OF": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1,
+     "predicted_correct": 1,
+     "predicted": 1
+    },
+    "ON": {
+     "gt": 3,
+     "found": 3,
+     "predicted_mappable": 7,
+     "predicted_correct": 3,
+     "predicted": 7
+    },
+    "ENDPOINT_OF": {
+     "gt": 4,
+     "found": 4,
+     "predicted_mappable": 4,
+     "predicted_correct": 4,
+     "predicted": 4
+    },
+    "PARALLEL": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 0,
+     "predicted": 1
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "simplified_contour": 3,
+    "removed_below_tactile_size": 2
+   },
+   "removed": 2,
+   "merged": 0,
+   "modified": 3,
+   "newly_inferred": 0,
+   "gt_found_before": 3,
+   "gt_found_after": 3,
+   "essential_lost_ids": []
+  },
+  "line_grouping": {
+   "edges": 2,
+   "correct": 2,
+   "partial": 0,
+   "fragmented": 0,
+   "duplicated": 0,
+   "missed": 0,
+   "correct_grouping_rate": 1.0,
+   "over_segmentation_rate": 0.0,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.0
+  },
+  "line_grouping_final": {
+   "edges": 2,
+   "correct": 2,
+   "partial": 0,
+   "fragmented": 0,
+   "duplicated": 0,
+   "missed": 0,
+   "correct_grouping_rate": 1.0,
+   "over_segmentation_rate": 0.0,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.0
+  },
+  "semantic_preservation": {
+   "preserved": 19,
+   "total": 22,
+   "rate": 0.8636,
+   "components": {
+    "objects": {
+     "preserved": 3,
+     "total": 3,
+     "rate": 1.0
+    },
+    "labels": {
+     "preserved": 4,
+     "total": 5,
+     "rate": 0.8
+    },
+    "associations": {
+     "preserved": 4,
+     "total": 5,
+     "rate": 0.8
+    },
+    "relationships": {
+     "preserved": 8,
+     "total": 9,
+     "rate": 0.8889
+    },
+    "dimensions": {
+     "preserved": 0,
+     "total": 0,
+     "rate": null
+    }
+   }
+  },
+  "qa_gate": {
+   "status": "WARNING",
+   "critical_present": [],
+   "critical_unblocked": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 0
+  },
+  "qa": {
+   "passes": true,
+   "score": 92,
+   "issues": {
+    "overlap": 7,
+    "spacing": 2,
+    "isolated_element": 1
+   },
+   "blocking": []
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 7,
+    "line": 4,
+    "polygon": 1,
+    "circle": 38,
+    "title": 5
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 11,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 80.6,
+   "vectorization": 73.3,
+   "ocr": 10803.5,
+   "labels_braille": 6.5,
+   "preview_svg": 0.0,
+   "semantic_analysis": 1.3,
+   "simplification": 0.1,
+   "tactile_qa": 3.7,
+   "tactile_svg": 0.2,
+   "total": 11019.5
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "brightness",
+     "severity": "warning",
+     "message": "Image is very bright. Some details may be washed out.",
+     "value": 251.6,
+     "threshold": 225.0
+    },
+    {
+     "check": "noise",
+     "severity": "warning",
+     "message": "Image appears noisy. Results may contain artifacts.",
+     "value": 64.19,
+     "threshold": 30.0
+    }
+   ],
+   "image_width": 1000,
+   "image_height": 800
+  },
+  "raw_shapes": 10,
+  "ocr_labels": [
+   {
+    "text": "7 cm",
+    "bbox": [
+     [
+      590,
+      356
+     ],
+     [
+      651,
+      356
+     ],
+     [
+      651,
+      378
+     ],
+     [
+      590,
+      378
+     ]
+    ],
+    "confidence": 0.77,
+    "braille": "\u283c\u281b\u2800\u2809\u280d",
+    "reading_order": 2
+   },
+   {
+    "text": "A",
+    "bbox": [
+     [
+      758,
+      372
+     ],
+     [
+      778,
+      372
+     ],
+     [
+      778,
+      394
+     ],
+     [
+      758,
+      394
+     ]
+    ],
+    "confidence": 0.933,
+    "braille": "\u2820\u2801",
+    "reading_order": 3
+   },
+   {
+    "text": "B",
+    "bbox": [
+     [
+      251,
+      513
+     ],
+     [
+      278,
+      513
+     ],
+     [
+      278,
+      540
+     ],
+     [
+      251,
+      540
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u2830\u2820\u2803",
+    "reading_order": 5
+   },
+   {
+    "text": "C",
+    "bbox": [
+     [
+      386,
+      144
+     ],
+     [
+      394,
+      144
+     ],
+     [
+      394,
+      163
+     ],
+     [
+      386,
+      163
+     ]
+    ],
+    "confidence": 0.99,
+    "braille": "\u2830\u2820\u2809",
+    "reading_order": 1
+   },
+   {
+    "text": "0",
+    "bbox": [
+     [
+      466,
+      408
+     ],
+     [
+      486,
+      408
+     ],
+     [
+      486,
+      428
+     ],
+     [
+      466,
+      428
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u281a",
+    "reading_order": 4
+   }
+  ],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       402,
+       180
+      ],
+      "end": [
+       287,
+       512
+      ],
+      "length": 351.35
+     },
+     "bbox": [
+      287,
+      180,
+      115,
+      332
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       740,
+       384
+      ],
+      "end": [
+       495,
+       401
+      ],
+      "length": 245.59
+     },
+     "bbox": [
+      495,
+      384,
+      245,
+      17
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       380,
+       759
+      ],
+      "end": [
+       267,
+       759
+      ],
+      "length": 113.0
+     },
+     "bbox": [
+      267,
+      759,
+      113,
+      0
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       393,
+       740
+      ],
+      "end": [
+       267,
+       741
+      ],
+      "length": 126.0
+     },
+     "bbox": [
+      267,
+      740,
+      126,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        709,
+        749
+       ],
+       [
+        706,
+        757
+       ],
+       [
+        703,
+        760
+       ],
+       [
+        695,
+        760
+       ],
+       [
+        702,
+        766
+       ],
+       [
+        700,
+        776
+       ],
+       [
+        707,
+        772
+       ],
+       [
+        711,
+        772
+       ],
+       [
+        718,
+        776
+       ],
+       [
+        716,
+        766
+       ],
+       [
+        723,
+        760
+       ],
+       [
+        715,
+        760
+       ],
+       [
+        712,
+        757
+       ]
+      ],
+      "area": 293.0
+     },
+     "bbox": [
+      695,
+      749,
+      28,
+      27
+     ],
+     "confidence": 0.5,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        405,
+        700
+       ],
+       [
+        398,
+        716
+       ],
+       [
+        383,
+        716
+       ],
+       [
+        395,
+        726
+       ],
+       [
+        391,
+        741
+       ],
+       [
+        404,
+        733
+       ],
+       [
+        418,
+        741
+       ],
+       [
+        414,
+        726
+       ],
+       [
+        426,
+        716
+       ],
+       [
+        412,
+        716
+       ]
+      ],
+      "area": 659.0
+     },
+     "bbox": [
+      383,
+      700,
+      43,
+      41
+     ],
+     "confidence": 0.6,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_6",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       500,
+       399
+      ],
+      "radius": 237.57
+     },
+     "bbox": [
+      259,
+      159,
+      481,
+      481
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_13"
+    },
+    {
+     "id": "el_7",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        386,
+        38
+       ],
+       [
+        377,
+        38
+       ],
+       [
+        372,
+        28
+       ],
+       [
+        367,
+        38
+       ],
+       [
+        357,
+        38
+       ],
+       [
+        365,
+        45
+       ],
+       [
+        362,
+        56
+       ],
+       [
+        371,
+        50
+       ],
+       [
+        381,
+        56
+       ],
+       [
+        378,
+        45
+       ]
+      ],
+      "area": 316.0
+     },
+     "bbox": [
+      357,
+      28,
+      29,
+      28
+     ],
+     "confidence": 0.6,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_8",
+     "type": "point",
+     "geometry": {
+      "position": [
+       372,
+       43
+      ]
+     },
+     "bbox": [
+      367.8,
+      38.8,
+      8.4,
+      8.4
+     ],
+     "confidence": 0.9,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "point",
+     "geometry": {
+      "position": [
+       500,
+       400
+      ]
+     },
+     "bbox": [
+      494.9,
+      394.9,
+      10.2,
+      10.2
+     ],
+     "confidence": 0.9,
+     "source": "contour",
+     "associated_label_id": "el_17"
+    },
+    {
+     "id": "el_10",
+     "type": "point",
+     "geometry": {
+      "position": [
+       402,
+       180
+      ]
+     },
+     "bbox": [
+      399,
+      177,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_16"
+    },
+    {
+     "id": "el_11",
+     "type": "point",
+     "geometry": {
+      "position": [
+       287,
+       512
+      ]
+     },
+     "bbox": [
+      284,
+      509,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_15"
+    },
+    {
+     "id": "el_12",
+     "type": "point",
+     "geometry": {
+      "position": [
+       740,
+       384
+      ]
+     },
+     "bbox": [
+      737,
+      381,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_14"
+    },
+    {
+     "id": "el_13",
+     "type": "text_label",
+     "geometry": {
+      "text": "7 cm",
+      "braille": "\u283c\u281b\u2800\u2809\u280d",
+      "position": [
+       620,
+       359
+      ]
+     },
+     "bbox": [
+      590,
+      356,
+      61,
+      22
+     ],
+     "confidence": 0.77,
+     "source": "ocr",
+     "associated_label_id": "el_6",
+     "text": "7 cm",
+     "braille": "\u283c\u281b\u2800\u2809\u280d",
+     "associated_element_id": "el_6",
+     "association": {
+      "target_id": "el_6",
+      "target_type": "circle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_14",
+     "type": "text_label",
+     "geometry": {
+      "text": "A",
+      "braille": "\u2820\u2801",
+      "position": [
+       776,
+       375
+      ]
+     },
+     "bbox": [
+      758,
+      372,
+      20,
+      22
+     ],
+     "confidence": 0.933,
+     "source": "ocr",
+     "associated_label_id": "el_12",
+     "text": "A",
+     "braille": "\u2820\u2801",
+     "associated_element_id": "el_12",
+     "association": {
+      "target_id": "el_12",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.775,
+      "needs_review": false
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_15",
+     "type": "text_label",
+     "geometry": {
+      "text": "B",
+      "braille": "\u2830\u2820\u2803",
+      "position": [
+       240,
+       550
+      ]
+     },
+     "bbox": [
+      251,
+      513,
+      27,
+      27
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_11",
+     "text": "B",
+     "braille": "\u2830\u2820\u2803",
+     "associated_element_id": "el_11",
+     "association": {
+      "target_id": "el_11",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.887,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_16",
+     "type": "text_label",
+     "geometry": {
+      "text": "C",
+      "braille": "\u2830\u2820\u2809",
+      "position": [
+       390,
+       146
+      ]
+     },
+     "bbox": [
+      386,
+      144,
+      8,
+      19
+     ],
+     "confidence": 0.99,
+     "source": "ocr",
+     "associated_label_id": "el_10",
+     "text": "C",
+     "braille": "\u2830\u2820\u2809",
+     "associated_element_id": "el_10",
+     "association": {
+      "target_id": "el_10",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.765,
+      "needs_review": false
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_17",
+     "type": "text_label",
+     "geometry": {
+      "text": "0",
+      "braille": "\u283c\u281a",
+      "position": [
+       492,
+       434
+      ]
+     },
+     "bbox": [
+      466,
+      408,
+      20,
+      20
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_9",
+     "text": "0",
+     "braille": "\u283c\u281a",
+     "associated_element_id": "el_9",
+     "association": {
+      "target_id": "el_9",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.798,
+      "needs_review": false
+     },
+     "reading_order": 4
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_6_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_6"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_3_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_2",
+      "el_3"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_9",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_9",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_10_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_10",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_10",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_11_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_11",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_11",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_12_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_12",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_12",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_9_el_6_inside",
+     "type": "point_inside_shape",
+     "element_ids": [
+      "el_9",
+      "el_6"
+     ],
+     "confidence": 0.8
+    },
+    {
+     "id": "rel_el_10_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_10",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_11_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_11",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_12_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_12",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_6_el_9_center",
+     "type": "center_of",
+     "element_ids": [
+      "el_9",
+      "el_6"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_8_el_7_vertex",
+     "type": "vertex_of",
+     "element_ids": [
+      "el_8",
+      "el_7"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "review_flags": []
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       402,
+       180
+      ],
+      "end": [
+       287,
+       512
+      ],
+      "length": 351.35
+     },
+     "bbox": [
+      287,
+      180,
+      115,
+      332
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       740,
+       384
+      ],
+      "end": [
+       495,
+       401
+      ],
+      "length": 245.59
+     },
+     "bbox": [
+      495,
+      384,
+      245,
+      17
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       380,
+       759
+      ],
+      "end": [
+       267,
+       759
+      ],
+      "length": 113.0
+     },
+     "bbox": [
+      267,
+      759,
+      113,
+      0
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       393,
+       740
+      ],
+      "end": [
+       267,
+       741
+      ],
+      "length": 126.0
+     },
+     "bbox": [
+      267,
+      740,
+      126,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "polygon",
+     "geometry": {
+      "points": [
+       [
+        405,
+        700
+       ],
+       [
+        391,
+        741
+       ],
+       [
+        412,
+        716
+       ]
+      ],
+      "area": 255.5
+     },
+     "bbox": [
+      383,
+      700,
+      43,
+      41
+     ],
+     "confidence": 0.6,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_6",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       500,
+       399
+      ],
+      "radius": 237.57
+     },
+     "bbox": [
+      259,
+      159,
+      481,
+      481
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_13"
+    },
+    {
+     "id": "el_8",
+     "type": "point",
+     "geometry": {
+      "position": [
+       372,
+       43
+      ]
+     },
+     "bbox": [
+      367.8,
+      38.8,
+      8.4,
+      8.4
+     ],
+     "confidence": 0.9,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "point",
+     "geometry": {
+      "position": [
+       500,
+       400
+      ]
+     },
+     "bbox": [
+      494.9,
+      394.9,
+      10.2,
+      10.2
+     ],
+     "confidence": 0.9,
+     "source": "contour",
+     "associated_label_id": "el_17"
+    },
+    {
+     "id": "el_10",
+     "type": "point",
+     "geometry": {
+      "position": [
+       402,
+       180
+      ]
+     },
+     "bbox": [
+      399,
+      177,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_16"
+    },
+    {
+     "id": "el_11",
+     "type": "point",
+     "geometry": {
+      "position": [
+       287,
+       512
+      ]
+     },
+     "bbox": [
+      284,
+      509,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_15"
+    },
+    {
+     "id": "el_12",
+     "type": "point",
+     "geometry": {
+      "position": [
+       740,
+       384
+      ]
+     },
+     "bbox": [
+      737,
+      381,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": "el_14"
+    },
+    {
+     "id": "el_13",
+     "type": "text_label",
+     "geometry": {
+      "text": "7 cm",
+      "braille": "\u283c\u281b\u2800\u2809\u280d",
+      "position": [
+       620,
+       359
+      ]
+     },
+     "bbox": [
+      590,
+      356,
+      61,
+      22
+     ],
+     "confidence": 0.77,
+     "source": "ocr",
+     "associated_label_id": "el_6",
+     "text": "7 cm",
+     "braille": "\u283c\u281b\u2800\u2809\u280d",
+     "associated_element_id": "el_6",
+     "association": {
+      "target_id": "el_6",
+      "target_type": "circle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_14",
+     "type": "text_label",
+     "geometry": {
+      "text": "A",
+      "braille": "\u2820\u2801",
+      "position": [
+       776,
+       375
+      ]
+     },
+     "bbox": [
+      758,
+      372,
+      20,
+      22
+     ],
+     "confidence": 0.933,
+     "source": "ocr",
+     "associated_label_id": "el_12",
+     "text": "A",
+     "braille": "\u2820\u2801",
+     "associated_element_id": "el_12",
+     "association": {
+      "target_id": "el_12",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.775,
+      "needs_review": false
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_15",
+     "type": "text_label",
+     "geometry": {
+      "text": "B",
+      "braille": "\u2830\u2820\u2803",
+      "position": [
+       240,
+       550
+      ]
+     },
+     "bbox": [
+      251,
+      513,
+      27,
+      27
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_11",
+     "text": "B",
+     "braille": "\u2830\u2820\u2803",
+     "associated_element_id": "el_11",
+     "association": {
+      "target_id": "el_11",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.887,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_16",
+     "type": "text_label",
+     "geometry": {
+      "text": "C",
+      "braille": "\u2830\u2820\u2809",
+      "position": [
+       390,
+       146
+      ]
+     },
+     "bbox": [
+      386,
+      144,
+      8,
+      19
+     ],
+     "confidence": 0.99,
+     "source": "ocr",
+     "associated_label_id": "el_10",
+     "text": "C",
+     "braille": "\u2830\u2820\u2809",
+     "associated_element_id": "el_10",
+     "association": {
+      "target_id": "el_10",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.765,
+      "needs_review": false
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_17",
+     "type": "text_label",
+     "geometry": {
+      "text": "0",
+      "braille": "\u283c\u281a",
+      "position": [
+       492,
+       434
+      ]
+     },
+     "bbox": [
+      466,
+      408,
+      20,
+      20
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_9",
+     "text": "0",
+     "braille": "\u283c\u281a",
+     "associated_element_id": "el_9",
+     "association": {
+      "target_id": "el_9",
+      "target_type": "point",
+      "reason": "point",
+      "confidence": 0.798,
+      "needs_review": false
+     },
+     "reading_order": 4
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_6_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_6"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_3_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_2",
+      "el_3"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_9",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_9",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_10_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_10",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_10",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_11_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_11",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_11",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_12_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_12",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_12",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_9_el_6_inside",
+     "type": "point_inside_shape",
+     "element_ids": [
+      "el_9",
+      "el_6"
+     ],
+     "confidence": 0.8
+    },
+    {
+     "id": "rel_el_10_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_10",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_11_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_11",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_12_el_6_on_circle",
+     "type": "point_on_circle",
+     "element_ids": [
+      "el_12",
+      "el_6"
+     ],
+     "confidence": 0.75
+    },
+    {
+     "id": "rel_el_6_el_9_center",
+     "type": "center_of",
+     "element_ids": [
+      "el_9",
+      "el_6"
+     ],
+     "confidence": 0.9
+    }
+   ],
+   "actions": [
+    {
+     "element_id": "el_4",
+     "action": "simplified_contour",
+     "detail": "Removed 10 redundant collinear vertices."
+    },
+    {
+     "element_id": "el_5",
+     "action": "simplified_contour",
+     "detail": "Removed 7 redundant collinear vertices."
+    },
+    {
+     "element_id": "el_7",
+     "action": "simplified_contour",
+     "detail": "Removed 7 redundant collinear vertices."
+    },
+    {
+     "element_id": "el_4",
+     "action": "removed_below_tactile_size",
+     "detail": "Unlabelled feature is 2.5mm on the printed sheet, below the 5mm touch minimum."
+    },
+    {
+     "element_id": "el_7",
+     "action": "removed_below_tactile_size",
+     "detail": "Unlabelled feature is 4.2mm on the printed sheet, below the 5mm touch minimum."
+    }
+   ],
+   "removed_count": 2,
+   "merged_count": 0
+  },
+  "qa": {
+   "passes": true,
+   "score_0_100": 92,
+   "issues": [
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_10 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_11 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_1 and el_6 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_1 and el_9 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_1 and el_12 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_3 and el_5 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_3"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_6 and el_9 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_6"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_2 and el_3 are 4.2mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_2"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_2 and el_5 are 4.9mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_2"
+    },
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "6 feature(s) have no label (el_0, el_1, el_2, el_3, el_5, ...); consider adding labels for the learner.",
+     "element_id": null
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-143.55 -55.04 1287.11 910.08\" width=\"297mm\" height=\"210mm\" data-mm-per-px=\"0.23075\" role=\"img\" aria-label=\"Tactile representation of 11 geometry features and 5 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:3.058; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-143.55\" y=\"-55.04\" width=\"1287.11\" height=\"910.08\" fill=\"white\"/><g class=\"stroke\"><line data-element-id=\"el_0\" x1=\"402.0\" y1=\"180.0\" x2=\"287.0\" y2=\"512.0\"/><line data-element-id=\"el_1\" x1=\"740.0\" y1=\"384.0\" x2=\"495.0\" y2=\"401.0\"/><line data-element-id=\"el_2\" x1=\"380.0\" y1=\"759.0\" x2=\"267.0\" y2=\"759.0\"/><line data-element-id=\"el_3\" x1=\"393.0\" y1=\"740.0\" x2=\"267.0\" y2=\"741.0\"/><polygon data-element-id=\"el_5\" points=\"405.0,700.0 391.0,741.0 412.0,716.0\"/><circle data-element-id=\"el_6\" cx=\"500.0\" cy=\"399.0\" r=\"237.6\"/><circle data-element-id=\"el_8\" cx=\"372.0\" cy=\"43.0\" r=\"3.1\"/><circle data-element-id=\"el_9\" cx=\"500.0\" cy=\"400.0\" r=\"3.1\"/><circle data-element-id=\"el_10\" cx=\"402.0\" cy=\"180.0\" r=\"3.1\"/><circle data-element-id=\"el_11\" cx=\"287.0\" cy=\"512.0\" r=\"3.1\"/><circle data-element-id=\"el_12\" cx=\"740.0\" cy=\"384.0\" r=\"3.1\"/></g><g class=\"tactile-braille\"><g data-element-id=\"el_13\" class=\"braille\" role=\"img\" aria-label=\"7 cm\" data-braille=\"\u283c\u281b\u2800\u2809\u280d\"><title>7 cm</title><circle cx=\"562.6\" cy=\"369.8\" r=\"3.25\"/><circle cx=\"573.4\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"573.4\" cy=\"359.0\" r=\"3.25\"/><circle cx=\"573.4\" cy=\"369.8\" r=\"3.25\"/><circle cx=\"588.6\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"588.6\" cy=\"359.0\" r=\"3.25\"/><circle cx=\"599.4\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"599.4\" cy=\"359.0\" r=\"3.25\"/><circle cx=\"640.6\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"651.4\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"666.6\" cy=\"348.2\" r=\"3.25\"/><circle cx=\"666.6\" cy=\"369.8\" r=\"3.25\"/><circle cx=\"677.4\" cy=\"348.2\" r=\"3.25\"/></g><g data-element-id=\"el_14\" class=\"braille\" role=\"img\" aria-label=\"A\" data-braille=\"\u2820\u2801\"><title>A</title><circle cx=\"768.4\" cy=\"385.8\" r=\"3.25\"/><circle cx=\"783.6\" cy=\"364.2\" r=\"3.25\"/></g><g data-element-id=\"el_15\" class=\"braille\" role=\"img\" aria-label=\"B\" data-braille=\"\u2830\u2820\u2803\"><title>B</title><circle cx=\"219.4\" cy=\"550.0\" r=\"3.25\"/><circle cx=\"219.4\" cy=\"560.8\" r=\"3.25\"/><circle cx=\"245.4\" cy=\"560.8\" r=\"3.25\"/><circle cx=\"260.6\" cy=\"539.2\" r=\"3.25\"/><circle cx=\"260.6\" cy=\"550.0\" r=\"3.25\"/></g><g data-element-id=\"el_16\" class=\"braille\" role=\"img\" aria-label=\"C\" data-braille=\"\u2830\u2820\u2809\"><title>C</title><circle cx=\"369.4\" cy=\"146.0\" r=\"3.25\"/><circle cx=\"369.4\" cy=\"156.8\" r=\"3.25\"/><circle cx=\"395.4\" cy=\"156.8\" r=\"3.25\"/><circle cx=\"410.6\" cy=\"135.2\" r=\"3.25\"/><circle cx=\"421.4\" cy=\"135.2\" r=\"3.25\"/></g><g data-element-id=\"el_17\" class=\"braille\" role=\"img\" aria-label=\"0\" data-braille=\"\u283c\u281a\"><title>0</title><circle cx=\"473.6\" cy=\"444.8\" r=\"3.25\"/><circle cx=\"484.4\" cy=\"423.2\" r=\"3.25\"/><circle cx=\"484.4\" cy=\"434.0\" r=\"3.25\"/><circle cx=\"484.4\" cy=\"444.8\" r=\"3.25\"/><circle cx=\"499.6\" cy=\"434.0\" r=\"3.25\"/><circle cx=\"510.4\" cy=\"423.2\" r=\"3.25\"/><circle cx=\"510.4\" cy=\"434.0\" r=\"3.25\"/></g></g></svg>",
+  "timings_ms": {
+   "preprocessing": 80.6,
+   "vectorization": 73.3,
+   "ocr": 10803.5,
+   "labels_braille": 6.5,
+   "preview_svg": 0.0,
+   "semantic_analysis": 1.3,
+   "simplification": 0.1,
+   "tactile_qa": 3.7,
+   "tactile_svg": 0.2,
+   "total": 11019.5
+  }
+ }
+}
