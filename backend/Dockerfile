@@ -14,8 +14,9 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt \
+COPY requirements.txt requirements-torch-cpu.txt ./
+RUN pip install -r requirements-torch-cpu.txt \
+    && pip install -r requirements.txt \
     # Debian ships the Liblouis binding for its own python3.11; expose only that
     # package to this interpreter instead of the whole dist-packages directory.
     && ln -s /usr/lib/python3/dist-packages/louis "$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')/louis" \

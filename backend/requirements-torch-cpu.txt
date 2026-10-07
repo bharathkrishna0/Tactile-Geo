@@ -1,0 +1,8 @@
+# CPU-only PyTorch for EasyOCR on Linux. Install before requirements.txt, in its
+# own pip command (the index URL applies to the whole invocation):
+#   pip install -r requirements-torch-cpu.txt && pip install -r requirements.txt
+# PyPI's Linux wheels bundle about 4 GB of CUDA and Triton libraries that a
+# CPU-only server never loads. Windows and macOS wheels on PyPI are already CPU-only.
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.14.1+cpu ; sys_platform == "linux"
+torchvision==0.29.1+cpu ; sys_platform == "linux"

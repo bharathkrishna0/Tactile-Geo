@@ -27,7 +27,7 @@ For always-on hosting, see `docs/VERCEL.md` (paid backend host).
 - About 4 GB of free RAM while processing dense images, so a laptop with 8 GB
   or more. On Windows with Docker Desktop, WSL 2 gets half the RAM by default,
   which is enough on an 8 GB+ laptop.
-- Around 10 GB of free disk for the Docker image.
+- Around 3 GB of free disk for the Docker image (2.4 GB with CPU-only PyTorch).
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/). You can
   also run the backend natively (see the README), but Docker avoids installing
   Python 3.11 and Liblouis yourself.

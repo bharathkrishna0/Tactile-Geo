@@ -26,6 +26,7 @@ Linux/macOS (Python 3.11+, Debian/Ubuntu shown):
 sudo apt-get install liblouis-data python3-louis
 cd backend
 python3.11 -m venv .venv && . .venv/bin/activate
+pip install -r requirements-torch-cpu.txt   # CPU-only PyTorch: skips ~4 GB of CUDA libraries
 pip install -r requirements.txt -r requirements-dev.txt
 ln -s /usr/lib/python3/dist-packages/louis "$(python -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')/louis"
 uvicorn app.main:app --reload --port 8000
