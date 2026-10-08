@@ -82,6 +82,8 @@ def main(argv: list[str] | None = None) -> int:
                                                             "with --model-a: intersected with it)")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "evaluation" / "results")
     parser.add_argument("--dataset", type=Path, default=DATASET)
+    parser.add_argument("--ids-file", type=Path, default=None,
+                        help="evaluate the image ids listed in this file instead of a split (e.g. a tuning subset)")
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--run-id", default=None)
@@ -108,7 +110,15 @@ def main(argv: list[str] | None = None) -> int:
     from app.services.ocr import EasyOcrProvider
 
     variant = variant_name(args)
-    ids = load_split(args.dataset, args.split)[: args.limit]
+    if args.ids_file:
+        ids = [line.strip() for line in args.ids_file.read_text().splitlines() if line.strip() and not line.startswith("#")]
+        test_ids = set(load_split(args.dataset, "test"))
+        if test_ids & set(ids):
+            parser.error("--ids-file must not contain held-out test images")
+        args.split = args.ids_file.stem
+    else:
+        ids = load_split(args.dataset, args.split)
+    ids = ids[: args.limit]
     meta = json.loads((args.dataset / "metadata" / "dataset.json").read_text())
     run_id = args.run_id or f"{variant}-{args.split}-{dt.datetime.now(dt.timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
     out = args.output_dir / run_id

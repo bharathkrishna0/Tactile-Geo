@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from app.models.geometry import ConfidenceLevel, DetectedElement, ElementRelationship, GeometryType, SemanticGeometry
 from app.services.segment_geometry import (
@@ -84,7 +84,12 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     actions.extend(simplify_actions)
     explanations.extend(simplify_explanations)
 
-    # Pass 4: fit the sheet to what can be explored by touch on one A4 page.
+    # Pass 4: lengthen ticks to the touch minimum instead of losing them.
+    kept, tick_actions, tick_explanations = _enlarge_ticks(kept, semantic.image_width, semantic.image_height)
+    actions.extend(tick_actions)
+    explanations.extend(tick_explanations)
+
+    # Pass 5: fit the sheet to what can be explored by touch on one A4 page.
     kept, budget_actions, budget_explanations, budget_removed = _fit_tactile_budget(
         kept, semantic.image_width, semantic.image_height,
     )
@@ -143,9 +148,95 @@ def is_protected(element: DetectedElement) -> bool:
     return element.source == "teacher_override" and element.confidence >= TACTILE_RULES.high_confidence_threshold
 
 
-def _budget_priority(element: DetectedElement, mm_per_px: float) -> tuple[int, float, float]:
-    # Lowest first: unlabelled junction dots, then low-confidence, then small features.
-    return (0 if element.type is GeometryType.POINT else 1, element.confidence, element_extent(element) * mm_per_px)
+TICK_MARGIN_MM = 0.5
+
+
+def _enlarge_ticks(
+    elements: list[DetectedElement], image_width: int, image_height: int,
+) -> tuple[list[DetectedElement], list[SimplificationAction], list[str]]:
+    """Extend each short tick about its midpoint, across its line, to the touch minimum."""
+    if image_width <= 0 or image_height <= 0:
+        return elements, [], []
+    mm_per_px = page_layout(image_width, image_height).mm_per_px
+    target_px = (TACTILE_RULES.minimum_feature_size_mm + TICK_MARGIN_MM) / mm_per_px
+    result: list[DetectedElement] = []
+    actions: list[SimplificationAction] = []
+    explanations: list[str] = []
+    for element in elements:
+        geo = element.geometry
+        if (
+            element.type is not GeometryType.LINE_SEGMENT
+            or element.semantic_properties.get("role") != "tick"
+            or "start" not in geo
+        ):
+            result.append(element)
+            continue
+        (x0, y0), (x1, y1) = geo["start"], geo["end"]
+        length = math.dist((x0, y0), (x1, y1))
+        if length == 0 or length >= target_px:
+            result.append(element)
+            continue
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        half = target_px / 2
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        start = [round(cx - ux * half), round(cy - uy * half)]
+        end = [round(cx + ux * half), round(cy + uy * half)]
+        xs, ys = (start[0], end[0]), (start[1], end[1])
+        result.append(replace(element, **{
+            "geometry": {**geo, "start": start, "end": end, "length": round(math.dist(start, end), 2)},
+            "bbox": (min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)),
+        }))
+        actions.append(SimplificationAction(
+            element_id=element.id,
+            action="enlarged_tick",
+            detail=f"Tick lengthened from {length * mm_per_px:.1f}mm to {target_px * mm_per_px:.1f}mm so it can be felt.",
+        ))
+        explanations.append(f"Lengthened tick {element.id} to the touch minimum.")
+    return result, actions, explanations
+
+
+GRID_AXIS_TOLERANCE_DEG = 3.0
+GRID_MIN_LENGTH_PX = 80.0
+GRID_MIN_FAMILY = 5
+GRID_DISTINCT_OFFSET_PX = 10.0
+
+
+def _grid_lines(elements: list[DetectedElement]) -> set[str]:
+    """Long axis-aligned segments in a family of five or more distinct parallel rows or columns.
+
+    A regular family like this is background grid or ruling, so it gives way
+    to the figure when the sheet is over the feature budget.
+    """
+    families: dict[str, list[tuple[float, str]]] = {"horizontal": [], "vertical": []}
+    for element in elements:
+        if element.type is not GeometryType.LINE_SEGMENT:
+            continue
+        start, end = element.geometry.get("start"), element.geometry.get("end")
+        if not start or not end or math.dist(start, end) < GRID_MIN_LENGTH_PX:
+            continue
+        angle = math.degrees(math.atan2(end[1] - start[1], end[0] - start[0])) % 180
+        if min(angle, 180 - angle) <= GRID_AXIS_TOLERANCE_DEG:
+            families["horizontal"].append(((start[1] + end[1]) / 2, element.id))
+        elif abs(angle - 90) <= GRID_AXIS_TOLERANCE_DEG:
+            families["vertical"].append(((start[0] + end[0]) / 2, element.id))
+    grid: set[str] = set()
+    for members in families.values():
+        offsets = sorted(offset for offset, _ in members)
+        distinct = sum(1 for i, offset in enumerate(offsets) if i == 0 or offset - offsets[i - 1] > GRID_DISTINCT_OFFSET_PX)
+        if distinct >= GRID_MIN_FAMILY:
+            grid.update(element_id for _, element_id in members)
+    return grid
+
+
+def _budget_priority(element: DetectedElement, mm_per_px: float, grid: set[str]) -> tuple[int, int, float, float]:
+    # Lowest first: unlabelled junction dots, then grid lines, then
+    # low-confidence, then small features.
+    return (
+        0 if element.type is GeometryType.POINT else 1,
+        0 if element.id in grid else 1,
+        element.confidence,
+        element_extent(element) * mm_per_px,
+    )
 
 
 def _fit_tactile_budget(
@@ -176,7 +267,11 @@ def _fit_tactile_budget(
     embossed = [e for e in elements if is_embossed_geometry(e) and e.id not in removed]
     excess = len(embossed) - target
     if excess > 0:
-        candidates = sorted((e for e in embossed if not is_protected(e)), key=lambda e: _budget_priority(e, mm_per_px))
+        grid = _grid_lines(embossed)
+        candidates = sorted(
+            (e for e in embossed if not is_protected(e)),
+            key=lambda e: _budget_priority(e, mm_per_px, grid),
+        )
         for element in candidates[:excess]:
             removed.add(element.id)
             actions.append(SimplificationAction(

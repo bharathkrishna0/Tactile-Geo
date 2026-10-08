@@ -1,0 +1,5971 @@
+{
+ "image_id": "math_044",
+ "difficulty": "hard",
+ "category": "L_mixed_worksheet",
+ "layout": "worksheet",
+ "conditions": [
+  "photographed"
+ ],
+ "content_stressors": [],
+ "timings_ms": {
+  "preprocessing": 167.3,
+  "vectorization": 575.8,
+  "ocr": 7240.5,
+  "labels_braille": 262.6,
+  "preview_svg": 0.0,
+  "semantic_analysis": 5.2,
+  "simplification": 0.6,
+  "tactile_qa": 15.8,
+  "tactile_svg": 0.5,
+  "total": 8273.8
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 28.58,
+   "gt_counted": 17,
+   "gt_essential": 9,
+   "predicted": 34,
+   "strict": {
+    "tp": 9,
+    "fp": 12,
+    "fn": 8,
+    "precision": 0.4286,
+    "recall": 0.5294,
+    "f1": 0.4737
+   },
+   "structural": {
+    "tp": 9,
+    "fp": 12,
+    "fn": 8,
+    "precision": 0.4286,
+    "recall": 0.5294,
+    "f1": 0.4737
+   },
+   "essential_found_strict": 7,
+   "essential_found_structural": 7,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 13,
+   "fp_reasons": {
+    "on_text": 3,
+    "other": 9
+   },
+   "per_gt_type": {
+    "circle": {
+     "gt": 2,
+     "found_strict": 0,
+     "found_structural": 0
+    },
+    "rectangle": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "dimension_line": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "axis": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "tick": {
+     "gt": 8,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "line_segment": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 31,
+     "true_positive": 7
+    },
+    "rectangle": {
+     "predicted": 2,
+     "true_positive": 2
+    },
+    "circle": {
+     "predicted": 1,
+     "true_positive": 0
+    }
+   },
+   "type_correct": 5,
+   "type_total": 9,
+   "type_confusion": {
+    "rectangle->rectangle": 2,
+    "arrow->line_segment": 2,
+    "axes->line_segment": 2,
+    "line_segment->line_segment": 3
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     1.2678039213775003,
+     1.4330640345023171,
+     0.8057871962000873,
+     0.8368575985062572,
+     1.074160883289436,
+     1.0919288019774827,
+     6.607790152717989,
+     6.02693983716355,
+     1.3737060571458275
+    ],
+    "endpoint_px": [
+     0.8733866062001563,
+     0.6471079733604517,
+     1.076509531551965,
+     1.120831834789206,
+     25.473386079376347,
+     23.938693507296254,
+     12.46164036697741
+    ],
+    "angle_deg": [
+     0.13248712245741157,
+     0.1261151950835,
+     0.018035605757081186,
+     0.019321091685469582,
+     0.18867228218192622,
+     0.23474509835867252,
+     0.060864162131053945
+    ],
+    "length_rel": [
+     0.000551610323643642,
+     0.0015427789151282144,
+     0.0011386274553994821,
+     0.0025612976692875344,
+     3.623253238404458,
+     3.3880804456785865,
+     0.06690138009833876
+    ],
+    "polygon_iou": [
+     0.9914302540186867,
+     0.9868259703963359
+    ],
+    "vertex_count_match": [
+     1.0,
+     1.0
+    ],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [
+    "circle_1",
+    "circle_2"
+   ],
+   "found_ids": [
+    "axis_1",
+    "axis_2",
+    "dimension_line_1",
+    "dimension_line_2",
+    "line_segment_1",
+    "rectangle_1",
+    "rectangle_2",
+    "tick_1",
+    "tick_3"
+   ]
+  },
+  "objects_final": {
+   "tau_px": 28.58,
+   "gt_counted": 17,
+   "gt_essential": 9,
+   "predicted": 34,
+   "strict": {
+    "tp": 9,
+    "fp": 12,
+    "fn": 8,
+    "precision": 0.4286,
+    "recall": 0.5294,
+    "f1": 0.4737
+   },
+   "structural": {
+    "tp": 9,
+    "fp": 12,
+    "fn": 8,
+    "precision": 0.4286,
+    "recall": 0.5294,
+    "f1": 0.4737
+   },
+   "essential_found_strict": 7,
+   "essential_found_structural": 7,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 13,
+   "fp_reasons": {
+    "on_text": 3,
+    "other": 9
+   },
+   "per_gt_type": {
+    "circle": {
+     "gt": 2,
+     "found_strict": 0,
+     "found_structural": 0
+    },
+    "rectangle": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "dimension_line": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "axis": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "tick": {
+     "gt": 8,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "line_segment": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 31,
+     "true_positive": 7
+    },
+    "rectangle": {
+     "predicted": 2,
+     "true_positive": 2
+    },
+    "circle": {
+     "predicted": 1,
+     "true_positive": 0
+    }
+   },
+   "type_correct": 5,
+   "type_total": 9,
+   "type_confusion": {
+    "rectangle->rectangle": 2,
+    "arrow->line_segment": 2,
+    "axes->line_segment": 2,
+    "line_segment->line_segment": 3
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     1.2678039213775003,
+     1.4330640345023171,
+     0.8057871962000873,
+     0.8368575985062572,
+     1.074160883289436,
+     1.0919288019774827,
+     6.607790152717989,
+     6.02693983716355,
+     1.3737060571458275
+    ],
+    "endpoint_px": [
+     0.8733866062001563,
+     0.6471079733604517,
+     1.076509531551965,
+     1.120831834789206,
+     25.473386079376347,
+     23.938693507296254,
+     12.46164036697741
+    ],
+    "angle_deg": [
+     0.13248712245741157,
+     0.1261151950835,
+     0.018035605757081186,
+     0.019321091685469582,
+     0.18867228218192622,
+     0.23474509835867252,
+     0.060864162131053945
+    ],
+    "length_rel": [
+     0.000551610323643642,
+     0.0015427789151282144,
+     0.0011386274553994821,
+     0.0025612976692875344,
+     3.623253238404458,
+     3.3880804456785865,
+     0.06690138009833876
+    ],
+    "polygon_iou": [
+     0.9914302540186867,
+     0.9868259703963359
+    ],
+    "vertex_count_match": [
+     1.0,
+     1.0
+    ],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [
+    "circle_1",
+    "circle_2"
+   ],
+   "found_ids": [
+    "axis_1",
+    "axis_2",
+    "dimension_line_1",
+    "dimension_line_2",
+    "line_segment_1",
+    "rectangle_1",
+    "rectangle_2",
+    "tick_1",
+    "tick_3"
+   ]
+  },
+  "points": {
+   "gt": 1,
+   "found": 1,
+   "recall": 1.0,
+   "error_px": [
+    1.2903487900564032
+   ]
+  },
+  "labels": {
+   "gt_essential": 19,
+   "predicted": 13,
+   "detected": 9,
+   "detection_recall": 0.4737,
+   "detection_precision": 0.7692,
+   "char_errors": 25,
+   "chars": 41,
+   "cer": 0.6098,
+   "cer_detected_only": 0.1111,
+   "word_errors": 17,
+   "words": 25,
+   "wer": 0.68,
+   "exact_match": 6,
+   "exact_match_normalized": 7,
+   "quantitative_labels": 14,
+   "quantitative_preserved": 4,
+   "association_total": 9,
+   "association_correct": 4,
+   "braille_total": 9,
+   "braille_exact": 6,
+   "braille_consistent": 9,
+   "braille_cell_errors": 3,
+   "braille_cells": 28,
+   "reading_order_pairs": 36,
+   "reading_order_concordant": 33,
+   "per_label": [
+    {
+     "id": "label_4",
+     "gt": "A",
+     "pred": "A",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_5",
+     "gt": "B",
+     "pred": "B",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_6",
+     "gt": "U",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_7",
+     "gt": "17",
+     "pred": "17",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_8",
+     "gt": "2",
+     "pred": "2",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_9",
+     "gt": "19",
+     "pred": "19",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_11",
+     "gt": "12 cm",
+     "pred": "412 cm",
+     "detected": true,
+     "char_errors": 1
+    },
+    {
+     "id": "label_12",
+     "gt": "4 cm",
+     "pred": "4cm",
+     "detected": true,
+     "char_errors": 1
+    },
+    {
+     "id": "label_14",
+     "gt": "x",
+     "pred": "X",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_15",
+     "gt": "y",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_16",
+     "gt": "1",
+     "pred": "1",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_17",
+     "gt": "1",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_18",
+     "gt": "3",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_19",
+     "gt": "3",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_20",
+     "gt": "5",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_21",
+     "gt": "5",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_22",
+     "gt": "7",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_23",
+     "gt": "7",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_24",
+     "gt": "y = 0.7x + 0.4",
+     "pred": "",
+     "detected": false,
+     "char_errors": 14
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 12,
+   "gt_unsupported": {
+    "INSIDE": 2,
+    "LABELS": 19,
+    "DIMENSION_OF": 4
+   },
+   "found": 2,
+   "recall": 0.1667,
+   "predicted_supported_type": 110,
+   "predicted_mappable": 68,
+   "predicted_mappable_correct": 2,
+   "precision_lower_bound": 0.0294,
+   "by_type": {
+    "INTERSECTS": {
+     "gt": 1,
+     "found": 0,
+     "predicted_mappable": 17,
+     "predicted_correct": 0,
+     "predicted": 21
+    },
+    "PERPENDICULAR": {
+     "gt": 1,
+     "found": 0,
+     "predicted_mappable": 1,
+     "predicted_correct": 0,
+     "predicted": 5
+    },
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2,
+     "predicted_correct": 2,
+     "predicted": 4
+    },
+    "ON": {
+     "gt": 8,
+     "found": 0,
+     "predicted_mappable": 2,
+     "predicted_correct": 0,
+     "predicted": 6
+    },
+    "PARALLEL": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 46,
+     "predicted_correct": 0,
+     "predicted": 74
+    }
+   }
+  },
+  "relationships_final": {
+   "gt_supported": 12,
+   "gt_unsupported": {
+    "INSIDE": 2,
+    "LABELS": 19,
+    "DIMENSION_OF": 4
+   },
+   "found": 2,
+   "recall": 0.1667,
+   "predicted_supported_type": 110,
+   "predicted_mappable": 68,
+   "predicted_mappable_correct": 2,
+   "precision_lower_bound": 0.0294,
+   "by_type": {
+    "INTERSECTS": {
+     "gt": 1,
+     "found": 0,
+     "predicted_mappable": 17,
+     "predicted_correct": 0,
+     "predicted": 21
+    },
+    "PERPENDICULAR": {
+     "gt": 1,
+     "found": 0,
+     "predicted_mappable": 1,
+     "predicted_correct": 0,
+     "predicted": 5
+    },
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2,
+     "predicted_correct": 2,
+     "predicted": 4
+    },
+    "ON": {
+     "gt": 8,
+     "found": 0,
+     "predicted_mappable": 2,
+     "predicted_correct": 0,
+     "predicted": 6
+    },
+    "PARALLEL": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 46,
+     "predicted_correct": 0,
+     "predicted": 74
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "enlarged_tick": 1
+   },
+   "removed": 0,
+   "merged": 0,
+   "modified": 0,
+   "newly_inferred": 0,
+   "gt_found_before": 7,
+   "gt_found_after": 7,
+   "essential_lost_ids": []
+  },
+  "line_grouping": {
+   "edges": 21,
+   "correct": 13,
+   "partial": 0,
+   "fragmented": 0,
+   "duplicated": 0,
+   "missed": 8,
+   "correct_grouping_rate": 0.619,
+   "over_segmentation_rate": 0.0,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.381
+  },
+  "line_grouping_final": {
+   "edges": 21,
+   "correct": 13,
+   "partial": 0,
+   "fragmented": 0,
+   "duplicated": 0,
+   "missed": 8,
+   "correct_grouping_rate": 0.619,
+   "over_segmentation_rate": 0.0,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.381
+  },
+  "semantic_preservation": {
+   "preserved": 20,
+   "total": 67,
+   "rate": 0.2985,
+   "components": {
+    "objects": {
+     "preserved": 7,
+     "total": 9,
+     "rate": 0.7778
+    },
+    "labels": {
+     "preserved": 7,
+     "total": 19,
+     "rate": 0.3684
+    },
+    "associations": {
+     "preserved": 4,
+     "total": 19,
+     "rate": 0.2105
+    },
+    "relationships": {
+     "preserved": 2,
+     "total": 18,
+     "rate": 0.1111
+    },
+    "dimensions": {
+     "preserved": 0,
+     "total": 2,
+     "rate": 0.0
+    }
+   }
+  },
+  "qa_gate": {
+   "status": "BLOCKED",
+   "critical_present": [
+    "braille_on_line"
+   ],
+   "critical_unblocked": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 1
+  },
+  "qa": {
+   "passes": false,
+   "score": 31,
+   "issues": {
+    "braille_on_line": 1,
+    "spacing": 25,
+    "overlap": 7,
+    "isolated_element": 1,
+    "spacing_summary": 1
+   },
+   "blocking": [
+    "braille_on_line"
+   ]
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 15,
+    "line": 31,
+    "polygon": 2,
+    "circle": 107,
+    "title": 13
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 36,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 167.3,
+   "vectorization": 575.8,
+   "ocr": 7240.5,
+   "labels_braille": 262.6,
+   "preview_svg": 0.0,
+   "semantic_analysis": 5.2,
+   "simplification": 0.6,
+   "tactile_qa": 15.8,
+   "tactile_svg": 0.5,
+   "total": 8273.8
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "contrast",
+     "severity": "warning",
+     "message": "Image has low contrast. Diagram lines may be hard to distinguish.",
+     "value": 24.3,
+     "threshold": 25.0
+    }
+   ],
+   "image_width": 1100,
+   "image_height": 1556
+  },
+  "raw_shapes": 34,
+  "ocr_labels": [
+   {
+    "text": "Date:",
+    "bbox": [
+     [
+      372,
+      102
+     ],
+     [
+      436,
+      102
+     ],
+     [
+      436,
+      128
+     ],
+     [
+      372,
+      128
+     ]
+    ],
+    "confidence": 0.999,
+    "braille": "\u2820\u2819\u2801\u281e\u2811\u2812",
+    "reading_order": 1
+   },
+   {
+    "text": "19",
+    "bbox": [
+     [
+      623,
+      385
+     ],
+     [
+      651,
+      385
+     ],
+     [
+      651,
+      405
+     ],
+     [
+      623,
+      405
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2801\u280a",
+    "reading_order": 7
+   },
+   {
+    "text": "4cm",
+    "bbox": [
+     [
+      764,
+      830
+     ],
+     [
+      826,
+      830
+     ],
+     [
+      826,
+      856
+     ],
+     [
+      764,
+      856
+     ]
+    ],
+    "confidence": 0.999,
+    "braille": "\u283c\u2819\u2830\u2809\u280d",
+    "reading_order": 10
+   },
+   {
+    "text": "412 cm",
+    "bbox": [
+     [
+      514,
+      996
+     ],
+     [
+      588,
+      996
+     ],
+     [
+      588,
+      1022
+     ],
+     [
+      514,
+      1022
+     ]
+    ],
+    "confidence": 0.474,
+    "braille": "\u283c\u2819\u2801\u2803\u2800\u2809\u280d",
+    "reading_order": 11
+   },
+   {
+    "text": "7",
+    "bbox": [
+     [
+      354,
+      339
+     ],
+     [
+      359,
+      339
+     ],
+     [
+      359,
+      349
+     ],
+     [
+      354,
+      349
+     ]
+    ],
+    "confidence": 0.831,
+    "braille": "\u283c\u281b",
+    "reading_order": 5
+   },
+   {
+    "text": "A",
+    "bbox": [
+     [
+      433,
+      292
+     ],
+     [
+      448,
+      292
+     ],
+     [
+      448,
+      309
+     ],
+     [
+      433,
+      309
+     ]
+    ],
+    "confidence": 0.962,
+    "braille": "\u2820\u2801",
+    "reading_order": 3
+   },
+   {
+    "text": "1",
+    "bbox": [
+     [
+      436,
+      1411
+     ],
+     [
+      446,
+      1411
+     ],
+     [
+      446,
+      1426
+     ],
+     [
+      436,
+      1426
+     ]
+    ],
+    "confidence": 0.932,
+    "braille": "\u283c\u2801",
+    "reading_order": 13
+   },
+   {
+    "text": "17",
+    "bbox": [
+     [
+      443,
+      388
+     ],
+     [
+      464,
+      388
+     ],
+     [
+      464,
+      404
+     ],
+     [
+      443,
+      404
+     ]
+    ],
+    "confidence": 0.979,
+    "braille": "\u283c\u2801\u281b",
+    "reading_order": 8
+   },
+   {
+    "text": "2",
+    "bbox": [
+     [
+      538,
+      388
+     ],
+     [
+      550,
+      388
+     ],
+     [
+      550,
+      404
+     ],
+     [
+      538,
+      404
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2803",
+    "reading_order": 4
+   },
+   {
+    "text": "B",
+    "bbox": [
+     [
+      638,
+      290
+     ],
+     [
+      653,
+      290
+     ],
+     [
+      653,
+      306
+     ],
+     [
+      638,
+      306
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u2830\u2820\u2803",
+    "reading_order": 2
+   },
+   {
+    "text": "X",
+    "bbox": [
+     [
+      766,
+      730
+     ],
+     [
+      774,
+      730
+     ],
+     [
+      774,
+      741
+     ],
+     [
+      766,
+      741
+     ]
+    ],
+    "confidence": 0.918,
+    "braille": "\u2830\u2820\u282d",
+    "reading_order": 9
+   },
+   {
+    "text": "X",
+    "bbox": [
+     [
+      774,
+      1431
+     ],
+     [
+      787,
+      1431
+     ],
+     [
+      787,
+      1444
+     ],
+     [
+      774,
+      1444
+     ]
+    ],
+    "confidence": 0.803,
+    "braille": "\u2830\u2820\u282d",
+    "reading_order": 12
+   },
+   {
+    "text": "3",
+    "bbox": [
+     [
+      784,
+      310
+     ],
+     [
+      791,
+      310
+     ],
+     [
+      791,
+      319
+     ],
+     [
+      784,
+      319
+     ]
+    ],
+    "confidence": 0.921,
+    "braille": "\u283c\u2809",
+    "reading_order": 6
+   }
+  ],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       780,
+       1413
+      ],
+      "end": [
+       389,
+       1398
+      ],
+      "length": 391.29
+     },
+     "bbox": [
+      389,
+      1398,
+      391,
+      15
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_43"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       729,
+       992
+      ],
+      "end": [
+       376,
+       986
+      ],
+      "length": 353.05
+     },
+     "bbox": [
+      376,
+      986,
+      353,
+      6
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_40"
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       558,
+       124
+      ],
+      "end": [
+       439,
+       126
+      ],
+      "length": 119.02
+     },
+     "bbox": [
+      439,
+      124,
+      119,
+      2
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_37"
+    },
+    {
+     "id": "el_3",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       747,
+       1214
+      ],
+      "end": [
+       388,
+       1383
+      ],
+      "length": 396.79
+     },
+     "bbox": [
+      388,
+      1214,
+      359,
+      169
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       389,
+       1398
+      ],
+      "end": [
+       386,
+       1125
+      ],
+      "length": 273.02
+     },
+     "bbox": [
+      386,
+      1125,
+      3,
+      273
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       754,
+       968
+      ],
+      "end": [
+       750,
+       716
+      ],
+      "length": 252.03
+     },
+     "bbox": [
+      750,
+      716,
+      4,
+      252
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_47"
+    },
+    {
+     "id": "el_6",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       577,
+       1296
+      ],
+      "end": [
+       372,
+       1289
+      ],
+      "length": 205.12
+     },
+     "bbox": [
+      372,
+      1289,
+      205,
+      7
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_7",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       749,
+       1389
+      ],
+      "end": [
+       745,
+       1135
+      ],
+      "length": 254.03
+     },
+     "bbox": [
+      745,
+      1135,
+      4,
+      254
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_8",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       353,
+       128
+      ],
+      "end": [
+       142,
+       133
+      ],
+      "length": 211.06
+     },
+     "bbox": [
+      142,
+      128,
+      211,
+      5
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       778,
+       1376
+      ],
+      "end": [
+       452,
+       1364
+      ],
+      "length": 326.22
+     },
+     "bbox": [
+      452,
+      1364,
+      326,
+      12
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_10",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       777,
+       1339
+      ],
+      "end": [
+       466,
+       1329
+      ],
+      "length": 311.16
+     },
+     "bbox": [
+      466,
+      1329,
+      311,
+      10
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_11",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       616,
+       1261
+      ],
+      "end": [
+       390,
+       1254
+      ],
+      "length": 226.11
+     },
+     "bbox": [
+      390,
+      1254,
+      226,
+      7
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_12",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       539,
+       1149
+      ],
+      "end": [
+       370,
+       1146
+      ],
+      "length": 169.03
+     },
+     "bbox": [
+      370,
+      1146,
+      169,
+      3
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_13",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       441,
+       1424
+      ],
+      "end": [
+       440,
+       1359
+      ],
+      "length": 65.01
+     },
+     "bbox": [
+      440,
+      1359,
+      1,
+      65
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_14",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       775,
+       1193
+      ],
+      "end": [
+       434,
+       1183
+      ],
+      "length": 341.15
+     },
+     "bbox": [
+      434,
+      1183,
+      341,
+      10
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_15",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       591,
+       1274
+      ],
+      "end": [
+       590,
+       1221
+      ],
+      "length": 53.01
+     },
+     "bbox": [
+      590,
+      1221,
+      1,
+      53
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_16",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       643,
+       1262
+      ],
+      "end": [
+       641,
+       1133
+      ],
+      "length": 129.02
+     },
+     "bbox": [
+      641,
+      1133,
+      2,
+      129
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_17",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       721,
+       1228
+      ],
+      "end": [
+       369,
+       1217
+      ],
+      "length": 352.17
+     },
+     "bbox": [
+      369,
+      1217,
+      352,
+      11
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_18",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       543,
+       1427
+      ],
+      "end": [
+       542,
+       1365
+      ],
+      "length": 62.01
+     },
+     "bbox": [
+      542,
+      1365,
+      1,
+      62
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_19",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       774,
+       1157
+      ],
+      "end": [
+       658,
+       1153
+      ],
+      "length": 116.07
+     },
+     "bbox": [
+      658,
+      1153,
+      116,
+      4
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_20",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       777,
+       1266
+      ],
+      "end": [
+       669,
+       1262
+      ],
+      "length": 108.07
+     },
+     "bbox": [
+      669,
+      1262,
+      108,
+      4
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_21",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       694,
+       1238
+      ],
+      "end": [
+       693,
+       1152
+      ],
+      "length": 86.01
+     },
+     "bbox": [
+      693,
+      1152,
+      1,
+      86
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_22",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       438,
+       1191
+      ],
+      "end": [
+       439,
+       1377
+      ],
+      "length": 186.0
+     },
+     "bbox": [
+      438,
+      1191,
+      1,
+      186
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_23",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       506,
+       371
+      ],
+      "end": [
+       505,
+       416
+      ],
+      "length": 45.01
+     },
+     "bbox": [
+      505,
+      371,
+      1,
+      45
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_24",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       490,
+       1302
+      ],
+      "end": [
+       488,
+       1132
+      ],
+      "length": 170.01
+     },
+     "bbox": [
+      488,
+      1132,
+      2,
+      170
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_25",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       593,
+       1407
+      ],
+      "end": [
+       591,
+       1289
+      ],
+      "length": 118.02
+     },
+     "bbox": [
+      591,
+      1289,
+      2,
+      118
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_26",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       540,
+       1182
+      ],
+      "end": [
+       542,
+       1365
+      ],
+      "length": 183.01
+     },
+     "bbox": [
+      540,
+      1182,
+      2,
+      183
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_27",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       696,
+       1359
+      ],
+      "end": [
+       695,
+       1278
+      ],
+      "length": 81.01
+     },
+     "bbox": [
+      695,
+      1278,
+      1,
+      81
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_28",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       644,
+       1279
+      ],
+      "end": [
+       644,
+       1372
+      ],
+      "length": 93.0
+     },
+     "bbox": [
+      644,
+      1279,
+      0,
+      93
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_29",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       685,
+       1299
+      ],
+      "end": [
+       613,
+       1298
+      ],
+      "length": 72.01
+     },
+     "bbox": [
+      613,
+      1298,
+      72,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_30",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       696,
+       1391
+      ],
+      "end": [
+       697,
+       1363
+      ],
+      "length": 28.02
+     },
+     "bbox": [
+      696,
+      1363,
+      1,
+      28
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null,
+     "role": "tick"
+    },
+    {
+     "id": "el_31",
+     "type": "rectangle",
+     "geometry": {
+      "points": [
+       [
+        373,
+        714
+       ],
+       [
+        376,
+        960
+       ],
+       [
+        729,
+        966
+       ],
+       [
+        724,
+        716
+       ]
+      ],
+      "area": 87280.0
+     },
+     "bbox": [
+      373,
+      714,
+      356,
+      252
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_32",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       552,
+       395
+      ],
+      "radius": 116.28
+     },
+     "bbox": [
+      403,
+      304,
+      285,
+      185
+     ],
+     "confidence": 0.77,
+     "source": "contour",
+     "associated_label_id": "el_38"
+    },
+    {
+     "id": "el_33",
+     "type": "rectangle",
+     "geometry": {
+      "points": [
+       [
+        764,
+        240
+       ],
+       [
+        326,
+        244
+       ],
+       [
+        328,
+        550
+       ],
+       [
+        767,
+        551
+       ]
+      ],
+      "area": 135281.0
+     },
+     "bbox": [
+      326,
+      240,
+      441,
+      311
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_41"
+    },
+    {
+     "id": "el_34",
+     "type": "point",
+     "geometry": {
+      "position": [
+       389,
+       1398
+      ]
+     },
+     "bbox": [
+      386,
+      1395,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_35",
+     "type": "point",
+     "geometry": {
+      "position": [
+       542,
+       1365
+      ]
+     },
+     "bbox": [
+      539,
+      1362,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_36",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       389,
+       1398
+      ],
+      "arms": [
+       [
+        780,
+        1413
+       ],
+       [
+        386,
+        1125
+       ]
+      ],
+      "degrees": 92.8
+     },
+     "bbox": [
+      384,
+      1393,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_37",
+     "type": "text_label",
+     "geometry": {
+      "text": "Date:",
+      "braille": "\u2820\u2819\u2801\u281e\u2811\u2812",
+      "position": [
+       404,
+       85
+      ]
+     },
+     "bbox": [
+      372,
+      102,
+      64,
+      26
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "Date:",
+     "braille": "\u2820\u2819\u2801\u281e\u2811\u2812",
+     "associated_element_id": "el_2",
+     "association": {
+      "target_id": "el_2",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.326,
+      "needs_review": true
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_38",
+     "type": "text_label",
+     "geometry": {
+      "text": "19",
+      "braille": "\u283c\u2801\u280a",
+      "position": [
+       617,
+       395
+      ]
+     },
+     "bbox": [
+      623,
+      385,
+      28,
+      20
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_32",
+     "text": "19",
+     "braille": "\u283c\u2801\u280a",
+     "associated_element_id": "el_32",
+     "association": {
+      "target_id": "el_32",
+      "target_type": "circle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 7
+    },
+    {
+     "id": "el_39",
+     "type": "text_label",
+     "geometry": {
+      "text": "4cm",
+      "braille": "\u283c\u2819\u2830\u2809\u280d",
+      "position": [
+       855,
+       783
+      ]
+     },
+     "bbox": [
+      764,
+      830,
+      62,
+      26
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "4cm",
+     "braille": "\u283c\u2819\u2830\u2809\u280d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 10
+    },
+    {
+     "id": "el_40",
+     "type": "text_label",
+     "geometry": {
+      "text": "412 cm",
+      "braille": "\u283c\u2819\u2801\u2803\u2800\u2809\u280d",
+      "position": [
+       571,
+       1029
+      ]
+     },
+     "bbox": [
+      514,
+      996,
+      74,
+      26
+     ],
+     "confidence": 0.474,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "412 cm",
+     "braille": "\u283c\u2819\u2801\u2803\u2800\u2809\u280d",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.504,
+      "needs_review": false
+     },
+     "reading_order": 11
+    },
+    {
+     "id": "el_41",
+     "type": "text_label",
+     "geometry": {
+      "text": "7",
+      "braille": "\u283c\u281b",
+      "position": [
+       416,
+       284
+      ]
+     },
+     "bbox": [
+      354,
+      339,
+      5,
+      10
+     ],
+     "confidence": 0.831,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "7",
+     "braille": "\u283c\u281b",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_42",
+     "type": "text_label",
+     "geometry": {
+      "text": "A",
+      "braille": "\u2820\u2801",
+      "position": [
+       440,
+       200
+      ]
+     },
+     "bbox": [
+      433,
+      292,
+      15,
+      17
+     ],
+     "confidence": 0.962,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "A",
+     "braille": "\u2820\u2801",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.463,
+      "needs_review": true
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_43",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       491,
+       1468
+      ]
+     },
+     "bbox": [
+      436,
+      1411,
+      10,
+      15
+     ],
+     "confidence": 0.932,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.175,
+      "needs_review": true
+     },
+     "reading_order": 13
+    },
+    {
+     "id": "el_44",
+     "type": "text_label",
+     "geometry": {
+      "text": "17",
+      "braille": "\u283c\u2801\u281b",
+      "position": [
+       264,
+       586
+      ]
+     },
+     "bbox": [
+      443,
+      388,
+      21,
+      16
+     ],
+     "confidence": 0.979,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "17",
+     "braille": "\u283c\u2801\u281b",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.082,
+      "needs_review": true
+     },
+     "reading_order": 8
+    },
+    {
+     "id": "el_45",
+     "type": "text_label",
+     "geometry": {
+      "text": "2",
+      "braille": "\u283c\u2803",
+      "position": [
+       354,
+       206
+      ]
+     },
+     "bbox": [
+      538,
+      388,
+      12,
+      16
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "2",
+     "braille": "\u283c\u2803",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.528,
+      "needs_review": false
+     },
+     "reading_order": 4
+    },
+    {
+     "id": "el_46",
+     "type": "text_label",
+     "geometry": {
+      "text": "B",
+      "braille": "\u2830\u2820\u2803",
+      "position": [
+       646,
+       198
+      ]
+     },
+     "bbox": [
+      638,
+      290,
+      15,
+      16
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "B",
+     "braille": "\u2830\u2820\u2803",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.462,
+      "needs_review": true
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_47",
+     "type": "text_label",
+     "geometry": {
+      "text": "X",
+      "braille": "\u2830\u2820\u282d",
+      "position": [
+       820,
+       686
+      ]
+     },
+     "bbox": [
+      766,
+      730,
+      8,
+      11
+     ],
+     "confidence": 0.918,
+     "source": "ocr",
+     "associated_label_id": "el_5",
+     "text": "X",
+     "braille": "\u2830\u2820\u282d",
+     "associated_element_id": "el_5",
+     "association": {
+      "target_id": "el_5",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.05,
+      "needs_review": true
+     },
+     "reading_order": 9
+    },
+    {
+     "id": "el_48",
+     "type": "text_label",
+     "geometry": {
+      "text": "X",
+      "braille": "\u2830\u2820\u282d",
+      "position": [
+       800,
+       1458
+      ]
+     },
+     "bbox": [
+      774,
+      1431,
+      13,
+      13
+     ],
+     "confidence": 0.803,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "X",
+     "braille": "\u2830\u2820\u282d",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.384,
+      "needs_review": true
+     },
+     "reading_order": 12
+    },
+    {
+     "id": "el_49",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       818,
+       284
+      ]
+     },
+     "bbox": [
+      784,
+      310,
+      7,
+      9
+     ],
+     "confidence": 0.921,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.33,
+      "needs_review": true
+     },
+     "reading_order": 6
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_32_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_32"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_0_el_4_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_4"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_4_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_0_el_6_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_6"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_25_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_0",
+      "el_25"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_1_el_6_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_6"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_3_el_4_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_4"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_6_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_6"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_7_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_7"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_13_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_13"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_16_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_16"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_17_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_17"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_21_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_21"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_25_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_25"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_4_el_7_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_7"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_11_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_4",
+      "el_11"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_4_el_12_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_4",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_13_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_13"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_22_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_22"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_24_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_6",
+      "el_24"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_7_el_16_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_16"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_21_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_21"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_27_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_27"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_18_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_18"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_26_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_26"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_28_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_28"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_28_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_10",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_12",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_12",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_24_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_12",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_13_el_22_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_13",
+      "el_22"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_14_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_22_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_14",
+      "el_22"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_22_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_14",
+      "el_22"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_14_el_26_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_14",
+      "el_26"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_15_el_16_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_15",
+      "el_16"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_15_el_17_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_15",
+      "el_17"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_15_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_15",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_21_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_21"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_18_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_18",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_18_el_26_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_18",
+      "el_26"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_19_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_19",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_19_el_21_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_19",
+      "el_21"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_22_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_22_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_22_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_24_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_24",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_27_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_27"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_26_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_26",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_27_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_27",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_28_el_29_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_28",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_34",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_34",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_34_el_4_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_34",
+      "el_4"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_4_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_34",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_35_el_9_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_18_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_18"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_18_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_35",
+      "el_18"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_35_el_26_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_26_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_35",
+      "el_26"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_30_el_9_lies_on",
+     "type": "lies_on",
+     "element_ids": [
+      "el_30",
+      "el_9"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "review_flags": [
+    "Low-confidence angle detected \u2014 may be noise. Review before export.",
+    "Low-confidence text_label detected \u2014 may be noise. Review before export."
+   ]
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       780,
+       1413
+      ],
+      "end": [
+       389,
+       1398
+      ],
+      "length": 391.29
+     },
+     "bbox": [
+      389,
+      1398,
+      391,
+      15
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_43"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       729,
+       992
+      ],
+      "end": [
+       376,
+       986
+      ],
+      "length": 353.05
+     },
+     "bbox": [
+      376,
+      986,
+      353,
+      6
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_40"
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       558,
+       124
+      ],
+      "end": [
+       439,
+       126
+      ],
+      "length": 119.02
+     },
+     "bbox": [
+      439,
+      124,
+      119,
+      2
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_37"
+    },
+    {
+     "id": "el_3",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       747,
+       1214
+      ],
+      "end": [
+       388,
+       1383
+      ],
+      "length": 396.79
+     },
+     "bbox": [
+      388,
+      1214,
+      359,
+      169
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       389,
+       1398
+      ],
+      "end": [
+       386,
+       1125
+      ],
+      "length": 273.02
+     },
+     "bbox": [
+      386,
+      1125,
+      3,
+      273
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       754,
+       968
+      ],
+      "end": [
+       750,
+       716
+      ],
+      "length": 252.03
+     },
+     "bbox": [
+      750,
+      716,
+      4,
+      252
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_47"
+    },
+    {
+     "id": "el_6",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       577,
+       1296
+      ],
+      "end": [
+       372,
+       1289
+      ],
+      "length": 205.12
+     },
+     "bbox": [
+      372,
+      1289,
+      205,
+      7
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_7",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       749,
+       1389
+      ],
+      "end": [
+       745,
+       1135
+      ],
+      "length": 254.03
+     },
+     "bbox": [
+      745,
+      1135,
+      4,
+      254
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_8",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       353,
+       128
+      ],
+      "end": [
+       142,
+       133
+      ],
+      "length": 211.06
+     },
+     "bbox": [
+      142,
+      128,
+      211,
+      5
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       778,
+       1376
+      ],
+      "end": [
+       452,
+       1364
+      ],
+      "length": 326.22
+     },
+     "bbox": [
+      452,
+      1364,
+      326,
+      12
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_10",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       777,
+       1339
+      ],
+      "end": [
+       466,
+       1329
+      ],
+      "length": 311.16
+     },
+     "bbox": [
+      466,
+      1329,
+      311,
+      10
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_11",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       616,
+       1261
+      ],
+      "end": [
+       390,
+       1254
+      ],
+      "length": 226.11
+     },
+     "bbox": [
+      390,
+      1254,
+      226,
+      7
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_12",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       539,
+       1149
+      ],
+      "end": [
+       370,
+       1146
+      ],
+      "length": 169.03
+     },
+     "bbox": [
+      370,
+      1146,
+      169,
+      3
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_13",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       441,
+       1424
+      ],
+      "end": [
+       440,
+       1359
+      ],
+      "length": 65.01
+     },
+     "bbox": [
+      440,
+      1359,
+      1,
+      65
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_14",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       775,
+       1193
+      ],
+      "end": [
+       434,
+       1183
+      ],
+      "length": 341.15
+     },
+     "bbox": [
+      434,
+      1183,
+      341,
+      10
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_15",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       591,
+       1274
+      ],
+      "end": [
+       590,
+       1221
+      ],
+      "length": 53.01
+     },
+     "bbox": [
+      590,
+      1221,
+      1,
+      53
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_16",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       643,
+       1262
+      ],
+      "end": [
+       641,
+       1133
+      ],
+      "length": 129.02
+     },
+     "bbox": [
+      641,
+      1133,
+      2,
+      129
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_17",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       721,
+       1228
+      ],
+      "end": [
+       369,
+       1217
+      ],
+      "length": 352.17
+     },
+     "bbox": [
+      369,
+      1217,
+      352,
+      11
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_18",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       543,
+       1427
+      ],
+      "end": [
+       542,
+       1365
+      ],
+      "length": 62.01
+     },
+     "bbox": [
+      542,
+      1365,
+      1,
+      62
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_19",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       774,
+       1157
+      ],
+      "end": [
+       658,
+       1153
+      ],
+      "length": 116.07
+     },
+     "bbox": [
+      658,
+      1153,
+      116,
+      4
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_20",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       777,
+       1266
+      ],
+      "end": [
+       669,
+       1262
+      ],
+      "length": 108.07
+     },
+     "bbox": [
+      669,
+      1262,
+      108,
+      4
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_21",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       694,
+       1238
+      ],
+      "end": [
+       693,
+       1152
+      ],
+      "length": 86.01
+     },
+     "bbox": [
+      693,
+      1152,
+      1,
+      86
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_22",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       438,
+       1191
+      ],
+      "end": [
+       439,
+       1377
+      ],
+      "length": 186.0
+     },
+     "bbox": [
+      438,
+      1191,
+      1,
+      186
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_23",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       506,
+       371
+      ],
+      "end": [
+       505,
+       416
+      ],
+      "length": 45.01
+     },
+     "bbox": [
+      505,
+      371,
+      1,
+      45
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_24",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       490,
+       1302
+      ],
+      "end": [
+       488,
+       1132
+      ],
+      "length": 170.01
+     },
+     "bbox": [
+      488,
+      1132,
+      2,
+      170
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_25",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       593,
+       1407
+      ],
+      "end": [
+       591,
+       1289
+      ],
+      "length": 118.02
+     },
+     "bbox": [
+      591,
+      1289,
+      2,
+      118
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_26",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       540,
+       1182
+      ],
+      "end": [
+       542,
+       1365
+      ],
+      "length": 183.01
+     },
+     "bbox": [
+      540,
+      1182,
+      2,
+      183
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_27",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       696,
+       1359
+      ],
+      "end": [
+       695,
+       1278
+      ],
+      "length": 81.01
+     },
+     "bbox": [
+      695,
+      1278,
+      1,
+      81
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_28",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       644,
+       1279
+      ],
+      "end": [
+       644,
+       1372
+      ],
+      "length": 93.0
+     },
+     "bbox": [
+      644,
+      1279,
+      0,
+      93
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_29",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       685,
+       1299
+      ],
+      "end": [
+       613,
+       1298
+      ],
+      "length": 72.01
+     },
+     "bbox": [
+      613,
+      1298,
+      72,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_30",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       696,
+       1393
+      ],
+      "end": [
+       697,
+       1361
+      ],
+      "length": 32.02
+     },
+     "bbox": [
+      696,
+      1361,
+      1,
+      32
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null,
+     "role": "tick"
+    },
+    {
+     "id": "el_31",
+     "type": "rectangle",
+     "geometry": {
+      "points": [
+       [
+        373,
+        714
+       ],
+       [
+        376,
+        960
+       ],
+       [
+        729,
+        966
+       ],
+       [
+        724,
+        716
+       ]
+      ],
+      "area": 87280.0
+     },
+     "bbox": [
+      373,
+      714,
+      356,
+      252
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_32",
+     "type": "circle",
+     "geometry": {
+      "center": [
+       552,
+       395
+      ],
+      "radius": 116.28
+     },
+     "bbox": [
+      403,
+      304,
+      285,
+      185
+     ],
+     "confidence": 0.77,
+     "source": "contour",
+     "associated_label_id": "el_38"
+    },
+    {
+     "id": "el_33",
+     "type": "rectangle",
+     "geometry": {
+      "points": [
+       [
+        764,
+        240
+       ],
+       [
+        326,
+        244
+       ],
+       [
+        328,
+        550
+       ],
+       [
+        767,
+        551
+       ]
+      ],
+      "area": 135281.0
+     },
+     "bbox": [
+      326,
+      240,
+      441,
+      311
+     ],
+     "confidence": 0.85,
+     "source": "contour",
+     "associated_label_id": "el_41"
+    },
+    {
+     "id": "el_34",
+     "type": "point",
+     "geometry": {
+      "position": [
+       389,
+       1398
+      ]
+     },
+     "bbox": [
+      386,
+      1395,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_35",
+     "type": "point",
+     "geometry": {
+      "position": [
+       542,
+       1365
+      ]
+     },
+     "bbox": [
+      539,
+      1362,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_36",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       389,
+       1398
+      ],
+      "arms": [
+       [
+        780,
+        1413
+       ],
+       [
+        386,
+        1125
+       ]
+      ],
+      "degrees": 92.8
+     },
+     "bbox": [
+      384,
+      1393,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_37",
+     "type": "text_label",
+     "geometry": {
+      "text": "Date:",
+      "braille": "\u2820\u2819\u2801\u281e\u2811\u2812",
+      "position": [
+       404,
+       85
+      ]
+     },
+     "bbox": [
+      372,
+      102,
+      64,
+      26
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": "el_2",
+     "text": "Date:",
+     "braille": "\u2820\u2819\u2801\u281e\u2811\u2812",
+     "associated_element_id": "el_2",
+     "association": {
+      "target_id": "el_2",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.326,
+      "needs_review": true
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_38",
+     "type": "text_label",
+     "geometry": {
+      "text": "19",
+      "braille": "\u283c\u2801\u280a",
+      "position": [
+       617,
+       395
+      ]
+     },
+     "bbox": [
+      623,
+      385,
+      28,
+      20
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_32",
+     "text": "19",
+     "braille": "\u283c\u2801\u280a",
+     "associated_element_id": "el_32",
+     "association": {
+      "target_id": "el_32",
+      "target_type": "circle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 7
+    },
+    {
+     "id": "el_39",
+     "type": "text_label",
+     "geometry": {
+      "text": "4cm",
+      "braille": "\u283c\u2819\u2830\u2809\u280d",
+      "position": [
+       855,
+       783
+      ]
+     },
+     "bbox": [
+      764,
+      830,
+      62,
+      26
+     ],
+     "confidence": 0.999,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "4cm",
+     "braille": "\u283c\u2819\u2830\u2809\u280d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 10
+    },
+    {
+     "id": "el_40",
+     "type": "text_label",
+     "geometry": {
+      "text": "412 cm",
+      "braille": "\u283c\u2819\u2801\u2803\u2800\u2809\u280d",
+      "position": [
+       571,
+       1029
+      ]
+     },
+     "bbox": [
+      514,
+      996,
+      74,
+      26
+     ],
+     "confidence": 0.474,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "412 cm",
+     "braille": "\u283c\u2819\u2801\u2803\u2800\u2809\u280d",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.504,
+      "needs_review": false
+     },
+     "reading_order": 11
+    },
+    {
+     "id": "el_41",
+     "type": "text_label",
+     "geometry": {
+      "text": "7",
+      "braille": "\u283c\u281b",
+      "position": [
+       416,
+       284
+      ]
+     },
+     "bbox": [
+      354,
+      339,
+      5,
+      10
+     ],
+     "confidence": 0.831,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "7",
+     "braille": "\u283c\u281b",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "inside",
+      "confidence": 1.0,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_42",
+     "type": "text_label",
+     "geometry": {
+      "text": "A",
+      "braille": "\u2820\u2801",
+      "position": [
+       440,
+       200
+      ]
+     },
+     "bbox": [
+      433,
+      292,
+      15,
+      17
+     ],
+     "confidence": 0.962,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "A",
+     "braille": "\u2820\u2801",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.463,
+      "needs_review": true
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_43",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       491,
+       1468
+      ]
+     },
+     "bbox": [
+      436,
+      1411,
+      10,
+      15
+     ],
+     "confidence": 0.932,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.175,
+      "needs_review": true
+     },
+     "reading_order": 13
+    },
+    {
+     "id": "el_44",
+     "type": "text_label",
+     "geometry": {
+      "text": "17",
+      "braille": "\u283c\u2801\u281b",
+      "position": [
+       264,
+       586
+      ]
+     },
+     "bbox": [
+      443,
+      388,
+      21,
+      16
+     ],
+     "confidence": 0.979,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "17",
+     "braille": "\u283c\u2801\u281b",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.082,
+      "needs_review": true
+     },
+     "reading_order": 8
+    },
+    {
+     "id": "el_45",
+     "type": "text_label",
+     "geometry": {
+      "text": "2",
+      "braille": "\u283c\u2803",
+      "position": [
+       354,
+       206
+      ]
+     },
+     "bbox": [
+      538,
+      388,
+      12,
+      16
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "2",
+     "braille": "\u283c\u2803",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.528,
+      "needs_review": false
+     },
+     "reading_order": 4
+    },
+    {
+     "id": "el_46",
+     "type": "text_label",
+     "geometry": {
+      "text": "B",
+      "braille": "\u2830\u2820\u2803",
+      "position": [
+       646,
+       198
+      ]
+     },
+     "bbox": [
+      638,
+      290,
+      15,
+      16
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "B",
+     "braille": "\u2830\u2820\u2803",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.462,
+      "needs_review": true
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_47",
+     "type": "text_label",
+     "geometry": {
+      "text": "X",
+      "braille": "\u2830\u2820\u282d",
+      "position": [
+       820,
+       686
+      ]
+     },
+     "bbox": [
+      766,
+      730,
+      8,
+      11
+     ],
+     "confidence": 0.918,
+     "source": "ocr",
+     "associated_label_id": "el_5",
+     "text": "X",
+     "braille": "\u2830\u2820\u282d",
+     "associated_element_id": "el_5",
+     "association": {
+      "target_id": "el_5",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.05,
+      "needs_review": true
+     },
+     "reading_order": 9
+    },
+    {
+     "id": "el_48",
+     "type": "text_label",
+     "geometry": {
+      "text": "X",
+      "braille": "\u2830\u2820\u282d",
+      "position": [
+       800,
+       1458
+      ]
+     },
+     "bbox": [
+      774,
+      1431,
+      13,
+      13
+     ],
+     "confidence": 0.803,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "X",
+     "braille": "\u2830\u2820\u282d",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.384,
+      "needs_review": true
+     },
+     "reading_order": 12
+    },
+    {
+     "id": "el_49",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       818,
+       284
+      ]
+     },
+     "bbox": [
+      784,
+      310,
+      7,
+      9
+     ],
+     "confidence": 0.921,
+     "source": "ocr",
+     "associated_label_id": "el_33",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_33",
+     "association": {
+      "target_id": "el_33",
+      "target_type": "rectangle",
+      "reason": "nearest_outline",
+      "confidence": 0.33,
+      "needs_review": true
+     },
+     "reading_order": 6
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_32_center",
+     "type": "circle_center",
+     "element_ids": [
+      "el_32"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_0_el_4_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_4"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_4_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_0_el_6_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_6"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_0",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_25_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_0",
+      "el_25"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_1_el_6_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_6"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_1_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_1",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_3_el_4_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_4"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_6_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_6"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_7_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_7"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_13_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_13"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_16_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_16"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_17_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_17"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_21_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_21"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_25_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_3",
+      "el_25"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_4_el_7_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_7"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_11_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_4",
+      "el_11"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_4_el_12_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_4",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_13_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_13"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_22_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_22"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_4_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_4",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_9_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_6",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_24_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_6",
+      "el_24"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_7_el_16_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_16"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_21_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_21"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_27_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_27"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_7",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_10_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_10"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_18_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_18"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_9_el_26_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_26"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_28_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_9",
+      "el_28"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_9_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_9",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_11_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_11"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_28_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_10",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_10_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_10",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_12_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_12"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_11_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_11",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_14_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_12",
+      "el_14"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_12",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_12_el_24_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_12",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_13_el_22_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_13",
+      "el_22"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_14_el_17_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_17"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_14",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_22_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_14",
+      "el_22"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_14_el_22_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_14",
+      "el_22"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_14_el_26_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_14",
+      "el_26"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_15_el_16_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_15",
+      "el_16"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_15_el_17_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_15",
+      "el_17"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_15_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_15",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_21_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_21"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_16_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_16",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_19_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_19"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_17_el_29_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_17",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_18_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_18",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_18_el_26_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_18",
+      "el_26"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_19_el_20_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_19",
+      "el_20"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_19_el_21_intersect",
+     "type": "intersects",
+     "element_ids": [
+      "el_19",
+      "el_21"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_22_el_24_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_24"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_22_el_25_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_25"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_22_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_22",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_24_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_24",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_26_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_27_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_27"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_25_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_25",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_26_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_26",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_27_el_28_parallel",
+     "type": "parallel_lines",
+     "element_ids": [
+      "el_27",
+      "el_28"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_28_el_29_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_28",
+      "el_29"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_34",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_34",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_34_el_4_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_34",
+      "el_4"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_34_el_4_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_34",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_35_el_9_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_9"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_18_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_18"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_18_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_35",
+      "el_18"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_35_el_26_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_35",
+      "el_26"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_35_el_26_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_35",
+      "el_26"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_30_el_9_lies_on",
+     "type": "lies_on",
+     "element_ids": [
+      "el_30",
+      "el_9"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "actions": [
+    {
+     "element_id": "el_30",
+     "action": "enlarged_tick",
+     "detail": "Tick lengthened from 4.7mm to 5.5mm so it can be felt."
+    }
+   ],
+   "removed_count": 0,
+   "merged_count": 0
+  },
+  "qa": {
+   "passes": false,
+   "score_0_100": 31,
+   "issues": [
+    {
+     "check": "braille_on_line",
+     "severity": "error",
+     "message": "Braille for el_38 is 0.3mm from el_32 (minimum 3mm), so the cells and the line would be indistinct by touch.",
+     "element_id": "el_38"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_0 and el_3 are 2.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_1 and el_5 are 5.8mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_1 and el_31 are 4.4mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_3 and el_4 are 2.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_3"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_3 and el_14 are 5.9mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_3"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_3 and el_17 are 5.0mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_3"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_3 and el_34 are 2.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_3"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_4 and el_12 are 4.4mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_4"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_5 and el_31 are 4.2mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_5"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_6 and el_15 are 4.4mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_6"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_6 and el_25 are 2.6mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_6"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_7 and el_9 are 5.3mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_7"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_9 and el_13 are 2.2mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_9"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_9 and el_22 are 3.1mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_9"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_11 and el_15 are 4.7mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_11"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_11 and el_16 are 4.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_11"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_11 and el_28 are 5.6mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_11"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_12 and el_26 are 5.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_12"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_13 and el_22 are 3.0mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_13"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_14 and el_22 are 1.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_14"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_15 and el_25 are 2.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_15"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_15 and el_29 are 5.5mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_15"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_16 and el_19 are 4.4mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_16"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_16 and el_20 are 4.4mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_16"
+    },
+    {
+     "check": "spacing",
+     "severity": "warning",
+     "message": "Elements el_16 and el_28 are 2.9mm apart (minimum 6mm), which may be hard to distinguish by touch.",
+     "element_id": "el_16"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_4 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_34 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_4 and el_34 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_4"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_18 and el_26 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_18"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_18 and el_35 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_18"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_26 and el_35 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_26"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_27 and el_30 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_27"
+    },
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "30 feature(s) have no label (el_3, el_4, el_6, el_7, el_8, ...); consider adding labels for the learner.",
+     "element_id": null
+    },
+    {
+     "check": "spacing_summary",
+     "severity": "info",
+     "message": "7 further 'spacing' issue were found and are not listed individually.",
+     "element_id": null
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-75.68 -106.89 1251.35 1769.77\" width=\"210mm\" height=\"297mm\" data-mm-per-px=\"0.16782\" role=\"img\" aria-label=\"Tactile representation of 37 geometry features and 13 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:4.204; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-75.68\" y=\"-106.89\" width=\"1251.35\" height=\"1769.77\" fill=\"white\"/><g class=\"stroke\"><line data-element-id=\"el_0\" x1=\"780.0\" y1=\"1413.0\" x2=\"389.0\" y2=\"1398.0\"/><line data-element-id=\"el_1\" x1=\"729.0\" y1=\"992.0\" x2=\"376.0\" y2=\"986.0\"/><line data-element-id=\"el_2\" x1=\"558.0\" y1=\"124.0\" x2=\"439.0\" y2=\"126.0\"/><line data-element-id=\"el_3\" x1=\"747.0\" y1=\"1214.0\" x2=\"388.0\" y2=\"1383.0\"/><line data-element-id=\"el_4\" x1=\"389.0\" y1=\"1398.0\" x2=\"386.0\" y2=\"1125.0\"/><line data-element-id=\"el_5\" x1=\"754.0\" y1=\"968.0\" x2=\"750.0\" y2=\"716.0\"/><line data-element-id=\"el_6\" x1=\"577.0\" y1=\"1296.0\" x2=\"372.0\" y2=\"1289.0\"/><line data-element-id=\"el_7\" x1=\"749.0\" y1=\"1389.0\" x2=\"745.0\" y2=\"1135.0\"/><line data-element-id=\"el_8\" x1=\"353.0\" y1=\"128.0\" x2=\"142.0\" y2=\"133.0\"/><line data-element-id=\"el_9\" x1=\"778.0\" y1=\"1376.0\" x2=\"452.0\" y2=\"1364.0\"/><line data-element-id=\"el_10\" x1=\"777.0\" y1=\"1339.0\" x2=\"466.0\" y2=\"1329.0\"/><line data-element-id=\"el_11\" x1=\"616.0\" y1=\"1261.0\" x2=\"390.0\" y2=\"1254.0\"/><line data-element-id=\"el_12\" x1=\"539.0\" y1=\"1149.0\" x2=\"370.0\" y2=\"1146.0\"/><line data-element-id=\"el_13\" x1=\"441.0\" y1=\"1424.0\" x2=\"440.0\" y2=\"1359.0\"/><line data-element-id=\"el_14\" x1=\"775.0\" y1=\"1193.0\" x2=\"434.0\" y2=\"1183.0\"/><line data-element-id=\"el_15\" x1=\"591.0\" y1=\"1274.0\" x2=\"590.0\" y2=\"1221.0\"/><line data-element-id=\"el_16\" x1=\"643.0\" y1=\"1262.0\" x2=\"641.0\" y2=\"1133.0\"/><line data-element-id=\"el_17\" x1=\"721.0\" y1=\"1228.0\" x2=\"369.0\" y2=\"1217.0\"/><line data-element-id=\"el_18\" x1=\"543.0\" y1=\"1427.0\" x2=\"542.0\" y2=\"1365.0\"/><line data-element-id=\"el_19\" x1=\"774.0\" y1=\"1157.0\" x2=\"658.0\" y2=\"1153.0\"/><line data-element-id=\"el_20\" x1=\"777.0\" y1=\"1266.0\" x2=\"669.0\" y2=\"1262.0\"/><line data-element-id=\"el_21\" x1=\"694.0\" y1=\"1238.0\" x2=\"693.0\" y2=\"1152.0\"/><line data-element-id=\"el_22\" x1=\"438.0\" y1=\"1191.0\" x2=\"439.0\" y2=\"1377.0\"/><line data-element-id=\"el_23\" x1=\"506.0\" y1=\"371.0\" x2=\"505.0\" y2=\"416.0\"/><line data-element-id=\"el_24\" x1=\"490.0\" y1=\"1302.0\" x2=\"488.0\" y2=\"1132.0\"/><line data-element-id=\"el_25\" x1=\"593.0\" y1=\"1407.0\" x2=\"591.0\" y2=\"1289.0\"/><line data-element-id=\"el_26\" x1=\"540.0\" y1=\"1182.0\" x2=\"542.0\" y2=\"1365.0\"/><line data-element-id=\"el_27\" x1=\"696.0\" y1=\"1359.0\" x2=\"695.0\" y2=\"1278.0\"/><line data-element-id=\"el_28\" x1=\"644.0\" y1=\"1279.0\" x2=\"644.0\" y2=\"1372.0\"/><line data-element-id=\"el_29\" x1=\"685.0\" y1=\"1299.0\" x2=\"613.0\" y2=\"1298.0\"/><line data-element-id=\"el_30\" x1=\"696.0\" y1=\"1393.0\" x2=\"697.0\" y2=\"1361.0\"/><polygon data-element-id=\"el_31\" points=\"373.0,714.0 376.0,960.0 729.0,966.0 724.0,716.0\"/><circle data-element-id=\"el_32\" cx=\"552.0\" cy=\"395.0\" r=\"116.3\"/><polygon data-element-id=\"el_33\" points=\"764.0,240.0 326.0,244.0 328.0,550.0 767.0,551.0\"/><circle data-element-id=\"el_34\" cx=\"389.0\" cy=\"1398.0\" r=\"4.2\"/><circle data-element-id=\"el_35\" cx=\"542.0\" cy=\"1365.0\" r=\"4.2\"/></g><g class=\"tactile-braille\"><g data-element-id=\"el_37\" class=\"braille\" role=\"img\" aria-label=\"Date:\" data-braille=\"\u2820\u2819\u2801\u281e\u2811\u2812\"><title>Date:</title><circle cx=\"322.1\" cy=\"99.9\" r=\"4.47\"/><circle cx=\"342.9\" cy=\"70.1\" r=\"4.47\"/><circle cx=\"357.8\" cy=\"70.1\" r=\"4.47\"/><circle cx=\"357.8\" cy=\"85.0\" r=\"4.47\"/><circle cx=\"378.7\" cy=\"70.1\" r=\"4.47\"/><circle cx=\"414.4\" cy=\"85.0\" r=\"4.47\"/><circle cx=\"414.4\" cy=\"99.9\" r=\"4.47\"/><circle cx=\"429.3\" cy=\"70.1\" r=\"4.47\"/><circle cx=\"429.3\" cy=\"85.0\" r=\"4.47\"/><circle cx=\"450.2\" cy=\"70.1\" r=\"4.47\"/><circle cx=\"465.1\" cy=\"85.0\" r=\"4.47\"/><circle cx=\"485.9\" cy=\"85.0\" r=\"4.47\"/><circle cx=\"500.8\" cy=\"85.0\" r=\"4.47\"/></g><g data-element-id=\"el_38\" class=\"braille\" role=\"img\" aria-label=\"19\" data-braille=\"\u283c\u2801\u280a\"><title>19</title><circle cx=\"573.8\" cy=\"409.9\" r=\"4.47\"/><circle cx=\"588.7\" cy=\"380.1\" r=\"4.47\"/><circle cx=\"588.7\" cy=\"395.0\" r=\"4.47\"/><circle cx=\"588.7\" cy=\"409.9\" r=\"4.47\"/><circle cx=\"609.6\" cy=\"380.1\" r=\"4.47\"/><circle cx=\"645.3\" cy=\"395.0\" r=\"4.47\"/><circle cx=\"660.2\" cy=\"380.1\" r=\"4.47\"/></g><g data-element-id=\"el_39\" class=\"braille\" role=\"img\" aria-label=\"4cm\" data-braille=\"\u283c\u2819\u2830\u2809\u280d\"><title>4cm</title><circle cx=\"776.0\" cy=\"797.9\" r=\"4.47\"/><circle cx=\"790.9\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"790.9\" cy=\"783.0\" r=\"4.47\"/><circle cx=\"790.9\" cy=\"797.9\" r=\"4.47\"/><circle cx=\"811.8\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"826.7\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"826.7\" cy=\"783.0\" r=\"4.47\"/><circle cx=\"862.4\" cy=\"783.0\" r=\"4.47\"/><circle cx=\"862.4\" cy=\"797.9\" r=\"4.47\"/><circle cx=\"883.3\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"898.2\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"919.1\" cy=\"768.1\" r=\"4.47\"/><circle cx=\"919.1\" cy=\"797.9\" r=\"4.47\"/><circle cx=\"934.0\" cy=\"768.1\" r=\"4.47\"/></g><g data-element-id=\"el_40\" class=\"braille\" role=\"img\" aria-label=\"412 cm\" data-braille=\"\u283c\u2819\u2801\u2803\u2800\u2809\u280d\"><title>412 cm</title><circle cx=\"456.3\" cy=\"1043.9\" r=\"4.47\"/><circle cx=\"471.2\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"471.2\" cy=\"1029.0\" r=\"4.47\"/><circle cx=\"471.2\" cy=\"1043.9\" r=\"4.47\"/><circle cx=\"492.0\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"506.9\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"506.9\" cy=\"1029.0\" r=\"4.47\"/><circle cx=\"527.8\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"563.6\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"563.6\" cy=\"1029.0\" r=\"4.47\"/><circle cx=\"635.1\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"650.0\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"670.8\" cy=\"1014.1\" r=\"4.47\"/><circle cx=\"670.8\" cy=\"1043.9\" r=\"4.47\"/><circle cx=\"685.7\" cy=\"1014.1\" r=\"4.47\"/></g><g data-element-id=\"el_41\" class=\"braille\" role=\"img\" aria-label=\"7\" data-braille=\"\u283c\u281b\"><title>7</title><circle cx=\"390.7\" cy=\"298.9\" r=\"4.47\"/><circle cx=\"405.6\" cy=\"269.1\" r=\"4.47\"/><circle cx=\"405.6\" cy=\"284.0\" r=\"4.47\"/><circle cx=\"405.6\" cy=\"298.9\" r=\"4.47\"/><circle cx=\"426.4\" cy=\"269.1\" r=\"4.47\"/><circle cx=\"426.4\" cy=\"284.0\" r=\"4.47\"/><circle cx=\"441.3\" cy=\"269.1\" r=\"4.47\"/><circle cx=\"441.3\" cy=\"284.0\" r=\"4.47\"/></g><g data-element-id=\"el_42\" class=\"braille\" role=\"img\" aria-label=\"A\" data-braille=\"\u2820\u2801\"><title>A</title><circle cx=\"429.6\" cy=\"214.9\" r=\"4.47\"/><circle cx=\"450.4\" cy=\"185.1\" r=\"4.47\"/></g><g data-element-id=\"el_43\" class=\"braille\" role=\"img\" aria-label=\"1\" data-braille=\"\u283c\u2801\"><title>1</title><circle cx=\"465.7\" cy=\"1482.9\" r=\"4.47\"/><circle cx=\"480.6\" cy=\"1453.1\" r=\"4.47\"/><circle cx=\"480.6\" cy=\"1468.0\" r=\"4.47\"/><circle cx=\"480.6\" cy=\"1482.9\" r=\"4.47\"/><circle cx=\"501.4\" cy=\"1453.1\" r=\"4.47\"/></g><g data-element-id=\"el_44\" class=\"braille\" role=\"img\" aria-label=\"17\" data-braille=\"\u283c\u2801\u281b\"><title>17</title><circle cx=\"220.8\" cy=\"600.9\" r=\"4.47\"/><circle cx=\"235.7\" cy=\"571.1\" r=\"4.47\"/><circle cx=\"235.7\" cy=\"586.0\" r=\"4.47\"/><circle cx=\"235.7\" cy=\"600.9\" r=\"4.47\"/><circle cx=\"256.6\" cy=\"571.1\" r=\"4.47\"/><circle cx=\"292.3\" cy=\"571.1\" r=\"4.47\"/><circle cx=\"292.3\" cy=\"586.0\" r=\"4.47\"/><circle cx=\"307.2\" cy=\"571.1\" r=\"4.47\"/><circle cx=\"307.2\" cy=\"586.0\" r=\"4.47\"/></g><g data-element-id=\"el_45\" class=\"braille\" role=\"img\" aria-label=\"2\" data-braille=\"\u283c\u2803\"><title>2</title><circle cx=\"328.7\" cy=\"220.9\" r=\"4.47\"/><circle cx=\"343.6\" cy=\"191.1\" r=\"4.47\"/><circle cx=\"343.6\" cy=\"206.0\" r=\"4.47\"/><circle cx=\"343.6\" cy=\"220.9\" r=\"4.47\"/><circle cx=\"364.4\" cy=\"191.1\" r=\"4.47\"/><circle cx=\"364.4\" cy=\"206.0\" r=\"4.47\"/></g><g data-element-id=\"el_46\" class=\"braille\" role=\"img\" aria-label=\"B\" data-braille=\"\u2830\u2820\u2803\"><title>B</title><circle cx=\"617.7\" cy=\"198.0\" r=\"4.47\"/><circle cx=\"617.7\" cy=\"212.9\" r=\"4.47\"/><circle cx=\"653.4\" cy=\"212.9\" r=\"4.47\"/><circle cx=\"674.3\" cy=\"183.1\" r=\"4.47\"/><circle cx=\"674.3\" cy=\"198.0\" r=\"4.47\"/></g><g data-element-id=\"el_47\" class=\"braille\" role=\"img\" aria-label=\"X\" data-braille=\"\u2830\u2820\u282d\"><title>X</title><circle cx=\"791.7\" cy=\"686.0\" r=\"4.47\"/><circle cx=\"791.7\" cy=\"700.9\" r=\"4.47\"/><circle cx=\"827.4\" cy=\"700.9\" r=\"4.47\"/><circle cx=\"848.3\" cy=\"671.1\" r=\"4.47\"/><circle cx=\"848.3\" cy=\"700.9\" r=\"4.47\"/><circle cx=\"863.2\" cy=\"671.1\" r=\"4.47\"/><circle cx=\"863.2\" cy=\"700.9\" r=\"4.47\"/></g><g data-element-id=\"el_48\" class=\"braille\" role=\"img\" aria-label=\"X\" data-braille=\"\u2830\u2820\u282d\"><title>X</title><circle cx=\"771.7\" cy=\"1458.0\" r=\"4.47\"/><circle cx=\"771.7\" cy=\"1472.9\" r=\"4.47\"/><circle cx=\"807.4\" cy=\"1472.9\" r=\"4.47\"/><circle cx=\"828.3\" cy=\"1443.1\" r=\"4.47\"/><circle cx=\"828.3\" cy=\"1472.9\" r=\"4.47\"/><circle cx=\"843.2\" cy=\"1443.1\" r=\"4.47\"/><circle cx=\"843.2\" cy=\"1472.9\" r=\"4.47\"/></g><g data-element-id=\"el_49\" class=\"braille\" role=\"img\" aria-label=\"3\" data-braille=\"\u283c\u2809\"><title>3</title><circle cx=\"792.7\" cy=\"298.9\" r=\"4.47\"/><circle cx=\"807.6\" cy=\"269.1\" r=\"4.47\"/><circle cx=\"807.6\" cy=\"284.0\" r=\"4.47\"/><circle cx=\"807.6\" cy=\"298.9\" r=\"4.47\"/><circle cx=\"828.4\" cy=\"269.1\" r=\"4.47\"/><circle cx=\"843.3\" cy=\"269.1\" r=\"4.47\"/></g></g></svg>",
+  "timings_ms": {
+   "preprocessing": 167.3,
+   "vectorization": 575.8,
+   "ocr": 7240.5,
+   "labels_braille": 262.6,
+   "preview_svg": 0.0,
+   "semantic_analysis": 5.2,
+   "simplification": 0.6,
+   "tactile_qa": 15.8,
+   "tactile_svg": 0.5,
+   "total": 8273.8
+  }
+ }
+}

@@ -14,6 +14,7 @@ from app.models.geometry import (
 )
 from app.services.geometry_relations import infer_relationships
 from app.services.tactile_rules import TACTILE_RULES
+from app.services.vectorization import MIN_ROUND_VERTICES
 
 # Hard ceiling on heuristic angles. With one angle per vertex the count is already
 # bounded by the vertex count; this is a second guard against pathological input.
@@ -43,7 +44,7 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             elements.append(element)
 
     # Detect significant points (shared line endpoints, shape vertices).
-    point_elements, point_explanations = _detect_points(elements, id_counter)
+    point_elements, point_explanations = _detect_points(elements, id_counter, labels)
     id_counter += len(point_elements)
     elements.extend(point_elements)
     explanations.extend(point_explanations)
@@ -125,8 +126,9 @@ def _analyze_line(shape: dict, id: int) -> tuple[list[DetectedElement], list[Ele
         needs_review=confidence < 0.5,
         source="hough",
         bbox=(min(start[0], end[0]), min(start[1], end[1]), abs(end[0] - start[0]), abs(end[1] - start[1])),
-        semantic_properties={"length": round(length, 2)},
-        provenance=_line_provenance(length, start, end, confidence),
+        semantic_properties={"length": round(length, 2), **({"role": shape["role"]} if shape.get("role") else {})},
+        provenance=_line_provenance(length, start, end, confidence)
+        + (" Recovered as a tick drawn across a longer line." if shape.get("role") == "tick" else ""),
     )
     return [element], []
 
@@ -158,7 +160,8 @@ def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[lis
         source="contour",
         bbox=bbox,
         semantic_properties=_contour_properties(gtype, points, area, perimeter),
-        provenance=f"Detected as {gtype.value} from contour of {len(points)} vertices with area {area:.0f}px and confidence {confidence:.2f}.",
+        provenance=f"Detected as {gtype.value} from contour of {len(points)} vertices with area {area:.0f}px and confidence {confidence:.2f}."
+        + (" Outline joined from line segments that close one loop." if shape.get("source") == "joined_sides" else ""),
     )
     relationships: list[ElementRelationship] = []
     if gtype is GeometryType.CIRCLE and "center" in geometry:
@@ -201,7 +204,7 @@ def _classify_contour(points: list[tuple[int, int]], area: float, perimeter: flo
         if _is_rectangle(points):
             return GeometryType.RECTANGLE, 0.15
         return GeometryType.POLYGON, 0.08
-    if n >= 5 and circularity > 0.85:
+    if n >= MIN_ROUND_VERTICES and circularity > 0.85:
         return GeometryType.CIRCLE, 0.15
     if n >= 5 and circularity > 0.6:
         return GeometryType.POLYGON, 0.05
@@ -308,21 +311,54 @@ def _dedupe_relationships(relationships: list[ElementRelationship]) -> list[Elem
     return result
 
 
-def _detect_points(elements: list[DetectedElement], start_id: int) -> tuple[list[DetectedElement], list[TransformationExplanation]]:
-    """Create point elements at shared endpoints / polygon vertices."""
+LABELLED_VERTEX_PX = 45.0
+CIRCLE_CENTRE_PX = 8.0
+
+
+def _label_anchor(label: dict) -> tuple[float, float] | None:
+    position = label.get("position") or label.get("desired_position")
+    if position:
+        return float(position[0]), float(position[1])
+    box = label.get("bbox")
+    if box:
+        xs, ys = [p[0] for p in box], [p[1] for p in box]
+        return (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    return None
+
+
+def _detect_points(
+    elements: list[DetectedElement], start_id: int, labels: list[dict] | None = None
+) -> tuple[list[DetectedElement], list[TransformationExplanation]]:
+    """Create point elements at shared endpoints, labelled polygon vertices and marked circle centres."""
     significant: dict[tuple[int, int], int] = {}
     explanations: list[TransformationExplanation] = []
+    anchors = [a for a in (_label_anchor(label) for label in labels or []) if a]
+    line_ends = [
+        tuple(element.geometry[key])
+        for element in elements
+        if element.type is GeometryType.LINE_SEGMENT and not element.semantic_properties.get("role")
+        for key in ("start", "end")
+    ]
 
     for element in elements:
         if element.type is GeometryType.LINE_SEGMENT:
+            if element.semantic_properties.get("role") == "tick":
+                continue
             for coord in (element.geometry["start"], element.geometry["end"]):
                 significant[coord] = significant.get(coord, 0) + 1
         elif element.type in (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON):
             points = element.geometry.get("points", [])
             for coord in points:
-                significant[coord] = significant.get(coord, 0) + 1
+                labelled = any(math.dist(coord, anchor) <= LABELLED_VERTEX_PX for anchor in anchors)
+                # A vertex named by a nearby label is a point in its own right.
+                significant[coord] = significant.get(coord, 0) + (2 if labelled else 1)
+        elif element.type is GeometryType.CIRCLE and "center" in element.geometry:
+            centre = tuple(int(round(v)) for v in element.geometry["center"])
+            # A radius or diameter drawn to the centre makes the centre a point.
+            if any(math.dist(centre, end) <= CIRCLE_CENTRE_PX for end in line_ends):
+                significant[centre] = significant.get(centre, 0) + 2
 
-    # A coordinate shared by two or more features, or a polygon vertex, is a real point.
+    # A coordinate shared by two or more features is a real point.
     point_elements: list[DetectedElement] = []
     pid = start_id
     for coord, count in significant.items():
@@ -514,6 +550,10 @@ def _associate_labels(elements: list[DetectedElement], relationships: list[Eleme
     for label in label_elements:
         result = associate_label(label, geometry_elements)
         target_id = result.get("target_id")
+        label.semantic_properties["association"] = {
+            key: result.get(key)
+            for key in ("target_id", "target_type", "reason", "confidence", "needs_review")
+        }
         if target_id:
             label.associated_label_id = target_id
             for element in geometry_elements:

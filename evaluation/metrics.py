@@ -59,10 +59,11 @@ RELATION_MAP = {
     "PERPENDICULAR": {"perpendicular_lines"},
     "INTERSECTS": {"intersects", "connected_lines"},
     "ENDPOINT_OF": {"endpoint_of"},
-    "ON": {"point_on_line", "point_on_circle"},
+    "ON": {"point_on_line", "point_on_circle", "lies_on"},
     "CENTER_OF": {"center_of", "circle_center"},
+    "VERTEX_OF": {"vertex_of"},
 }
-UNSUPPORTED_RELATIONS = {"VERTEX_OF", "INSIDE", "REFLECTION_OF", "TRANSLATION_OF", "DIMENSION_OF", "ANGLE_AT", "LABELS"}
+UNSUPPORTED_RELATIONS = {"INSIDE", "REFLECTION_OF", "TRANSLATION_OF", "DIMENSION_OF", "ANGLE_AT", "LABELS"}
 PRED_TO_GT_RELATION = {p: g for g, ps in RELATION_MAP.items() for p in ps}
 
 TACTILE_TARGET, TACTILE_LIMIT = 40, 60
@@ -394,6 +395,7 @@ def score_objects(gt: dict, preds: list[dict]) -> dict:
         "geometry_errors": geo,
         "right_angle_markers": {"gt": len(markers), "found": found_markers, "predicted": len(pred_markers)},
         "missed_essential_ids": [gts[i]["id"] for i in essential if i not in strict and i not in parts],
+        "found_ids": sorted(gts[i]["id"] for i in counted if i in strict or i in parts),
         "_gt_id_to_preds": {k: [preds[j]["id"] for j in v] for k, v in gt_id_to_preds.items()},
     }
 
@@ -563,9 +565,16 @@ def score_relationships(gt: dict, preds: list[dict], relationships: list[dict], 
         d["found"] += hit
     gt_keys = {(r["type"], frozenset((r["source"], r["target"]))) for r in supported}
     mappable = [(t, a, b) for t, a, b in pred_sets if a and b]
-    pred_tp = sum(1 for t, a, b in mappable if any((t, frozenset((x, y))) in gt_keys for x in a for y in b))
-    for t, _, _ in mappable:
-        by_type.setdefault(t, {"gt": 0, "found": 0, "predicted_mappable": 0})["predicted_mappable"] += 1
+    pred_tp = 0
+    for t, a, b in mappable:
+        ok = any((t, frozenset((x, y))) in gt_keys for x in a for y in b)
+        pred_tp += ok
+        d = by_type.setdefault(t, {"gt": 0, "found": 0, "predicted_mappable": 0})
+        d["predicted_mappable"] += 1
+        d["predicted_correct"] = d.get("predicted_correct", 0) + ok
+    for t, _, _ in pred_sets:
+        d = by_type.setdefault(t, {"gt": 0, "found": 0, "predicted_mappable": 0})
+        d["predicted"] = d.get("predicted", 0) + 1
     return {
         "gt_supported": len(supported),
         "gt_unsupported": dict(unsupported),
@@ -577,6 +586,161 @@ def score_relationships(gt: dict, preds: list[dict], relationships: list[dict], 
         "precision_lower_bound": ratio(pred_tp, len(mappable)),
         "by_type": by_type,
     }
+
+
+# ------------------------------------------------------------ line grouping
+GROUPING_ANGLE_DEG = 8.0
+GROUPING_MIN_COVERAGE = 0.5
+GROUPING_FULL_COVERAGE = 0.8
+GROUPING_DUPLICATE_FACTOR = 1.2
+
+
+def _gt_edges(gt: dict) -> list[tuple[str, tuple, tuple]]:
+    """Straight drawn edges: linear objects and the sides of closed shapes (omittable excluded)."""
+    edges = []
+    for o in gt["objects"]:
+        if o["semantic_importance"] == "omittable":
+            continue
+        g = o["geometry"]
+        if o["type"] in LINEAR_GT and g.get("kind") == "segment":
+            edges.append((o["id"], tuple(g["points"][0]), tuple(g["points"][1])))
+        elif o["type"] in CLOSED_GT and g.get("kind") == "polygon":
+            pts = g["points"]
+            edges.extend((f"{o['id']}#side{k}", tuple(pts[k]), tuple(pts[(k + 1) % len(pts)])) for k in range(len(pts)))
+    return edges
+
+
+def _pred_segments(preds: list[dict]) -> list[tuple[str, tuple, tuple]]:
+    segs = []
+    for p in preds:
+        g = p.get("geometry") or {}
+        if p["type"] in LINEAR_PRED and "start" in g:
+            segs.append((p["id"], tuple(g["start"]), tuple(g["end"])))
+        elif p["type"] in CLOSED_PRED and len(g.get("points") or []) >= 3:
+            pts = g["points"]
+            segs.extend((p["id"], tuple(pts[k]), tuple(pts[(k + 1) % len(pts)])) for k in range(len(pts)))
+    return segs
+
+
+def _interval_on_edge(a, b, s0, s1, dist_tol: float) -> tuple[float, float] | None:
+    """Projection of segment (s0, s1) onto edge (a, b) as [t0, t1] in pixels, if it lies on the edge."""
+    ex, ey = b[0] - a[0], b[1] - a[1]
+    length = math.hypot(ex, ey)
+    slen = math.dist(s0, s1)
+    if length < 1 or slen < 1:
+        return None
+    ux, uy = ex / length, ey / length
+    sa = math.degrees(math.atan2(s1[1] - s0[1], s1[0] - s0[0])) % 180
+    ea = math.degrees(math.atan2(ey, ex)) % 180
+    if min(abs(sa - ea), 180 - abs(sa - ea)) > GROUPING_ANGLE_DEG:
+        return None
+    for q in (s0, s1):
+        if abs((q[0] - a[0]) * uy - (q[1] - a[1]) * ux) > dist_tol:
+            return None
+    t0 = (s0[0] - a[0]) * ux + (s0[1] - a[1]) * uy
+    t1 = (s1[0] - a[0]) * ux + (s1[1] - a[1]) * uy
+    lo, hi = max(0.0, min(t0, t1)), min(length, max(t0, t1))
+    if hi - lo < 0.5 * slen:
+        return None
+    return lo, hi
+
+
+def _union_length(intervals: list[tuple[float, float]]) -> float:
+    total, end = 0.0, -math.inf
+    for lo, hi in sorted(intervals):
+        if lo > end:
+            total += hi - lo
+            end = hi
+        elif hi > end:
+            total += hi - end
+            end = hi
+    return total
+
+
+def score_line_grouping(gt: dict, preds: list[dict]) -> dict:
+    """How each drawn straight edge is represented: once, fragmented, duplicated, partial or missed.
+
+    A predicted segment (a line element, or a side of a predicted polygon) lies on
+    a ground-truth edge when it is within 8 degrees of its direction, both its ends
+    are within ``0.6 * tau`` of the edge's supporting line, and at least half of it
+    projects inside the edge.
+    """
+    tau = tolerance(gt["width"], gt["height"])
+    segs = _pred_segments(preds)
+    counts = Counter()
+    for _, a, b in _gt_edges(gt):
+        length = math.dist(a, b)
+        on = [iv for _, s0, s1 in segs if (iv := _interval_on_edge(a, b, s0, s1, 0.6 * tau))]
+        coverage = _union_length(on) / length if length else 0.0
+        counts["edges"] += 1
+        if coverage < GROUPING_MIN_COVERAGE:
+            counts["missed"] += 1
+        elif len(on) == 1:
+            counts["correct" if coverage >= GROUPING_FULL_COVERAGE else "partial"] += 1
+        elif sum(hi - lo for lo, hi in on) > GROUPING_DUPLICATE_FACTOR * _union_length(on):
+            counts["duplicated"] += 1
+        else:
+            counts["fragmented"] += 1
+    detected = counts["edges"] - counts["missed"]
+    return {
+        "edges": counts["edges"], "correct": counts["correct"], "partial": counts["partial"],
+        "fragmented": counts["fragmented"], "duplicated": counts["duplicated"], "missed": counts["missed"],
+        "correct_grouping_rate": ratio(counts["correct"], counts["edges"]),
+        "over_segmentation_rate": ratio(counts["fragmented"], detected),
+        "duplicate_rate": ratio(counts["duplicated"], detected),
+        "missed_rate": ratio(counts["missed"], counts["edges"]),
+    }
+
+
+# ------------------------------------------------------- semantic preservation
+def semantic_preservation(gt: dict, objects_final: dict, labels: dict, relationships_final: dict) -> dict:
+    """End-to-end Semantic Preservation Rate on the final tactile output.
+
+    Essential information = essential objects + essential labels (exact text) +
+    label-to-object associations + every non-LABELS ground-truth relationship
+    (types Model A cannot express count as not preserved) + dimension values.
+    """
+    rel_all = sum(1 for r in gt["relationships"] if r["type"] != "LABELS")
+    exact_by_id = {pl["id"]: pl["detected"] and pl["char_errors"] == 0 for pl in labels["per_label"]}
+    dims = gt.get("dimensions") or []
+    dims_ok = sum(1 for d in dims if exact_by_id.get(d.get("label")) and d.get("object") in objects_final.get("_found_ids", set()))
+    parts = {
+        "objects": (objects_final["essential_found_structural"], objects_final["gt_essential"]),
+        "labels": (labels["exact_match_normalized"], labels["gt_essential"]),
+        "associations": (labels["association_correct"], sum(1 for lab in gt["labels"]
+                                                              if lab["semantic_importance"] == "essential" and lab.get("associated_object"))),
+        "relationships": (relationships_final["found"], rel_all),
+        "dimensions": (dims_ok, len(dims)),
+    }
+    kept = sum(k for k, _ in parts.values())
+    total = sum(t for _, t in parts.values())
+    return {"preserved": kept, "total": total, "rate": ratio(kept, total),
+            "components": {name: {"preserved": k, "total": t, "rate": ratio(k, t)} for name, (k, t) in parts.items()}}
+
+
+# ------------------------------------------------------------------ QA gate
+CRITICAL_CHECKS = {"out_of_bounds", "braille_collision", "braille_on_line", "invalid_svg"}
+
+
+def qa_gate(qa: dict, svg: dict, essential_lost: int) -> dict:
+    """PASS / WARNING / BLOCKED from the captured QA report, and critical problems QA let through.
+
+    ``critical_unblocked`` lists measurable critical violations present in an output
+    that QA still allowed to export (empty when QA blocked it).
+    """
+    blocking = [i for i in qa["issues"] if i["severity"] == "error"]
+    status = qa.get("status") or ("BLOCKED" if blocking else "WARNING" if any(i["severity"] == "warning" for i in qa["issues"]) else "PASS")
+    critical = []
+    if not svg.get("present") or not svg.get("valid"):
+        critical.append("invalid_svg")
+    if svg.get("out_of_bounds"):
+        critical.append("out_of_bounds")
+    if essential_lost:
+        critical.append("essential_removed_by_simplification")
+    issue_checks = {i["check"] for i in qa["issues"]}
+    critical.extend(sorted(issue_checks & CRITICAL_CHECKS - {"invalid_svg", "out_of_bounds"}))
+    return {"status": status, "critical_present": sorted(set(critical)),
+            "critical_unblocked": [] if status == "BLOCKED" else sorted(set(critical))}
 
 
 # ------------------------------------------------------------ SVG structure
@@ -677,6 +841,9 @@ def score_image(gt: dict, result: dict, gt_braille: dict | None = None, translat
                 and (e["type"] != "angle" or (e.get("geometry") or {}).get("right_angle_marker"))]
     for part in (pre, post):
         part.pop("_gt_id_to_preds")
+    svg_score = score_svg(result.get("tactile_svg"))
+    essential_lost = len(set(lost) & essential_ids)
+    spr = semantic_preservation(gt, {**post, "_found_ids": set(post["found_ids"])}, labels, rel_post)
     return {
         "failed": False,
         "objects": pre,
@@ -695,10 +862,14 @@ def score_image(gt: dict, result: dict, gt_braille: dict | None = None, translat
             "gt_found_after": post["essential_found_structural"],
             "essential_lost_ids": sorted(set(lost) & essential_ids),
         },
+        "line_grouping": score_line_grouping(gt, geometry_elements(sem)),
+        "line_grouping_final": score_line_grouping(gt, geometry_elements(fin)),
+        "semantic_preservation": spr,
+        "qa_gate": qa_gate(qa, svg_score, essential_lost),
         "braille": {"collisions": issues.get("braille_collision", 0), "on_line": issues.get("braille_on_line", 0)},
         "qa": {"passes": qa["passes"], "score": qa.get("score_0_100"), "issues": dict(issues),
                "blocking": sorted({i["check"] for i in qa["issues"] if i["severity"] == "error"})},
-        "svg": {**score_svg(result.get("tactile_svg")), "near_duplicate_geometry": near_duplicate_geometry(fin),
+        "svg": {**svg_score, "near_duplicate_geometry": near_duplicate_geometry(fin),
                 "embossed_features": len(embossed), "over_target": len(embossed) > TACTILE_TARGET,
                 "over_limit": len(embossed) > TACTILE_LIMIT},
         "timings_ms": result.get("timings_ms", {}),

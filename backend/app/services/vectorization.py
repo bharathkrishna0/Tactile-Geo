@@ -31,6 +31,10 @@ MIN_HOLE_AREA_FRACTION = 0.2
 # A regular hexagon scores ~0.06 against its best-fit ellipse, so polygons stay
 # polygons instead of gaining an ellipse that is not in the source.
 ELLIPSE_FIT_MAX_ERROR = 0.035
+# approxPolyDP at 1 % of the perimeter keeps 5-8 corners of a drawn regular
+# polygon but needs 9 or more vertices for a drawn circle (an octagon fits an
+# ellipse within ELLIPSE_FIT_MAX_ERROR, so vertex count separates the two).
+MIN_ROUND_VERTICES = 9
 ELLIPSE_MAX_ASPECT = 0.85
 ELLIPSE_MIN_AREA = 200
 MIN_CONTOUR_AREA = 80
@@ -230,7 +234,7 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
         points = _centerline_points(outer_points, inner_points)
         ellipse = None
         round_outline = False
-        if len(outer_points) >= 5 and len(contour) >= 5:
+        if len(outer_points) >= MIN_ROUND_VERTICES and len(contour) >= 5:
             center, (a, b), angle = _ellipse_from_fit(cv2.fitEllipse(contour))
             round_outline = _ellipse_fit_error(contour, center, (a, b), angle) <= ELLIPSE_FIT_MAX_ERROR
             if round_outline:
@@ -258,9 +262,224 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
         for start, end in segments
         if not any(_line_covered_by_outline((start, end), outer, band_px) for outer in outlines)
     ]
+    shapes = reconstruct_closed_shapes(shapes)
+    shapes.extend(recover_ticks(binary_image, shapes, stroke_half))
     shapes.extend(closed_shapes)
     shapes.extend(open_contours)
     return shapes
+
+
+MAX_CYCLE_SIDES = 8
+COLLINEAR_VERTEX_DEG = 12.0
+MIN_CYCLE_AREA = 400.0
+
+
+def _drop_collinear_vertices(cycle: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Remove vertices where two consecutive sides continue in the same direction."""
+    changed = True
+    while changed and len(cycle) > 3:
+        changed = False
+        for index, point in enumerate(cycle):
+            prev, nxt = cycle[index - 1], cycle[(index + 1) % len(cycle)]
+            a = math.atan2(point[1] - prev[1], point[0] - prev[0])
+            b = math.atan2(nxt[1] - point[1], nxt[0] - point[0])
+            turn = abs((math.degrees(b - a) + 180) % 360 - 180)
+            if turn < COLLINEAR_VERTEX_DEG:
+                cycle = cycle[:index] + cycle[index + 1:]
+                changed = True
+                break
+    return cycle
+
+
+def _simple_polygon(points: list[tuple[int, int]]) -> bool:
+    edges = [(points[i], points[(i + 1) % len(points)]) for i in range(len(points))]
+    for i, (a, b) in enumerate(edges):
+        for j in range(i + 2, len(edges)):
+            if i == 0 and j == len(edges) - 1:
+                continue
+            c, d = edges[j]
+            if _segments_cross(a, b, c, d):
+                return False
+    return True
+
+
+def _segments_cross(a, b, c, d) -> bool:
+    def orient(p, q, r):
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    return orient(a, b, c) * orient(a, b, d) < 0 and orient(c, d, a) * orient(c, d, b) < 0
+
+
+def reconstruct_closed_shapes(shapes: list[dict]) -> list[dict]:
+    """Join line segments that close exactly one loop into one closed outline.
+
+    A closed figure crossed by another line (an altitude, a transversal) has
+    several enclosed regions, so ``extract_shapes`` keeps it as separate lines.
+    Within each connected group of lines that share (snapped) endpoints, a group
+    containing exactly one loop - edges = vertices - number of loops + 1 - has an
+    unambiguous outline: its loop becomes a contour and its other lines stay
+    lines. Groups with two or more loops (a rectangle with a diagonal) are left
+    as lines because the intended outline is ambiguous.
+    """
+    lines = [s for s in shapes if s["type"] == "line"]
+    others = [s for s in shapes if s["type"] != "line"]
+    adjacency: dict[tuple, list[int]] = {}
+    for index, line in enumerate(lines):
+        a, b = map(tuple, line["points"])
+        adjacency.setdefault(a, []).append(index)
+        adjacency.setdefault(b, []).append(index)
+
+    used: set[int] = set()
+    seen: set[int] = set()
+    contours: list[dict] = []
+    for start in range(len(lines)):
+        if start in seen:
+            continue
+        component, stack, vertices = set(), [start], set()
+        while stack:
+            index = stack.pop()
+            if index in component:
+                continue
+            component.add(index)
+            for end in map(tuple, lines[index]["points"]):
+                vertices.add(end)
+                stack.extend(adjacency[end])
+        seen |= component
+        if len(component) - len(vertices) + 1 != 1:
+            continue
+        cycle = _single_cycle(component, lines, adjacency)
+        if cycle is None:
+            continue
+        vertices_in_order, cycle_lines = cycle
+        polygon = _drop_collinear_vertices(vertices_in_order)
+        if not 3 <= len(polygon) <= MAX_CYCLE_SIDES or not _simple_polygon(polygon):
+            continue
+        area = abs(sum(p[0] * q[1] - q[0] * p[1] for p, q in zip(polygon, polygon[1:] + polygon[:1]))) / 2
+        if area < MIN_CYCLE_AREA:
+            continue
+        used |= cycle_lines
+        contours.append({"type": "contour", "points": [tuple(p) for p in polygon], "source": "joined_sides"})
+    kept = [line for index, line in enumerate(lines) if index not in used]
+    return kept + contours + others
+
+
+def _single_cycle(component: set[int], lines: list[dict], adjacency: dict) -> tuple[list, set[int]] | None:
+    """The one loop of a connected line group with cyclomatic number 1."""
+    degree = {v: len([i for i in idx if i in component]) for v, idx in adjacency.items()}
+    remaining = set(component)
+    # Peel pendant lines until only the loop remains.
+    changed = True
+    while changed:
+        changed = False
+        for index in list(remaining):
+            ends = list(map(tuple, lines[index]["points"]))
+            if any(degree[e] == 1 for e in ends):
+                remaining.discard(index)
+                for e in ends:
+                    degree[e] -= 1
+                changed = True
+    if len(remaining) < 3:
+        return None
+    first = next(iter(remaining))
+    a, b = map(tuple, lines[first]["points"])
+    order, current, previous_line = [a], b, first
+    while current != a:
+        order.append(current)
+        nxt = [i for i in adjacency[current] if i in remaining and i != previous_line]
+        if len(nxt) != 1:
+            return None
+        previous_line = nxt[0]
+        p, q = map(tuple, lines[previous_line]["points"])
+        current = q if p == current else p
+        if len(order) > len(remaining):
+            return None
+    return order, remaining
+
+
+MIN_TICK_HOST_PX = 120
+TICK_BAND_PX = 26
+MIN_TICK_PX = 6
+MAX_TICK_PX = 40
+TICK_PERPENDICULAR_DEG = 20.0
+TICK_MIN_ELONGATION = 2.5
+TICK_PIECE_ELONGATION = 1.5
+TICK_PAIR_PX = 5
+
+
+def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) -> list[dict]:
+    """Short strokes drawn across a long line (axis / number-line ticks).
+
+    Ticks are shorter than the Hough minimum line length, so they are found as
+    ink left over next to a long line once that line's stroke is removed: a
+    small elongated component, perpendicular to the line, that touches it. The
+    pieces on either side of the line at the same position form one tick.
+    """
+    height, width = binary.shape[:2]
+    hosts = [s for s in shapes if s["type"] == "line" and math.dist(*s["points"]) >= MIN_TICK_HOST_PX]
+    if not hosts:
+        return []
+    line_mask = np.zeros_like(binary)
+    thickness = max(3, int(round(2 * stroke_half + 3)))
+    for shape in shapes:
+        if shape["type"] == "line":
+            cv2.line(line_mask, tuple(map(int, shape["points"][0])), tuple(map(int, shape["points"][1])), 255, thickness)
+    residual = cv2.bitwise_and(binary, cv2.bitwise_not(line_mask))
+    ticks: list[dict] = []
+    for host in hosts:
+        (x1, y1), (x2, y2) = host["points"]
+        length = math.dist((x1, y1), (x2, y2))
+        ux, uy = (x2 - x1) / length, (y2 - y1) / length
+        band = np.zeros_like(binary)
+        cv2.line(band, (int(x1), int(y1)), (int(x2), int(y2)), 255, 2 * TICK_BAND_PX)
+        local = cv2.bitwise_and(residual, band)
+        count, labels, stats, _ = cv2.connectedComponentsWithStats(local, connectivity=8)
+        pieces = []
+        for label in range(1, count):
+            ys, xs = np.nonzero(labels == label)
+            if len(xs) < 4:
+                continue
+            pts = np.column_stack([xs, ys]).astype(float)
+            t = (pts[:, 0] - x1) * ux + (pts[:, 1] - y1) * uy
+            n = (pts[:, 0] - x1) * -uy + (pts[:, 1] - y1) * ux
+            if t.min() < 4 or t.max() > length - 4:
+                continue
+            along, across = t.max() - t.min() + 1, n.max() - n.min() + 1
+            near = np.abs(n).min()
+            if near > thickness / 2 + 2 or across < MIN_TICK_PX / 2 or across > MAX_TICK_PX:
+                continue
+            if across < TICK_PIECE_ELONGATION * along:
+                continue
+            mean = pts.mean(axis=0)
+            _, _, vt = np.linalg.svd(pts - mean, full_matrices=False)
+            angle = math.degrees(math.atan2(vt[0][1], vt[0][0]))
+            host_angle = math.degrees(math.atan2(uy, ux))
+            off = abs((angle - host_angle) % 180 - 90)
+            if off > TICK_PERPENDICULAR_DEG:
+                continue
+            pieces.append((float(np.median(t)), float(n.min()), float(n.max()), float(along)))
+        pieces.sort()
+        merged: list[list[float]] = []
+        for t_mid, n_lo, n_hi, along in pieces:
+            if merged and abs(merged[-1][0] - t_mid) <= TICK_PAIR_PX:
+                merged[-1][1] = min(merged[-1][1], n_lo)
+                merged[-1][2] = max(merged[-1][2], n_hi)
+                merged[-1][3] = max(merged[-1][3], along)
+            else:
+                merged.append([t_mid, n_lo, n_hi, along])
+        for t_mid, n_lo, n_hi, along in merged:
+            # A tick crosses its line; a stroke on one side only is usually
+            # part of an angle arc or a label drawn against the line.
+            if n_lo > -thickness / 2 or n_hi < thickness / 2:
+                continue
+            span = n_hi - n_lo
+            if span < MIN_TICK_PX or span > MAX_TICK_PX or span < TICK_MIN_ELONGATION * along:
+                continue
+            cx, cy = x1 + ux * t_mid, y1 + uy * t_mid
+            a = (int(round(cx - uy * n_lo)), int(round(cy + ux * n_lo)))
+            b = (int(round(cx - uy * n_hi)), int(round(cy + ux * n_hi)))
+            if all(0 <= p[0] < width and 0 <= p[1] < height for p in (a, b)):
+                ticks.append({"type": "line", "points": [a, b], "role": "tick"})
+    return ticks
 
 
 def drop_shapes_inside_text_regions(shapes: list[dict], text_boxes: list[list[tuple[int, int]]], padding: int = 2) -> list[dict]:
@@ -282,7 +501,9 @@ def drop_shapes_inside_text_regions(shapes: list[dict], text_boxes: list[list[tu
     kept: list[dict] = []
     for shape in shapes:
         if shape["type"] == "line":
-            kept.append(shape)
+            # A stroke that starts and ends inside one text box is part of a glyph.
+            if not any(all(r[0] <= p[0] <= r[2] and r[1] <= p[1] <= r[3] for p in shape["points"]) for r in regions):
+                kept.append(shape)
             continue
         points = shape.get("points") or ([shape["center"]] if shape.get("center") else [])
         if not points:
