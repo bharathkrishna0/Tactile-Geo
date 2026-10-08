@@ -44,6 +44,7 @@ def map_label_to_geometry(detection: OcrDetection, shapes: list[dict]) -> dict:
         "text": detection.text,
         "bbox": detection.bbox,
         "confidence": detection.confidence,
+        "ocr_provider": detection.provider,
         "anchor_type": anchor_type,
         "anchor": anchor,
         "anchor_distance": anchor_distance,

@@ -23,7 +23,7 @@ the architecture and measured results, and `AGENTS.md` for Model B configuration
 Linux/macOS (Python 3.11+, Debian/Ubuntu shown):
 
 ```bash
-sudo apt-get install liblouis-data python3-louis
+sudo apt-get install liblouis-data python3-louis tesseract-ocr
 cd backend
 python3.11 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
@@ -71,3 +71,14 @@ Braille uses the official Liblouis `louis` Python bindings with the
 `en-ueb-g2.ctb` table. The Docker image installs Liblouis and its tables. Windows
 development needs a native Liblouis installation plus its official Python
 bindings; the unrelated PyPI package named `louis` is not a Liblouis binding.
+
+## OCR engines
+
+EasyOCR reads all text. Tesseract is an optional second engine: it re-reads the
+short label crops (vertex letters, tick numbers) that EasyOCR's detector misses,
+and the two readings are fused (agreement, per-engine confidence, and whether the
+text is a plausible maths label) into one label that records which engine(s)
+produced it. Install the binary with `sudo apt-get install tesseract-ocr`
+(Docker image: included) or, on Windows, the UB Mannheim installer
+(https://github.com/UB-Mannheim/tesseract/wiki) with `tesseract.exe` on `PATH`.
+If the binary is missing, the pipeline silently runs EasyOCR only.

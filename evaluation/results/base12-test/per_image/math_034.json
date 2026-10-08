@@ -1,0 +1,2633 @@
+{
+ "image_id": "math_034",
+ "difficulty": "moderate",
+ "category": "C_graph",
+ "layout": "figure",
+ "conditions": [
+  "clean_digital"
+ ],
+ "content_stressors": [],
+ "timings_ms": {
+  "preprocessing": 75.0,
+  "vectorization": 52.2,
+  "ocr": 5213.0,
+  "labels_braille": 12.3,
+  "preview_svg": 0.0,
+  "semantic_analysis": 0.9,
+  "simplification": 0.1,
+  "tactile_qa": 1.2,
+  "tactile_svg": 0.4,
+  "total": 5386.0
+ },
+ "score": {
+  "failed": false,
+  "objects": {
+   "tau_px": 19.21,
+   "gt_counted": 11,
+   "gt_essential": 3,
+   "predicted": 6,
+   "strict": {
+    "tp": 3,
+    "fp": 0,
+    "fn": 8,
+    "precision": 1.0,
+    "recall": 0.2727,
+    "f1": 0.4285
+   },
+   "structural": {
+    "tp": 4,
+    "fp": 0,
+    "fn": 7,
+    "precision": 1.0,
+    "recall": 0.3636,
+    "f1": 0.5333
+   },
+   "essential_found_strict": 2,
+   "essential_found_structural": 3,
+   "found_as_parts": 1,
+   "fragmented_linear": 1,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {},
+   "per_gt_type": {
+    "axis": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "tick": {
+     "gt": 8,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "line_segment": {
+     "gt": 1,
+     "found_strict": 0,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 6,
+     "true_positive": 3
+    }
+   },
+   "type_correct": 1,
+   "type_total": 3,
+   "type_confusion": {
+    "axes->line_segment": 2,
+    "line_segment->line_segment": 1
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.6135186870502246,
+     0.4342245989304523,
+     3.180955953494599
+    ],
+    "endpoint_px": [
+     0.7403124237432934,
+     0.6000000000000227,
+     9.0451124992969
+    ],
+    "angle_deg": [
+     0.08150176510434903,
+     0.0,
+     0.0
+    ],
+    "length_rel": [
+     0.0014194442653501227,
+     0.0021306818181818987,
+     1.2857142857142858
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [],
+   "found_ids": [
+    "axis_1",
+    "axis_2",
+    "line_segment_1",
+    "tick_2"
+   ]
+  },
+  "objects_final": {
+   "tau_px": 19.21,
+   "gt_counted": 11,
+   "gt_essential": 3,
+   "predicted": 5,
+   "strict": {
+    "tp": 4,
+    "fp": 1,
+    "fn": 7,
+    "precision": 0.8,
+    "recall": 0.3636,
+    "f1": 0.5
+   },
+   "structural": {
+    "tp": 4,
+    "fp": 1,
+    "fn": 7,
+    "precision": 0.8,
+    "recall": 0.3636,
+    "f1": 0.5
+   },
+   "essential_found_strict": 3,
+   "essential_found_structural": 3,
+   "found_as_parts": 0,
+   "fragmented_linear": 0,
+   "closed_as_sides": 0,
+   "on_omittable": 0,
+   "fp_reasons": {
+    "other": 1
+   },
+   "per_gt_type": {
+    "axis": {
+     "gt": 2,
+     "found_strict": 2,
+     "found_structural": 2
+    },
+    "tick": {
+     "gt": 8,
+     "found_strict": 1,
+     "found_structural": 1
+    },
+    "line_segment": {
+     "gt": 1,
+     "found_strict": 1,
+     "found_structural": 1
+    }
+   },
+   "per_pred_type": {
+    "line_segment": {
+     "predicted": 5,
+     "true_positive": 4
+    }
+   },
+   "type_correct": 2,
+   "type_total": 4,
+   "type_confusion": {
+    "axes->line_segment": 2,
+    "line_segment->line_segment": 2
+   },
+   "geometry_errors": {
+    "chamfer_px": [
+     0.6135186870502246,
+     0.4342245989304523,
+     3.180955953494599,
+     12.555866526758745
+    ],
+    "endpoint_px": [
+     0.7403124237432934,
+     0.6000000000000227,
+     9.0451124992969,
+     94.65885554226158
+    ],
+    "angle_deg": [
+     0.08150176510434903,
+     0.0,
+     0.0,
+     0.08926119059580628
+    ],
+    "length_rel": [
+     0.0014194442653501227,
+     0.0021306818181818987,
+     1.2857142857142858,
+     0.2747982570873492
+    ],
+    "polygon_iou": [],
+    "vertex_count_match": [],
+    "circle_center_px": [],
+    "circle_radius_rel": []
+   },
+   "right_angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "angle_markers": {
+    "gt": 0,
+    "found": 0,
+    "predicted": 0
+   },
+   "missed_essential_ids": [],
+   "found_ids": [
+    "axis_1",
+    "axis_2",
+    "line_segment_1",
+    "tick_2"
+   ]
+  },
+  "points": {
+   "gt": 1,
+   "found": 1,
+   "recall": 1.0,
+   "error_px": [
+    0.20000000000004547
+   ]
+  },
+  "labels": {
+   "gt_essential": 11,
+   "predicted": 13,
+   "detected": 9,
+   "detection_recall": 0.8182,
+   "detection_precision": 0.9231,
+   "char_errors": 12,
+   "chars": 24,
+   "cer": 0.5,
+   "cer_detected_only": 0.4545,
+   "word_errors": 7,
+   "words": 15,
+   "wer": 0.4667,
+   "exact_match": 8,
+   "exact_match_normalized": 8,
+   "quantitative_labels": 9,
+   "quantitative_preserved": 7,
+   "association_total": 9,
+   "association_correct": 1,
+   "braille_total": 8,
+   "braille_exact": 8,
+   "braille_consistent": 8,
+   "braille_cell_errors": 0,
+   "braille_cells": 16,
+   "reading_order_pairs": 36,
+   "reading_order_concordant": 35,
+   "per_label": [
+    {
+     "id": "label_1",
+     "gt": "x",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_2",
+     "gt": "y",
+     "pred": "y",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_3",
+     "gt": "1",
+     "pred": "1",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_4",
+     "gt": "1",
+     "pred": "1",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_5",
+     "gt": "3",
+     "pred": "3",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_6",
+     "gt": "3",
+     "pred": "3",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_7",
+     "gt": "5",
+     "pred": "5",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_8",
+     "gt": "5",
+     "pred": "5",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_9",
+     "gt": "7",
+     "pred": "",
+     "detected": false,
+     "char_errors": 1
+    },
+    {
+     "id": "label_10",
+     "gt": "7",
+     "pred": "7",
+     "detected": true,
+     "char_errors": 0
+    },
+    {
+     "id": "label_11",
+     "gt": "y = 0.6x + 0.8",
+     "pred": "0.6x 0.8 Y =",
+     "detected": true,
+     "char_errors": 10
+    }
+   ]
+  },
+  "relationships": {
+   "gt_supported": 11,
+   "gt_unsupported": {
+    "LABELS": 11
+   },
+   "found": 4,
+   "recall": 0.3636,
+   "predicted_supported_type": 17,
+   "predicted_mappable": 9,
+   "predicted_mappable_correct": 4,
+   "precision_lower_bound": 0.4444,
+   "by_type": {
+    "PERPENDICULAR": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1,
+     "predicted_correct": 1,
+     "predicted": 1
+    },
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2,
+     "predicted_correct": 2,
+     "predicted": 6
+    },
+    "ON": {
+     "gt": 8,
+     "found": 1,
+     "predicted_mappable": 3,
+     "predicted_correct": 1,
+     "predicted": 7
+    },
+    "INTERSECTS": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 3,
+     "predicted_correct": 0,
+     "predicted": 3
+    }
+   }
+  },
+  "relationships_final": {
+   "gt_supported": 11,
+   "gt_unsupported": {
+    "LABELS": 11
+   },
+   "found": 4,
+   "recall": 0.3636,
+   "predicted_supported_type": 14,
+   "predicted_mappable": 7,
+   "predicted_mappable_correct": 4,
+   "precision_lower_bound": 0.5714,
+   "by_type": {
+    "PERPENDICULAR": {
+     "gt": 1,
+     "found": 1,
+     "predicted_mappable": 1,
+     "predicted_correct": 1,
+     "predicted": 1
+    },
+    "ENDPOINT_OF": {
+     "gt": 2,
+     "found": 2,
+     "predicted_mappable": 2,
+     "predicted_correct": 2,
+     "predicted": 5
+    },
+    "ON": {
+     "gt": 8,
+     "found": 1,
+     "predicted_mappable": 3,
+     "predicted_correct": 1,
+     "predicted": 6
+    },
+    "INTERSECTS": {
+     "gt": 0,
+     "found": 0,
+     "predicted_mappable": 1,
+     "predicted_correct": 0,
+     "predicted": 2
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "merged_collinear": 1
+   },
+   "removed": 0,
+   "merged": 1,
+   "modified": 0,
+   "newly_inferred": 0,
+   "gt_found_before": 3,
+   "gt_found_after": 3,
+   "essential_lost_ids": []
+  },
+  "line_grouping": {
+   "edges": 11,
+   "correct": 2,
+   "partial": 0,
+   "fragmented": 1,
+   "duplicated": 0,
+   "missed": 8,
+   "correct_grouping_rate": 0.1818,
+   "over_segmentation_rate": 0.3333,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.7273
+  },
+  "line_grouping_final": {
+   "edges": 11,
+   "correct": 2,
+   "partial": 0,
+   "fragmented": 1,
+   "duplicated": 0,
+   "missed": 8,
+   "correct_grouping_rate": 0.1818,
+   "over_segmentation_rate": 0.3333,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.7273
+  },
+  "semantic_preservation": {
+   "preserved": 16,
+   "total": 36,
+   "rate": 0.4444,
+   "components": {
+    "objects": {
+     "preserved": 3,
+     "total": 3,
+     "rate": 1.0
+    },
+    "labels": {
+     "preserved": 8,
+     "total": 11,
+     "rate": 0.7273
+    },
+    "associations": {
+     "preserved": 1,
+     "total": 11,
+     "rate": 0.0909
+    },
+    "relationships": {
+     "preserved": 4,
+     "total": 11,
+     "rate": 0.3636
+    },
+    "dimensions": {
+     "preserved": 0,
+     "total": 0,
+     "rate": null
+    }
+   }
+  },
+  "qa_gate": {
+   "status": "WARNING",
+   "critical_present": [],
+   "critical_unblocked": []
+  },
+  "braille": {
+   "collisions": 0,
+   "on_line": 0
+  },
+  "qa": {
+   "passes": true,
+   "score": 92,
+   "issues": {
+    "overlap": 7,
+    "isolated_element": 1,
+    "dangling_label": 2
+   },
+   "blocking": []
+  },
+  "svg": {
+   "present": true,
+   "valid": true,
+   "element_counts": {
+    "svg": 1,
+    "defs": 1,
+    "style": 1,
+    "rect": 1,
+    "g": 15,
+    "line": 5,
+    "circle": 110,
+    "title": 13
+   },
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 0,
+   "open_paths": 0,
+   "near_duplicate_geometry": 0,
+   "embossed_features": 8,
+   "over_target": false,
+   "over_limit": false
+  },
+  "timings_ms": {
+   "preprocessing": 75.0,
+   "vectorization": 52.2,
+   "ocr": 5213.0,
+   "labels_braille": 12.3,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.9,
+   "simplification": 0.1,
+   "tactile_qa": 1.2,
+   "tactile_svg": 0.4,
+   "total": 5386.0
+  }
+ },
+ "captured": {
+  "error": null,
+  "image_quality": {
+   "passes_gate": true,
+   "issues": [
+    {
+     "check": "brightness",
+     "severity": "warning",
+     "message": "Image is very bright. Some details may be washed out.",
+     "value": 251.3,
+     "threshold": 225.0
+    },
+    {
+     "check": "noise",
+     "severity": "warning",
+     "message": "Image appears noisy. Results may contain artifacts.",
+     "value": 51.11,
+     "threshold": 30.0
+    }
+   ],
+   "image_width": 1000,
+   "image_height": 800
+  },
+  "raw_shapes": 6,
+  "ocr_labels": [
+   {
+    "text": "=",
+    "bbox": [
+     [
+      582,
+      94
+     ],
+     [
+      597,
+      94
+     ],
+     [
+      597,
+      106
+     ],
+     [
+      582,
+      106
+     ]
+    ],
+    "confidence": 0.997,
+    "braille": "\u2810\u2836",
+    "reading_order": 3
+   },
+   {
+    "text": "0.6x",
+    "bbox": [
+     [
+      598,
+      87
+     ],
+     [
+      648,
+      87
+     ],
+     [
+      648,
+      113
+     ],
+     [
+      598,
+      113
+     ]
+    ],
+    "confidence": 0.951,
+    "braille": "\u283c\u281a\u2832\u280b\u282d",
+    "reading_order": 1
+   },
+   {
+    "text": "0.8",
+    "bbox": [
+     [
+      668,
+      88
+     ],
+     [
+      706,
+      88
+     ],
+     [
+      706,
+      112
+     ],
+     [
+      668,
+      112
+     ]
+    ],
+    "confidence": 0.825,
+    "braille": "\u283c\u281a\u2832\u2813",
+    "reading_order": 4
+   },
+   {
+    "text": "3",
+    "bbox": [
+     [
+      166,
+      412
+     ],
+     [
+      181,
+      412
+     ],
+     [
+      181,
+      431
+     ],
+     [
+      166,
+      431
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2809",
+    "reading_order": 8
+   },
+   {
+    "text": "1",
+    "bbox": [
+     [
+      282,
+      660
+     ],
+     [
+      294,
+      660
+     ],
+     [
+      294,
+      677
+     ],
+     [
+      282,
+      677
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2801",
+    "reading_order": 10
+   },
+   {
+    "text": "3",
+    "bbox": [
+     [
+      467,
+      660
+     ],
+     [
+      481,
+      660
+     ],
+     [
+      481,
+      678
+     ],
+     [
+      467,
+      678
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2809",
+    "reading_order": 11
+   },
+   {
+    "text": "5",
+    "bbox": [
+     [
+      652,
+      660
+     ],
+     [
+      666,
+      660
+     ],
+     [
+      666,
+      678
+     ],
+     [
+      652,
+      678
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2811",
+    "reading_order": 12
+   },
+   {
+    "text": "7   X",
+    "bbox": [
+     [
+      834,
+      654
+     ],
+     [
+      912,
+      654
+     ],
+     [
+      912,
+      685
+     ],
+     [
+      834,
+      685
+     ]
+    ],
+    "confidence": 0.554,
+    "braille": "\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d",
+    "reading_order": 13
+   },
+   {
+    "text": "y",
+    "bbox": [
+     [
+      163,
+      76
+     ],
+     [
+      169,
+      76
+     ],
+     [
+      169,
+      93
+     ],
+     [
+      163,
+      93
+     ]
+    ],
+    "confidence": 0.931,
+    "braille": "\u2830\u283d",
+    "reading_order": 2
+   },
+   {
+    "text": "7",
+    "bbox": [
+     [
+      168,
+      117
+     ],
+     [
+      177,
+      117
+     ],
+     [
+      177,
+      132
+     ],
+     [
+      168,
+      132
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u281b",
+    "reading_order": 5
+   },
+   {
+    "text": "5",
+    "bbox": [
+     [
+      168,
+      266
+     ],
+     [
+      178,
+      266
+     ],
+     [
+      178,
+      281
+     ],
+     [
+      168,
+      281
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2811",
+    "reading_order": 7
+   },
+   {
+    "text": "1",
+    "bbox": [
+     [
+      169,
+      562
+     ],
+     [
+      177,
+      562
+     ],
+     [
+      177,
+      577
+     ],
+     [
+      169,
+      577
+     ]
+    ],
+    "confidence": 1.0,
+    "braille": "\u283c\u2801",
+    "reading_order": 9
+   },
+   {
+    "text": "Y",
+    "bbox": [
+     [
+      565,
+      96
+     ],
+     [
+      573,
+      96
+     ],
+     [
+      573,
+      114
+     ],
+     [
+      565,
+      114
+     ]
+    ],
+    "confidence": 0.826,
+    "braille": "\u2830\u2820\u283d",
+    "reading_order": 6
+   }
+  ],
+  "semantic": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       196,
+       81
+      ],
+      "end": [
+       196,
+       643
+      ],
+      "length": 562.0
+     },
+     "bbox": [
+      196,
+      81,
+      0,
+      562
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_14"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       899,
+       644
+      ],
+      "end": [
+       196,
+       643
+      ],
+      "length": 703.0
+     },
+     "bbox": [
+      196,
+      643,
+      703,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_15"
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       666,
+       341
+      ],
+      "end": [
+       544,
+       404
+      ],
+      "length": 137.31
+     },
+     "bbox": [
+      544,
+      341,
+      122,
+      63
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_3",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       544,
+       404
+      ],
+      "end": [
+       223,
+       572
+      ],
+      "length": 362.31
+     },
+     "bbox": [
+      223,
+      404,
+      321,
+      168
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       666,
+       341
+      ],
+      "end": [
+       823,
+       259
+      ],
+      "length": 177.12
+     },
+     "bbox": [
+      666,
+      259,
+      157,
+      82
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       221,
+       569
+      ],
+      "end": [
+       189,
+       569
+      ],
+      "length": 32.0
+     },
+     "bbox": [
+      189,
+      569,
+      32,
+      0
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null,
+     "role": "tick"
+    },
+    {
+     "id": "el_6",
+     "type": "point",
+     "geometry": {
+      "position": [
+       196,
+       643
+      ]
+     },
+     "bbox": [
+      193,
+      640,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_7",
+     "type": "point",
+     "geometry": {
+      "position": [
+       666,
+       341
+      ]
+     },
+     "bbox": [
+      663,
+      338,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_8",
+     "type": "point",
+     "geometry": {
+      "position": [
+       544,
+       404
+      ]
+     },
+     "bbox": [
+      541,
+      401,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       196,
+       643
+      ],
+      "arms": [
+       [
+        196,
+        81
+       ],
+       [
+        899,
+        644
+       ]
+      ],
+      "degrees": 90.1
+     },
+     "bbox": [
+      191,
+      638,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_10",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       223,
+       572
+      ],
+      "arms": [
+       [
+        544,
+        404
+       ],
+       [
+        189,
+        569
+       ]
+      ],
+      "degrees": 147.3
+     },
+     "bbox": [
+      218,
+      567,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_11",
+     "type": "text_label",
+     "geometry": {
+      "text": "=",
+      "braille": "\u2810\u2836",
+      "position": [
+       590,
+       100
+      ]
+     },
+     "bbox": [
+      582,
+      94,
+      15,
+      12
+     ],
+     "confidence": 0.997,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "=",
+     "braille": "\u2810\u2836",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_12",
+     "type": "text_label",
+     "geometry": {
+      "text": "0.6x",
+      "braille": "\u283c\u281a\u2832\u280b\u282d",
+      "position": [
+       623,
+       52
+      ]
+     },
+     "bbox": [
+      598,
+      87,
+      50,
+      26
+     ],
+     "confidence": 0.951,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "0.6x",
+     "braille": "\u283c\u281a\u2832\u280b\u282d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_13",
+     "type": "text_label",
+     "geometry": {
+      "text": "0.8",
+      "braille": "\u283c\u281a\u2832\u2813",
+      "position": [
+       687,
+       100
+      ]
+     },
+     "bbox": [
+      668,
+      88,
+      38,
+      24
+     ],
+     "confidence": 0.825,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "0.8",
+     "braille": "\u283c\u281a\u2832\u2813",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 4
+    },
+    {
+     "id": "el_14",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       158,
+       438
+      ]
+     },
+     "bbox": [
+      166,
+      412,
+      15,
+      19
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.525,
+      "needs_review": false
+     },
+     "reading_order": 8
+    },
+    {
+     "id": "el_15",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       296,
+       676
+      ]
+     },
+     "bbox": [
+      282,
+      660,
+      12,
+      17
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.589,
+      "needs_review": false
+     },
+     "reading_order": 10
+    },
+    {
+     "id": "el_16",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       482,
+       677
+      ]
+     },
+     "bbox": [
+      467,
+      660,
+      14,
+      18
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.58,
+      "needs_review": false
+     },
+     "reading_order": 11
+    },
+    {
+     "id": "el_17",
+     "type": "text_label",
+     "geometry": {
+      "text": "5",
+      "braille": "\u283c\u2811",
+      "position": [
+       667,
+       677
+      ]
+     },
+     "bbox": [
+      652,
+      660,
+      14,
+      18
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "5",
+     "braille": "\u283c\u2811",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.583,
+      "needs_review": false
+     },
+     "reading_order": 12
+    },
+    {
+     "id": "el_18",
+     "type": "text_label",
+     "geometry": {
+      "text": "7   X",
+      "braille": "\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d",
+      "position": [
+       881,
+       678
+      ]
+     },
+     "bbox": [
+      834,
+      654,
+      78,
+      31
+     ],
+     "confidence": 0.554,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "7   X",
+     "braille": "\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.575,
+      "needs_review": false
+     },
+     "reading_order": 13
+    },
+    {
+     "id": "el_19",
+     "type": "text_label",
+     "geometry": {
+      "text": "y",
+      "braille": "\u2830\u283d",
+      "position": [
+       158,
+       92
+      ]
+     },
+     "bbox": [
+      163,
+      76,
+      6,
+      17
+     ],
+     "confidence": 0.931,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "y",
+     "braille": "\u2830\u283d",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.525,
+      "needs_review": false
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_20",
+     "type": "text_label",
+     "geometry": {
+      "text": "7",
+      "braille": "\u283c\u281b",
+      "position": [
+       156,
+       140
+      ]
+     },
+     "bbox": [
+      168,
+      117,
+      9,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "7",
+     "braille": "\u283c\u281b",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.5,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_21",
+     "type": "text_label",
+     "geometry": {
+      "text": "5",
+      "braille": "\u283c\u2811",
+      "position": [
+       157,
+       290
+      ]
+     },
+     "bbox": [
+      168,
+      266,
+      10,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "5",
+     "braille": "\u283c\u2811",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.512,
+      "needs_review": false
+     },
+     "reading_order": 7
+    },
+    {
+     "id": "el_22",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       149,
+       594
+      ]
+     },
+     "bbox": [
+      169,
+      562,
+      8,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.412,
+      "needs_review": true
+     },
+     "reading_order": 9
+    },
+    {
+     "id": "el_23",
+     "type": "text_label",
+     "geometry": {
+      "text": "Y",
+      "braille": "\u2830\u2820\u283d",
+      "position": [
+       609,
+       145
+      ]
+     },
+     "bbox": [
+      565,
+      96,
+      8,
+      18
+     ],
+     "confidence": 0.826,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "Y",
+     "braille": "\u2830\u2820\u283d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 6
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_3_el_5_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_3",
+      "el_5"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_1_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_3_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_2",
+      "el_3"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_4_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_2",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_6_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_6",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_6",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_6_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_6",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_6",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_7_el_2_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_7",
+      "el_2"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_2_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_7",
+      "el_2"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_7_el_4_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_7",
+      "el_4"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_4_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_7",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_8_el_2_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_8",
+      "el_2"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_8_el_2_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_8",
+      "el_2"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_8_el_3_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_8",
+      "el_3"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_8_el_3_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_8",
+      "el_3"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_5_el_0_lies_on",
+     "type": "lies_on",
+     "element_ids": [
+      "el_5",
+      "el_0"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "review_flags": [
+    "Low-confidence angle detected \u2014 may be noise. Review before export.",
+    "Low-confidence angle detected \u2014 may be noise. Review before export."
+   ]
+  },
+  "simplified": {
+   "elements": [
+    {
+     "id": "el_0",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       196,
+       81
+      ],
+      "end": [
+       196,
+       643
+      ],
+      "length": 562.0
+     },
+     "bbox": [
+      196,
+      81,
+      0,
+      562
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_14"
+    },
+    {
+     "id": "el_1",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       899,
+       644
+      ],
+      "end": [
+       196,
+       643
+      ],
+      "length": 703.0
+     },
+     "bbox": [
+      196,
+      643,
+      703,
+      1
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": "el_15"
+    },
+    {
+     "id": "el_2",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       223,
+       572
+      ],
+      "end": [
+       666,
+       341
+      ],
+      "length": 499.61
+     },
+     "bbox": [
+      223,
+      341,
+      443,
+      231
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_4",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       666,
+       341
+      ],
+      "end": [
+       823,
+       259
+      ],
+      "length": 177.12
+     },
+     "bbox": [
+      666,
+      259,
+      157,
+      82
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_5",
+     "type": "line_segment",
+     "geometry": {
+      "start": [
+       221,
+       569
+      ],
+      "end": [
+       189,
+       569
+      ],
+      "length": 32.0
+     },
+     "bbox": [
+      189,
+      569,
+      32,
+      0
+     ],
+     "confidence": 0.95,
+     "source": "hough",
+     "associated_label_id": null,
+     "role": "tick"
+    },
+    {
+     "id": "el_6",
+     "type": "point",
+     "geometry": {
+      "position": [
+       196,
+       643
+      ]
+     },
+     "bbox": [
+      193,
+      640,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_7",
+     "type": "point",
+     "geometry": {
+      "position": [
+       666,
+       341
+      ]
+     },
+     "bbox": [
+      663,
+      338,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_8",
+     "type": "point",
+     "geometry": {
+      "position": [
+       544,
+       404
+      ]
+     },
+     "bbox": [
+      541,
+      401,
+      6,
+      6
+     ],
+     "confidence": 0.85,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_9",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       196,
+       643
+      ],
+      "arms": [
+       [
+        196,
+        81
+       ],
+       [
+        899,
+        644
+       ]
+      ],
+      "degrees": 90.1
+     },
+     "bbox": [
+      191,
+      638,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_10",
+     "type": "angle",
+     "geometry": {
+      "vertex": [
+       223,
+       572
+      ],
+      "arms": [
+       [
+        544,
+        404
+       ],
+       [
+        189,
+        569
+       ]
+      ],
+      "degrees": 147.3
+     },
+     "bbox": [
+      218,
+      567,
+      10,
+      10
+     ],
+     "confidence": 0.6,
+     "source": "heuristic",
+     "associated_label_id": null
+    },
+    {
+     "id": "el_11",
+     "type": "text_label",
+     "geometry": {
+      "text": "=",
+      "braille": "\u2810\u2836",
+      "position": [
+       590,
+       100
+      ]
+     },
+     "bbox": [
+      582,
+      94,
+      15,
+      12
+     ],
+     "confidence": 0.997,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "=",
+     "braille": "\u2810\u2836",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 3
+    },
+    {
+     "id": "el_12",
+     "type": "text_label",
+     "geometry": {
+      "text": "0.6x",
+      "braille": "\u283c\u281a\u2832\u280b\u282d",
+      "position": [
+       623,
+       52
+      ]
+     },
+     "bbox": [
+      598,
+      87,
+      50,
+      26
+     ],
+     "confidence": 0.951,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "0.6x",
+     "braille": "\u283c\u281a\u2832\u280b\u282d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 1
+    },
+    {
+     "id": "el_13",
+     "type": "text_label",
+     "geometry": {
+      "text": "0.8",
+      "braille": "\u283c\u281a\u2832\u2813",
+      "position": [
+       687,
+       100
+      ]
+     },
+     "bbox": [
+      668,
+      88,
+      38,
+      24
+     ],
+     "confidence": 0.825,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "0.8",
+     "braille": "\u283c\u281a\u2832\u2813",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 4
+    },
+    {
+     "id": "el_14",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       158,
+       438
+      ]
+     },
+     "bbox": [
+      166,
+      412,
+      15,
+      19
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.525,
+      "needs_review": false
+     },
+     "reading_order": 8
+    },
+    {
+     "id": "el_15",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       296,
+       676
+      ]
+     },
+     "bbox": [
+      282,
+      660,
+      12,
+      17
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.589,
+      "needs_review": false
+     },
+     "reading_order": 10
+    },
+    {
+     "id": "el_16",
+     "type": "text_label",
+     "geometry": {
+      "text": "3",
+      "braille": "\u283c\u2809",
+      "position": [
+       482,
+       677
+      ]
+     },
+     "bbox": [
+      467,
+      660,
+      14,
+      18
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "3",
+     "braille": "\u283c\u2809",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.58,
+      "needs_review": false
+     },
+     "reading_order": 11
+    },
+    {
+     "id": "el_17",
+     "type": "text_label",
+     "geometry": {
+      "text": "5",
+      "braille": "\u283c\u2811",
+      "position": [
+       667,
+       677
+      ]
+     },
+     "bbox": [
+      652,
+      660,
+      14,
+      18
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "5",
+     "braille": "\u283c\u2811",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.583,
+      "needs_review": false
+     },
+     "reading_order": 12
+    },
+    {
+     "id": "el_18",
+     "type": "text_label",
+     "geometry": {
+      "text": "7   X",
+      "braille": "\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d",
+      "position": [
+       881,
+       678
+      ]
+     },
+     "bbox": [
+      834,
+      654,
+      78,
+      31
+     ],
+     "confidence": 0.554,
+     "source": "ocr",
+     "associated_label_id": "el_1",
+     "text": "7   X",
+     "braille": "\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d",
+     "associated_element_id": "el_1",
+     "association": {
+      "target_id": "el_1",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.575,
+      "needs_review": false
+     },
+     "reading_order": 13
+    },
+    {
+     "id": "el_19",
+     "type": "text_label",
+     "geometry": {
+      "text": "y",
+      "braille": "\u2830\u283d",
+      "position": [
+       158,
+       92
+      ]
+     },
+     "bbox": [
+      163,
+      76,
+      6,
+      17
+     ],
+     "confidence": 0.931,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "y",
+     "braille": "\u2830\u283d",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.525,
+      "needs_review": false
+     },
+     "reading_order": 2
+    },
+    {
+     "id": "el_20",
+     "type": "text_label",
+     "geometry": {
+      "text": "7",
+      "braille": "\u283c\u281b",
+      "position": [
+       156,
+       140
+      ]
+     },
+     "bbox": [
+      168,
+      117,
+      9,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "7",
+     "braille": "\u283c\u281b",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.5,
+      "needs_review": false
+     },
+     "reading_order": 5
+    },
+    {
+     "id": "el_21",
+     "type": "text_label",
+     "geometry": {
+      "text": "5",
+      "braille": "\u283c\u2811",
+      "position": [
+       157,
+       290
+      ]
+     },
+     "bbox": [
+      168,
+      266,
+      10,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "5",
+     "braille": "\u283c\u2811",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.512,
+      "needs_review": false
+     },
+     "reading_order": 7
+    },
+    {
+     "id": "el_22",
+     "type": "text_label",
+     "geometry": {
+      "text": "1",
+      "braille": "\u283c\u2801",
+      "position": [
+       149,
+       594
+      ]
+     },
+     "bbox": [
+      169,
+      562,
+      8,
+      15
+     ],
+     "confidence": 1.0,
+     "source": "ocr",
+     "associated_label_id": "el_0",
+     "text": "1",
+     "braille": "\u283c\u2801",
+     "associated_element_id": "el_0",
+     "association": {
+      "target_id": "el_0",
+      "target_type": "line_segment",
+      "reason": "nearest_outline",
+      "confidence": 0.412,
+      "needs_review": true
+     },
+     "reading_order": 9
+    },
+    {
+     "id": "el_23",
+     "type": "text_label",
+     "geometry": {
+      "text": "Y",
+      "braille": "\u2830\u2820\u283d",
+      "position": [
+       609,
+       145
+      ]
+     },
+     "bbox": [
+      565,
+      96,
+      8,
+      18
+     ],
+     "confidence": 0.826,
+     "source": "ocr",
+     "associated_label_id": null,
+     "text": "Y",
+     "braille": "\u2830\u2820\u283d",
+     "associated_element_id": null,
+     "association": {
+      "target_id": null,
+      "target_type": null,
+      "reason": null,
+      "confidence": 0.0,
+      "needs_review": true
+     },
+     "reading_order": 6
+    }
+   ],
+   "relationships": [
+    {
+     "id": "rel_el_0_el_1_angle",
+     "type": "angle_between",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.6
+    },
+    {
+     "id": "rel_el_0_el_1_perp",
+     "type": "perpendicular_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_0_el_1_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_0",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_2_el_4_conn",
+     "type": "connected_lines",
+     "element_ids": [
+      "el_2",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_6_el_0_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_6",
+      "el_0"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_0_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_6",
+      "el_0"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_6_el_1_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_6",
+      "el_1"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_6_el_1_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_6",
+      "el_1"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_7_el_2_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_7",
+      "el_2"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_2_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_7",
+      "el_2"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_7_el_4_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_7",
+      "el_4"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_7_el_4_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_7",
+      "el_4"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_8_el_2_on_line",
+     "type": "point_on_line",
+     "element_ids": [
+      "el_8",
+      "el_2"
+     ],
+     "confidence": 0.85
+    },
+    {
+     "id": "rel_el_8_el_2_endpoint",
+     "type": "endpoint_of",
+     "element_ids": [
+      "el_8",
+      "el_2"
+     ],
+     "confidence": 0.9
+    },
+    {
+     "id": "rel_el_5_el_0_lies_on",
+     "type": "lies_on",
+     "element_ids": [
+      "el_5",
+      "el_0"
+     ],
+     "confidence": 0.85
+    }
+   ],
+   "actions": [
+    {
+     "element_id": "el_2",
+     "action": "merged_collinear",
+     "detail": "Merged 2 collinear segments (el_2, el_3) into one."
+    }
+   ],
+   "removed_count": 0,
+   "merged_count": 1
+  },
+  "qa": {
+   "passes": true,
+   "score_0_100": 92,
+   "issues": [
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_1 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_0 and el_6 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_0"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_1 and el_6 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_1"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_2 and el_4 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_2"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_2 and el_5 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_2"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_2 and el_7 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_2"
+    },
+    {
+     "check": "overlap",
+     "severity": "warning",
+     "message": "Elements el_4 and el_7 overlap, which may merge into unclear tactile shapes.",
+     "element_id": "el_4"
+    },
+    {
+     "check": "isolated_element",
+     "severity": "warning",
+     "message": "6 feature(s) have no label (el_2, el_4, el_5, el_6, el_7, ...); consider adding labels for the learner.",
+     "element_id": null
+    },
+    {
+     "check": "dangling_label",
+     "severity": "warning",
+     "message": "Label el_11 is not associated with geometry and sits far from all shapes; verify it is intended.",
+     "element_id": "el_11"
+    },
+    {
+     "check": "dangling_label",
+     "severity": "warning",
+     "message": "Label el_12 is not associated with geometry and sits far from all shapes; verify it is intended.",
+     "element_id": "el_12"
+    }
+   ]
+  },
+  "tactile_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-143.55 -55.04 1287.11 910.08\" width=\"297mm\" height=\"210mm\" data-mm-per-px=\"0.23075\" role=\"img\" aria-label=\"Tactile representation of 10 geometry features and 13 labels.\"><defs><style>.stroke { stroke:#000; stroke-width:3.058; stroke-linecap:round; stroke-linejoin:round; fill:none; } .braille { fill:#000; stroke:none; }</style></defs><rect x=\"-143.55\" y=\"-55.04\" width=\"1287.11\" height=\"910.08\" fill=\"white\"/><g class=\"stroke\"><line data-element-id=\"el_0\" x1=\"196.0\" y1=\"81.0\" x2=\"196.0\" y2=\"643.0\"/><line data-element-id=\"el_1\" x1=\"899.0\" y1=\"644.0\" x2=\"196.0\" y2=\"643.0\"/><line data-element-id=\"el_2\" x1=\"223.0\" y1=\"572.0\" x2=\"666.0\" y2=\"341.0\"/><line data-element-id=\"el_4\" x1=\"666.0\" y1=\"341.0\" x2=\"823.0\" y2=\"259.0\"/><line data-element-id=\"el_5\" x1=\"221.0\" y1=\"569.0\" x2=\"189.0\" y2=\"569.0\"/><circle data-element-id=\"el_6\" cx=\"196.0\" cy=\"643.0\" r=\"3.1\"/><circle data-element-id=\"el_7\" cx=\"666.0\" cy=\"341.0\" r=\"3.1\"/><circle data-element-id=\"el_8\" cx=\"544.0\" cy=\"404.0\" r=\"3.1\"/></g><g class=\"tactile-braille\"><g data-element-id=\"el_11\" class=\"braille\" role=\"img\" aria-label=\"=\" data-braille=\"\u2810\u2836\"><title>=</title><circle cx=\"582.4\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"597.6\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"597.6\" cy=\"110.8\" r=\"3.25\"/><circle cx=\"608.4\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"608.4\" cy=\"110.8\" r=\"3.25\"/></g><g data-element-id=\"el_12\" class=\"braille\" role=\"img\" aria-label=\"0.6x\" data-braille=\"\u283c\u281a\u2832\u280b\u282d\"><title>0.6x</title><circle cx=\"565.6\" cy=\"62.8\" r=\"3.25\"/><circle cx=\"576.4\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"576.4\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"576.4\" cy=\"62.8\" r=\"3.25\"/><circle cx=\"591.6\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"602.4\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"602.4\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"617.6\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"628.4\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"628.4\" cy=\"62.8\" r=\"3.25\"/><circle cx=\"643.6\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"643.6\" cy=\"52.0\" r=\"3.25\"/><circle cx=\"654.4\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"669.6\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"669.6\" cy=\"62.8\" r=\"3.25\"/><circle cx=\"680.4\" cy=\"41.2\" r=\"3.25\"/><circle cx=\"680.4\" cy=\"62.8\" r=\"3.25\"/></g><g data-element-id=\"el_13\" class=\"braille\" role=\"img\" aria-label=\"0.8\" data-braille=\"\u283c\u281a\u2832\u2813\"><title>0.8</title><circle cx=\"642.6\" cy=\"110.8\" r=\"3.25\"/><circle cx=\"653.4\" cy=\"89.2\" r=\"3.25\"/><circle cx=\"653.4\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"653.4\" cy=\"110.8\" r=\"3.25\"/><circle cx=\"668.6\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"679.4\" cy=\"89.2\" r=\"3.25\"/><circle cx=\"679.4\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"694.6\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"705.4\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"705.4\" cy=\"110.8\" r=\"3.25\"/><circle cx=\"720.6\" cy=\"89.2\" r=\"3.25\"/><circle cx=\"720.6\" cy=\"100.0\" r=\"3.25\"/><circle cx=\"731.4\" cy=\"100.0\" r=\"3.25\"/></g><g data-element-id=\"el_14\" class=\"braille\" role=\"img\" aria-label=\"3\" data-braille=\"\u283c\u2809\"><title>3</title><circle cx=\"139.6\" cy=\"448.8\" r=\"3.25\"/><circle cx=\"150.4\" cy=\"427.2\" r=\"3.25\"/><circle cx=\"150.4\" cy=\"438.0\" r=\"3.25\"/><circle cx=\"150.4\" cy=\"448.8\" r=\"3.25\"/><circle cx=\"165.6\" cy=\"427.2\" r=\"3.25\"/><circle cx=\"176.4\" cy=\"427.2\" r=\"3.25\"/></g><g data-element-id=\"el_15\" class=\"braille\" role=\"img\" aria-label=\"1\" data-braille=\"\u283c\u2801\"><title>1</title><circle cx=\"277.6\" cy=\"686.8\" r=\"3.25\"/><circle cx=\"288.4\" cy=\"665.2\" r=\"3.25\"/><circle cx=\"288.4\" cy=\"676.0\" r=\"3.25\"/><circle cx=\"288.4\" cy=\"686.8\" r=\"3.25\"/><circle cx=\"303.6\" cy=\"665.2\" r=\"3.25\"/></g><g data-element-id=\"el_16\" class=\"braille\" role=\"img\" aria-label=\"3\" data-braille=\"\u283c\u2809\"><title>3</title><circle cx=\"463.6\" cy=\"687.8\" r=\"3.25\"/><circle cx=\"474.4\" cy=\"666.2\" r=\"3.25\"/><circle cx=\"474.4\" cy=\"677.0\" r=\"3.25\"/><circle cx=\"474.4\" cy=\"687.8\" r=\"3.25\"/><circle cx=\"489.6\" cy=\"666.2\" r=\"3.25\"/><circle cx=\"500.4\" cy=\"666.2\" r=\"3.25\"/></g><g data-element-id=\"el_17\" class=\"braille\" role=\"img\" aria-label=\"5\" data-braille=\"\u283c\u2811\"><title>5</title><circle cx=\"648.6\" cy=\"687.8\" r=\"3.25\"/><circle cx=\"659.4\" cy=\"666.2\" r=\"3.25\"/><circle cx=\"659.4\" cy=\"677.0\" r=\"3.25\"/><circle cx=\"659.4\" cy=\"687.8\" r=\"3.25\"/><circle cx=\"674.6\" cy=\"666.2\" r=\"3.25\"/><circle cx=\"685.4\" cy=\"677.0\" r=\"3.25\"/></g><g data-element-id=\"el_18\" class=\"braille\" role=\"img\" aria-label=\"7   X\" data-braille=\"\u283c\u281b\u2800\u2800\u2800\u2830\u2820\u282d\"><title>7   X</title><circle cx=\"784.6\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"795.4\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"795.4\" cy=\"678.0\" r=\"3.25\"/><circle cx=\"795.4\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"810.6\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"810.6\" cy=\"678.0\" r=\"3.25\"/><circle cx=\"821.4\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"821.4\" cy=\"678.0\" r=\"3.25\"/><circle cx=\"925.4\" cy=\"678.0\" r=\"3.25\"/><circle cx=\"925.4\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"951.4\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"966.6\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"966.6\" cy=\"688.8\" r=\"3.25\"/><circle cx=\"977.4\" cy=\"667.2\" r=\"3.25\"/><circle cx=\"977.4\" cy=\"688.8\" r=\"3.25\"/></g><g data-element-id=\"el_19\" class=\"braille\" role=\"img\" aria-label=\"y\" data-braille=\"\u2830\u283d\"><title>y</title><circle cx=\"150.4\" cy=\"92.0\" r=\"3.25\"/><circle cx=\"150.4\" cy=\"102.8\" r=\"3.25\"/><circle cx=\"165.6\" cy=\"81.2\" r=\"3.25\"/><circle cx=\"165.6\" cy=\"102.8\" r=\"3.25\"/><circle cx=\"176.4\" cy=\"81.2\" r=\"3.25\"/><circle cx=\"176.4\" cy=\"92.0\" r=\"3.25\"/><circle cx=\"176.4\" cy=\"102.8\" r=\"3.25\"/></g><g data-element-id=\"el_20\" class=\"braille\" role=\"img\" aria-label=\"7\" data-braille=\"\u283c\u281b\"><title>7</title><circle cx=\"137.6\" cy=\"150.8\" r=\"3.25\"/><circle cx=\"148.4\" cy=\"129.2\" r=\"3.25\"/><circle cx=\"148.4\" cy=\"140.0\" r=\"3.25\"/><circle cx=\"148.4\" cy=\"150.8\" r=\"3.25\"/><circle cx=\"163.6\" cy=\"129.2\" r=\"3.25\"/><circle cx=\"163.6\" cy=\"140.0\" r=\"3.25\"/><circle cx=\"174.4\" cy=\"129.2\" r=\"3.25\"/><circle cx=\"174.4\" cy=\"140.0\" r=\"3.25\"/></g><g data-element-id=\"el_21\" class=\"braille\" role=\"img\" aria-label=\"5\" data-braille=\"\u283c\u2811\"><title>5</title><circle cx=\"138.6\" cy=\"300.8\" r=\"3.25\"/><circle cx=\"149.4\" cy=\"279.2\" r=\"3.25\"/><circle cx=\"149.4\" cy=\"290.0\" r=\"3.25\"/><circle cx=\"149.4\" cy=\"300.8\" r=\"3.25\"/><circle cx=\"164.6\" cy=\"279.2\" r=\"3.25\"/><circle cx=\"175.4\" cy=\"290.0\" r=\"3.25\"/></g><g data-element-id=\"el_22\" class=\"braille\" role=\"img\" aria-label=\"1\" data-braille=\"\u283c\u2801\"><title>1</title><circle cx=\"130.6\" cy=\"604.8\" r=\"3.25\"/><circle cx=\"141.4\" cy=\"583.2\" r=\"3.25\"/><circle cx=\"141.4\" cy=\"594.0\" r=\"3.25\"/><circle cx=\"141.4\" cy=\"604.8\" r=\"3.25\"/><circle cx=\"156.6\" cy=\"583.2\" r=\"3.25\"/></g><g data-element-id=\"el_23\" class=\"braille\" role=\"img\" aria-label=\"Y\" data-braille=\"\u2830\u2820\u283d\"><title>Y</title><circle cx=\"588.4\" cy=\"145.0\" r=\"3.25\"/><circle cx=\"588.4\" cy=\"155.8\" r=\"3.25\"/><circle cx=\"614.4\" cy=\"155.8\" r=\"3.25\"/><circle cx=\"629.6\" cy=\"134.2\" r=\"3.25\"/><circle cx=\"629.6\" cy=\"155.8\" r=\"3.25\"/><circle cx=\"640.4\" cy=\"134.2\" r=\"3.25\"/><circle cx=\"640.4\" cy=\"145.0\" r=\"3.25\"/><circle cx=\"640.4\" cy=\"155.8\" r=\"3.25\"/></g></g></svg>",
+  "timings_ms": {
+   "preprocessing": 75.0,
+   "vectorization": 52.2,
+   "ocr": 5213.0,
+   "labels_braille": 12.3,
+   "preview_svg": 0.0,
+   "semantic_analysis": 0.9,
+   "simplification": 0.1,
+   "tactile_qa": 1.2,
+   "tactile_svg": 0.4,
+   "total": 5386.0
+  }
+ }
+}
