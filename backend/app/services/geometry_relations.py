@@ -18,7 +18,6 @@ from app.models.geometry import (
     ElementRelationship,
     GeometryType,
     RelationshipType,
-    classify_confidence,
 )
 
 
@@ -93,13 +92,14 @@ def infer_relationships(elements: list[DetectedElement]) -> list[ElementRelation
     circles = [e for e in elements if e.type is GeometryType.CIRCLE]
     polygons = [e for e in elements if e.type in POLYGON_TYPES and len(e.geometry.get("points") or []) >= 3]
 
-    _infer_line_pairs(_add, lines)
+    _infer_line_pairs(_add, lines, ticks)
     _infer_line_polygon(_add, lines, polygons)
     _infer_point_line(_add, points, lines)
     _infer_point_circle(_add, points, circles)
     _infer_circle_center(_add, circles, points)
     _infer_point_vertex(_add, points, polygons)
     _infer_ticks(_add, ticks, lines)
+    _infer_equal_lengths(_add, ticks, lines)
 
     return relationships
 
@@ -116,6 +116,70 @@ VERTEX_PX = 8.0
 
 def _length(start, end) -> float:
     return _point_distance(start, end)
+
+
+# Three or more facing lines of one orientation and similar length are a grid,
+# table or hatching: their pairwise parallels and crossings are background.
+GRID_MIN_FAMILY = 3
+GRID_LENGTH_RATIO = 0.8
+
+
+def grid_like_ids(lines: list[DetectedElement]) -> set[str]:
+    straight = [line for line in lines if _is_line_like(line)]
+    out: set[str] = set()
+    for a in straight:
+        a0, a1 = _line_endpoints(a)
+        length_a = _length(a0, a1)
+        if length_a == 0:
+            continue
+        family = 0
+        for b in straight:
+            if b is a:
+                continue
+            b0, b1 = _line_endpoints(b)
+            length_b = _length(b0, b1)
+            diff = abs((_line_angle_deg(a0, a1) - _line_angle_deg(b0, b1) + 90) % 180 - 90)
+            if (diff < ANGLE_TOLERANCE_DEG and min(length_a, length_b) >= GRID_LENGTH_RATIO * max(length_a, length_b)
+                    and _parallel_pair_faces(a, b)):
+                family += 1
+        if family + 1 >= GRID_MIN_FAMILY:
+            out.add(a.id)
+    return out
+
+
+# A line met at right angles by several others is a table or grid rule, unless
+# tick marks show it is a scale (an axis or number line).
+LATTICE_MIN_CROSSINGS = 3
+SCALE_MIN_TICKS = 2
+
+
+def _ticks_on(line: DetectedElement, ticks: list[DetectedElement]) -> int:
+    start, end = _line_endpoints(line)
+    count = 0
+    for tick in ticks:
+        t0, t1 = _line_endpoints(tick)
+        mid = ((t0[0] + t1[0]) / 2, (t0[1] + t1[1]) / 2)
+        count += _point_to_segment_distance(mid, start, end) <= TOUCH_PX
+    return count
+
+
+def background_line_ids(lines: list[DetectedElement], ticks: list[DetectedElement] = ()) -> set[str]:
+    straight = [line for line in lines if _is_line_like(line)]
+    out = set(grid_like_ids(straight))
+    for a in straight:
+        a0, a1 = _line_endpoints(a)
+        crossings = 0
+        for b in straight:
+            if b is a:
+                continue
+            b0, b1 = _line_endpoints(b)
+            diff = abs((_line_angle_deg(a0, a1) - _line_angle_deg(b0, b1) + 90) % 180 - 90)
+            if abs(diff - 90) < ANGLE_TOLERANCE_DEG and (_segments_cross(a, b) or _segments_intersect_or_connect(a, b)):
+                crossings += 1
+        if crossings >= LATTICE_MIN_CROSSINGS:
+            out.add(a.id)
+    return {line_id for line_id in out
+            if _ticks_on(next(line for line in straight if line.id == line_id), list(ticks)) < SCALE_MIN_TICKS}
 
 
 def _parallel_pair_faces(a: DetectedElement, b: DetectedElement) -> bool:
@@ -199,7 +263,61 @@ def _infer_ticks(add, ticks: list[DetectedElement], lines: list[DetectedElement]
         ))
 
 
-def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
+# Equal-length hash marks: one to three ticks bunched around the middle of a
+# segment. Axis ticks are spread along the whole line, so they never qualify.
+MAX_HASH_TICKS = 3
+HASH_MIDDLE_FRACTION = 0.15
+MAX_HASH_SPREAD_PX = 24.0
+EQUAL_LENGTH_RATIO = 0.88
+# Drawn marks state the relation; the measurement only has to agree with it.
+MARKED_PARALLEL_TOLERANCE_DEG = 5.0
+
+
+def _hash_count(line: DetectedElement, ticks: list[DetectedElement]) -> int:
+    start, end = _line_endpoints(line)
+    length = _length(start, end)
+    if length == 0:
+        return 0
+    on_line = []
+    for tick in ticks:
+        t0, t1 = _line_endpoints(tick)
+        mid = ((t0[0] + t1[0]) / 2, (t0[1] + t1[1]) / 2)
+        if _point_to_segment_distance(mid, start, end) > TOUCH_PX:
+            continue
+        on_line.append(((mid[0] - start[0]) * (end[0] - start[0]) + (mid[1] - start[1]) * (end[1] - start[1])) / length)
+    if not 1 <= len(on_line) <= MAX_HASH_TICKS:
+        return 0
+    if max(on_line) - min(on_line) > MAX_HASH_SPREAD_PX:
+        return 0
+    if any(abs(t - length / 2) > HASH_MIDDLE_FRACTION * length for t in on_line):
+        return 0
+    return len(on_line)
+
+
+def _infer_equal_lengths(add, ticks: list[DetectedElement], lines: list[DetectedElement]) -> None:
+    """Segments carrying the same number of hash marks, when their measured lengths agree."""
+    marked = [(line, count) for line in lines if (count := _hash_count(line, ticks))]
+    for i, (a, count_a) in enumerate(marked):
+        for b, count_b in marked[i + 1:]:
+            if count_a != count_b:
+                continue
+            length_a, length_b = _length(*_line_endpoints(a)), _length(*_line_endpoints(b))
+            if min(length_a, length_b) < EQUAL_LENGTH_RATIO * max(length_a, length_b):
+                continue
+            add(ElementRelationship(
+                id=f"rel_{a.id}_{b.id}_equal",
+                type=RelationshipType.EQUAL_LENGTH,
+                element_ids=[a.id, b.id],
+                confidence=0.9,
+                confidence_level=ConfidenceLevel.HIGH,
+                needs_review=False,
+                explanation=(f"Segments {a.id} and {b.id} both carry {count_a} hash mark(s); "
+                             f"measured lengths {length_a:.0f} and {length_b:.0f} px."),
+            ))
+
+
+def _infer_line_pairs(add, lines: list[DetectedElement], ticks: list[DetectedElement] = ()) -> None:
+    grid = background_line_ids(lines, ticks)
     for i, a in enumerate(lines):
         for b in lines[i + 1:]:
             angles = _angles(a, b)
@@ -207,8 +325,22 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
                 continue
             a_angle, b_angle = angles
             diff = abs((a_angle - b_angle + 90) % 180 - 90)
+            background = a.id in grid and b.id in grid
+            on_background = a.id in grid or b.id in grid
+            marks = a.semantic_properties.get("parallel_marks")
+            if marks and marks == b.semantic_properties.get("parallel_marks") and diff <= MARKED_PARALLEL_TOLERANCE_DEG:
+                add(ElementRelationship(
+                    id=f"rel_{a.id}_{b.id}_parallel",
+                    type=RelationshipType.PARALLEL_LINES,
+                    element_ids=[a.id, b.id],
+                    confidence=0.95,
+                    confidence_level=ConfidenceLevel.HIGH,
+                    needs_review=False,
+                    explanation=(f"Lines {a.id} and {b.id} carry matching parallel marks ({marks}) "
+                                 f"and measure {diff:.1f} degrees apart."),
+                ))
 
-            if diff < ANGLE_TOLERANCE_DEG and _parallel_pair_faces(a, b):
+            if diff < ANGLE_TOLERANCE_DEG and not on_background and _parallel_pair_faces(a, b):
                 add(ElementRelationship(
                     id=f"rel_{a.id}_{b.id}_parallel",
                     type=RelationshipType.PARALLEL_LINES,
@@ -218,7 +350,9 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
                     needs_review=False,
                     explanation=f"Lines {a.id} and {b.id} share the same orientation.",
                 ))
-            elif abs(diff - 90) < ANGLE_TOLERANCE_DEG and (_segments_intersect_or_connect(a, b) or _segments_cross(a, b)):
+            elif (abs(diff - 90) < ANGLE_TOLERANCE_DEG
+                  and (_segments_share_endpoint(a, b) if background
+                       else _segments_intersect_or_connect(a, b) or _segments_cross(a, b))):
                 add(ElementRelationship(
                     id=f"rel_{a.id}_{b.id}_perp",
                     type=RelationshipType.PERPENDICULAR_LINES,
@@ -229,7 +363,17 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
                     explanation=f"Lines {a.id} and {b.id} meet at a right angle.",
                 ))
 
-            if _segments_intersect_or_connect(a, b):
+            if _segments_cross(a, b) and not on_background and not _segments_intersect_or_connect(a, b):
+                add(ElementRelationship(
+                    id=f"rel_{a.id}_{b.id}_intersect",
+                    type=RelationshipType.INTERSECTS,
+                    element_ids=[a.id, b.id],
+                    confidence=0.85,
+                    confidence_level=ConfidenceLevel.HIGH,
+                    needs_review=False,
+                    explanation=f"Segments {a.id} and {b.id} cross.",
+                ))
+            elif _segments_intersect_or_connect(a, b) and not on_background:
                 if _segments_share_endpoint(a, b):
                     add(ElementRelationship(
                         id=f"rel_{a.id}_{b.id}_conn",
@@ -239,16 +383,6 @@ def _infer_line_pairs(add, lines: list[DetectedElement]) -> None:
                         confidence_level=ConfidenceLevel.HIGH,
                         needs_review=False,
                         explanation=f"Lines {a.id} and {b.id} share an endpoint.",
-                    ))
-                else:
-                    add(ElementRelationship(
-                        id=f"rel_{a.id}_{b.id}_intersect",
-                        type=RelationshipType.INTERSECTS,
-                        element_ids=[a.id, b.id],
-                        confidence=0.6,
-                        confidence_level=ConfidenceLevel.MEDIUM,
-                        needs_review=True,
-                        explanation=f"Segments {a.id} and {b.id} appear to cross.",
                     ))
 
 

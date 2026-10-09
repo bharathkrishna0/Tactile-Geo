@@ -24,6 +24,11 @@ MAX_ATTACHED_HAIRLINE_WIDTH_PX = 3
 MAX_ATTACHED_HAIRLINE_CONTACT = 0.3
 # ...and is drawn in the same ink. Light grid lines are left to the opening.
 MIN_ATTACHED_HAIRLINE_DARKNESS = 0.6
+# A tick drawn across a bold axis leaves two short thin halves: kept when they
+# are slender and as dark as the bold ink.
+MIN_ATTACHED_TICK_SPAN_PX = 5
+MIN_ATTACHED_TICK_ELONGATION = 2.5
+MIN_ATTACHED_TICK_DARKNESS = 0.6
 
 
 def _hairline_components(thresholded: np.ndarray, opened: np.ndarray) -> np.ndarray:
@@ -52,8 +57,15 @@ def _attached_hairlines(grayscale: np.ndarray, thresholded: np.ndarray, opened: 
     span = np.maximum(stats[:, cv2.CC_STAT_WIDTH], stats[:, cv2.CC_STAT_HEIGHT])
     touching = cv2.dilate(opened, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))) > 0
     contact = np.bincount(labels[touching & (residual > 0)], minlength=count)
+    narrow = np.minimum(stats[:, cv2.CC_STAT_WIDTH], stats[:, cv2.CC_STAT_HEIGHT])
+    tick_half = (
+        (span >= MIN_ATTACHED_TICK_SPAN_PX)
+        & (span >= MIN_ATTACHED_TICK_ELONGATION * narrow)
+        & (contact > 0)
+        & (ink >= bold_darkness * MIN_ATTACHED_TICK_DARKNESS)
+    )
     keep = (
-        (span >= MIN_THIN_COMPONENT_SPAN_PX)
+        ((span >= MIN_THIN_COMPONENT_SPAN_PX) | tick_half)
         & (area <= (stats[:, cv2.CC_STAT_WIDTH] + stats[:, cv2.CC_STAT_HEIGHT]) * MAX_ATTACHED_HAIRLINE_WIDTH_PX)
         & (contact < area * MAX_ATTACHED_HAIRLINE_CONTACT)
         & (ink >= bold_darkness * MIN_ATTACHED_HAIRLINE_DARKNESS)

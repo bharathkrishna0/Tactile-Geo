@@ -12,7 +12,7 @@ from app.models.geometry import (
     TransformationExplanation,
     classify_confidence,
 )
-from app.services.geometry_relations import infer_relationships
+from app.services.geometry_relations import grid_like_ids, infer_relationships
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.vectorization import MIN_ROUND_VERTICES
 
@@ -21,7 +21,8 @@ from app.services.vectorization import MIN_ROUND_VERTICES
 MAX_ANGLE_ELEMENTS = TACTILE_RULES.complexity_threshold
 
 
-def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[dict], right_angles: list[dict] | None = None) -> SemanticGeometry:
+def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[dict], right_angles: list[dict] | None = None,
+                    angle_arcs: list[dict] | None = None, parallel_marks: list[dict] | None = None) -> SemanticGeometry:
     elements: list[DetectedElement] = []
     relationships: list[ElementRelationship] = []
     explanations: list[TransformationExplanation] = []
@@ -42,6 +43,12 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             element = _analyze_ellipse(shape, id_counter)
             id_counter += 1
             elements.append(element)
+        elif shape["type"] == "dot":
+            elements.append(_analyze_dot(shape, id_counter))
+            id_counter += 1
+
+    for mark in parallel_marks or []:
+        _attach_parallel_marks(elements, mark)
 
     # Detect significant points (shared line endpoints, shape vertices).
     point_elements, point_explanations = _detect_points(elements, id_counter, labels)
@@ -56,6 +63,17 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             stage="diagram_analysis",
             element_id=f"el_{id_counter}",
             message=f"Detected a drawn right-angle marker at {tuple(marker['vertex'])}.",
+        ))
+        id_counter += 1
+
+    for arc in angle_arcs or []:
+        element = _angle_arc_element(arc, id_counter)
+        elements.append(element)
+        relationships.extend(_angle_at_point(element, elements))
+        explanations.append(TransformationExplanation(
+            stage="diagram_analysis",
+            element_id=element.id,
+            message=f"Detected a drawn angle arc at {tuple(arc['vertex'])}.",
         ))
         id_counter += 1
 
@@ -174,6 +192,26 @@ def _analyze_contour(shape: dict, id: int, width: int, height: int) -> tuple[lis
             needs_review=False,
         ))
     return [element], relationships
+
+
+DOT_CONFIDENCE = 0.9
+
+
+def _analyze_dot(shape: dict, id: int) -> DetectedElement:
+    x, y = shape["points"][0]
+    radius = float(shape.get("radius", 3.0))
+    return DetectedElement(
+        id=f"el_{id}",
+        type=GeometryType.POINT,
+        geometry={"position": [x, y]},
+        confidence=DOT_CONFIDENCE,
+        confidence_level=classify_confidence(DOT_CONFIDENCE),
+        needs_review=False,
+        source="contour",
+        bbox=(x - radius, y - radius, 2 * radius, 2 * radius),
+        semantic_properties={"drawn_dot": True, "radius": radius},
+        provenance=f"Detected a drawn dot (radius {radius:.1f} px) at ({x},{y}).",
+    )
 
 
 def _analyze_ellipse(shape: dict, id: int) -> DetectedElement:
@@ -316,14 +354,67 @@ CIRCLE_CENTRE_PX = 8.0
 
 
 def _label_anchor(label: dict) -> tuple[float, float] | None:
-    position = label.get("position") or label.get("desired_position")
-    if position:
-        return float(position[0]), float(position[1])
+    """Where the text was printed; the braille position may have been moved away."""
     box = label.get("bbox")
     if box:
         xs, ys = [p[0] for p in box], [p[1] for p in box]
         return (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    position = label.get("position") or label.get("desired_position")
+    if position:
+        return float(position[0]), float(position[1])
     return None
+
+
+# A line ending on another outline (a radius on its circle, an altitude's foot
+# on the base) makes a point there, as does a labelled crossing of two lines.
+JUNCTION_PX = 6.0
+JUNCTION_END_MARGIN_PX = 10.0
+POINT_MERGE_PX = 4.0
+# A stroke ending at a drawn dot stops at the dot's rim, not its centre.
+DOT_MERGE_PX = 12.0
+
+
+def _round_outline(element: DetectedElement) -> tuple[tuple[float, float], float] | None:
+    geo = element.geometry
+    if element.type is GeometryType.CIRCLE and "center" in geo and "radius" in geo:
+        return (float(geo["center"][0]), float(geo["center"][1])), float(geo["radius"])
+    if element.type is GeometryType.ELLIPSE and "center" in geo and geo.get("semi_axes"):
+        a, b = (float(v) for v in geo["semi_axes"])
+        if max(a, b) > 0 and min(a, b) / max(a, b) >= 0.9:
+            return (float(geo["center"][0]), float(geo["center"][1])), (a + b) / 2
+    return None
+
+
+def _segment_distance(point, start, end) -> float:
+    dx, dy = end[0] - start[0], end[1] - start[1]
+    denom = dx * dx + dy * dy
+    if denom == 0:
+        return math.dist(point, start)
+    t = max(0.0, min(1.0, ((point[0] - start[0]) * dx + (point[1] - start[1]) * dy) / denom))
+    return math.dist(point, (start[0] + t * dx, start[1] + t * dy))
+
+
+def _touches_interior(point, start, end) -> bool:
+    return (_segment_distance(point, start, end) <= JUNCTION_PX
+            and math.dist(point, start) > JUNCTION_END_MARGIN_PX
+            and math.dist(point, end) > JUNCTION_END_MARGIN_PX)
+
+
+def _crossing(a0, a1, b0, b1) -> tuple[int, int] | None:
+    """Where two segments properly cross, away from either one's ends."""
+    rx, ry = a1[0] - a0[0], a1[1] - a0[1]
+    sx, sy = b1[0] - b0[0], b1[1] - b0[1]
+    denom = rx * sy - ry * sx
+    if denom == 0:
+        return None
+    t = ((b0[0] - a0[0]) * sy - (b0[1] - a0[1]) * sx) / denom
+    u = ((b0[0] - a0[0]) * ry - (b0[1] - a0[1]) * rx) / denom
+    if not (0 < t < 1 and 0 < u < 1):
+        return None
+    point = (a0[0] + t * rx, a0[1] + t * ry)
+    if min(math.dist(point, p) for p in (a0, a1, b0, b1)) <= JUNCTION_END_MARGIN_PX:
+        return None
+    return int(round(point[0])), int(round(point[1]))
 
 
 def _detect_points(
@@ -333,12 +424,27 @@ def _detect_points(
     significant: dict[tuple[int, int], int] = {}
     explanations: list[TransformationExplanation] = []
     anchors = [a for a in (_label_anchor(label) for label in labels or []) if a]
-    line_ends = [
-        tuple(element.geometry[key])
-        for element in elements
+    plain_lines = [
+        element for element in elements
         if element.type is GeometryType.LINE_SEGMENT and not element.semantic_properties.get("role")
-        for key in ("start", "end")
     ]
+    line_ends = [tuple(element.geometry[key]) for element in plain_lines for key in ("start", "end")]
+    grid = grid_like_ids(plain_lines)
+    rounds = [r for r in (_round_outline(element) for element in elements) if r]
+    outline_edges = [
+        (tuple(element.geometry["start"]), tuple(element.geometry["end"]), element.id)
+        for element in plain_lines if element.id not in grid
+    ] + [
+        (tuple(pts[i]), tuple(pts[(i + 1) % len(pts)]), element.id)
+        for element in elements if element.type in (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON)
+        for pts in [element.geometry.get("points", [])]
+        for i in range(len(pts))
+    ]
+    dots = [tuple(element.geometry["position"]) for element in elements
+            if element.type is GeometryType.POINT and element.geometry.get("position")]
+
+    def labelled(coord) -> bool:
+        return any(math.dist(coord, anchor) <= LABELLED_VERTEX_PX for anchor in anchors)
 
     for element in elements:
         if element.type is GeometryType.LINE_SEGMENT:
@@ -346,23 +452,40 @@ def _detect_points(
                 continue
             for coord in (element.geometry["start"], element.geometry["end"]):
                 significant[coord] = significant.get(coord, 0) + 1
+                if element.semantic_properties.get("role") or element.id in grid:
+                    continue
+                on_round = any(abs(math.dist(coord, centre) - radius) <= JUNCTION_PX for centre, radius in rounds)
+                on_outline = any(owner != element.id and _touches_interior(coord, start, end)
+                                 for start, end, owner in outline_edges)
+                if on_round or on_outline:
+                    significant[coord] += 1
         elif element.type in (GeometryType.TRIANGLE, GeometryType.RECTANGLE, GeometryType.POLYGON):
             points = element.geometry.get("points", [])
             for coord in points:
-                labelled = any(math.dist(coord, anchor) <= LABELLED_VERTEX_PX for anchor in anchors)
                 # A vertex named by a nearby label is a point in its own right.
-                significant[coord] = significant.get(coord, 0) + (2 if labelled else 1)
+                significant[coord] = significant.get(coord, 0) + (2 if labelled(coord) else 1)
         elif element.type is GeometryType.CIRCLE and "center" in element.geometry:
             centre = tuple(int(round(v)) for v in element.geometry["center"])
             # A radius or diameter drawn to the centre makes the centre a point.
             if any(math.dist(centre, end) <= CIRCLE_CENTRE_PX for end in line_ends):
                 significant[centre] = significant.get(centre, 0) + 2
 
+    crossable = [element for element in plain_lines if element.id not in grid]
+    for i, a in enumerate(crossable):
+        for b in crossable[i + 1:]:
+            coord = _crossing(a.geometry["start"], a.geometry["end"], b.geometry["start"], b.geometry["end"])
+            if coord and labelled(coord):
+                significant[coord] = significant.get(coord, 0) + 2
+
     # A coordinate shared by two or more features is a real point.
     point_elements: list[DetectedElement] = []
     pid = start_id
+    emitted: list[tuple[tuple[int, int], float]] = [(dot, DOT_MERGE_PX) for dot in dots]
     for coord, count in significant.items():
         if count >= 2:
+            if any(math.dist(coord, other) <= px for other, px in emitted):
+                continue
+            emitted.append((coord, POINT_MERGE_PX))
             element = DetectedElement(
                 id=f"el_{pid}",
                 type=GeometryType.POINT,
@@ -537,6 +660,66 @@ def _right_angle_element(marker: dict, index: int) -> DetectedElement:
         semantic_properties={"degrees": 90.0, "right_angle": True},
         provenance=f"Right-angle marker drawn at {tuple(vertex)}; measured corner {marker['degrees']} degrees.",
     )
+
+
+ANGLE_ARC_CONFIDENCE = 0.85
+MARK_HOST_PX = 6.0
+ANGLE_POINT_PX = 10.0
+
+
+def _attach_parallel_marks(elements: list[DetectedElement], mark: dict) -> None:
+    host = [tuple(map(float, p)) for p in mark["host"]]
+    for element in elements:
+        geo = element.geometry
+        if "start" not in geo or "end" not in geo:
+            continue
+        ends = [tuple(map(float, geo["start"])), tuple(map(float, geo["end"]))]
+        if (math.dist(ends[0], host[0]) <= MARK_HOST_PX and math.dist(ends[1], host[1]) <= MARK_HOST_PX) or (
+                math.dist(ends[0], host[1]) <= MARK_HOST_PX and math.dist(ends[1], host[0]) <= MARK_HOST_PX):
+            element.semantic_properties["parallel_marks"] = int(mark["count"])
+            element.provenance = (element.provenance or "") + f" Carries {mark['count']} parallel mark(s)."
+            return
+
+
+def _angle_arc_element(arc: dict, index: int) -> DetectedElement:
+    vertex = [int(v) for v in arc["vertex"]]
+    radius = int(arc["radius"])
+    degrees = float(arc["degrees"])
+    return DetectedElement(
+        id=f"el_{index}",
+        type=GeometryType.ANGLE,
+        geometry={
+            "vertex": vertex,
+            "arms": [[int(v) for v in arm] for arm in arc["arms"]],
+            "degrees": degrees,
+            "angle_marker": True,
+            "arc_radius": radius,
+        },
+        confidence=ANGLE_ARC_CONFIDENCE,
+        confidence_level=classify_confidence(ANGLE_ARC_CONFIDENCE),
+        needs_review=False,
+        source="angle_arc",
+        bbox=(vertex[0] - radius, vertex[1] - radius, 2 * radius, 2 * radius),
+        semantic_properties={"degrees": degrees, "angle_marker": True},
+        provenance=f"Angle arc (radius {radius} px) drawn at {tuple(vertex)} between two measured arms; measured {degrees:.1f} degrees.",
+    )
+
+
+def _angle_at_point(angle: DetectedElement, elements: list[DetectedElement]) -> list[ElementRelationship]:
+    vertex = tuple(angle.geometry["vertex"])
+    points = [e for e in elements if e.type is GeometryType.POINT]
+    point = min(points, key=lambda p: math.dist(vertex, tuple(p.geometry["position"])), default=None)
+    if point is None or math.dist(vertex, tuple(point.geometry["position"])) > ANGLE_POINT_PX:
+        return []
+    return [ElementRelationship(
+        id=f"rel_{angle.id}_{point.id}_angle_at",
+        type=RelationshipType.ANGLE_ASSOCIATION,
+        element_ids=[angle.id, point.id],
+        confidence=ANGLE_ARC_CONFIDENCE,
+        confidence_level=classify_confidence(ANGLE_ARC_CONFIDENCE),
+        needs_review=False,
+        explanation=f"Angle arc {angle.id} is drawn at point {point.id}.",
+    )]
 
 
 def _associate_labels(elements: list[DetectedElement], relationships: list[ElementRelationship]) -> tuple[list[DetectedElement], list[TransformationExplanation]]:

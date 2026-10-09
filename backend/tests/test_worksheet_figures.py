@@ -215,6 +215,9 @@ def test_full_page_pipeline_keeps_only_figure_geometry_and_labels():
 
     assert [label["text"] for label in result.labels] == ["O"]
     geometry = [e for e in result.semantic_geometry.elements if e.type is not GeometryType.TEXT_LABEL]
-    assert [e.type for e in geometry] == [GeometryType.TRIANGLE]
+    # The vertex named "O" is a point in its own right; nothing else on the page is geometry.
+    assert [e.type for e in geometry] == [GeometryType.TRIANGLE, GeometryType.POINT]
+    px, py = geometry[1].geometry["position"]
+    assert abs(px - 300) <= 6 and abs(py - 1300) <= 6
     x, y, w, h = geometry[0].bbox
     assert 290 <= x and 790 <= y and x + w <= 910 and y + h <= 1310
