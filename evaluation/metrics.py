@@ -62,8 +62,9 @@ RELATION_MAP = {
     "ON": {"point_on_line", "point_on_circle", "lies_on"},
     "CENTER_OF": {"center_of", "circle_center"},
     "VERTEX_OF": {"vertex_of"},
+    "ANGLE_AT": {"angle_association"},
 }
-UNSUPPORTED_RELATIONS = {"INSIDE", "REFLECTION_OF", "TRANSLATION_OF", "DIMENSION_OF", "ANGLE_AT", "LABELS"}
+UNSUPPORTED_RELATIONS = {"INSIDE", "REFLECTION_OF", "TRANSLATION_OF", "DIMENSION_OF", "LABELS"}
 PRED_TO_GT_RELATION = {p: g for g, ps in RELATION_MAP.items() for p in ps}
 
 TACTILE_TARGET, TACTILE_LIMIT = 40, 60
@@ -394,6 +395,9 @@ def score_objects(gt: dict, preds: list[dict]) -> dict:
         "type_confusion": dict(confusion),
         "geometry_errors": geo,
         "right_angle_markers": {"gt": len(markers), "found": found_markers, "predicted": len(pred_markers)},
+        "angle_markers": {"gt": sum(o["type"] == "angle_marker" for o in gt["objects"]),
+                          "found": len(_angle_marker_map(gt, all_preds, tau)),
+                          "predicted": len(_angle_markers(all_preds))},
         "missed_essential_ids": [gts[i]["id"] for i in essential if i not in strict and i not in parts],
         "found_ids": sorted(gts[i]["id"] for i in counted if i in strict or i in parts),
         "_gt_id_to_preds": {k: [preds[j]["id"] for j in v] for k, v in gt_id_to_preds.items()},
@@ -531,6 +535,25 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
 
 
 # ------------------------------------------------------------ relationships
+def _angle_markers(preds: list[dict]) -> list[dict]:
+    return [p for p in preds if p["type"] == "angle" and (p.get("geometry") or {}).get("angle_marker")]
+
+
+def _angle_marker_map(gt: dict, preds: list[dict], tau: float) -> dict[str, str]:
+    """Ground-truth angle arcs -> Model A angle-arc elements at the same vertex (one-to-one)."""
+    out: dict[str, str] = {}
+    free = _angle_markers(preds)
+    for o in gt["objects"]:
+        if o["type"] != "angle_marker" or "center" not in o["geometry"]:
+            continue
+        v = o["geometry"]["center"]
+        best = min(free, key=lambda p: math.dist(v, p["geometry"]["vertex"]), default=None)
+        if best is not None and math.dist(v, best["geometry"]["vertex"]) <= tau * 1.5:
+            out[o["id"]] = best["id"]
+            free.remove(best)
+    return out
+
+
 def score_relationships(gt: dict, preds: list[dict], relationships: list[dict], gt_to_preds: dict) -> dict:
     tau = tolerance(gt["width"], gt["height"])
     point_map = _point_to_pred_ids(gt, preds, tau)
@@ -542,6 +565,8 @@ def score_relationships(gt: dict, preds: list[dict], relationships: list[dict], 
         for pid in pids:
             if any(p["id"] == pid and p["type"] == "point" for p in preds):
                 pred_to_gt.setdefault(pid, set()).add(gid)
+    for gid, pid in _angle_marker_map(gt, preds, tau).items():
+        pred_to_gt.setdefault(pid, set()).add(gid)
     supported = [r for r in gt["relationships"] if r["type"] in RELATION_MAP]
     unsupported = Counter(r["type"] for r in gt["relationships"] if r["type"] not in RELATION_MAP)
     pred_sets = []

@@ -266,7 +266,11 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
     shapes.extend(recover_ticks(binary_image, shapes, stroke_half))
     shapes.extend(closed_shapes)
     shapes.extend(open_contours)
-    return shapes
+    dots = detect_dots(binary_image, stroke_half)
+    # The disc's own outline and any short Hough stroke across it are the dot.
+    margin = 2 * stroke_half + STROKE_BAND_TOLERANCE_PX
+    shapes = [s for s in shapes if s["type"] == "ellipse" or not _inside_dot(s["points"], dots, margin)]
+    return shapes + dots
 
 
 MAX_CYCLE_SIDES = 8
@@ -404,6 +408,41 @@ TICK_PERPENDICULAR_DEG = 20.0
 TICK_MIN_ELONGATION = 2.5
 TICK_PIECE_ELONGATION = 1.5
 TICK_PAIR_PX = 5
+# Blur or JPEG can open a small gap between a tick half and its line.
+TICK_GAP_PX = 2
+
+
+# A drawn dot is a filled disc several strokes wide: its distance-transform core
+# is round and compact, unlike the ridge along a stroke, the wedge of a filled
+# arrowhead or a filled bar.
+DOT_CORE_STROKES = 3.0
+MIN_DOT_CORE_PX = 3.0
+MIN_DOT_CORE_AREA = 8
+MAX_DOT_CORE_AREA = 400
+MAX_DOT_CORE_ASPECT = 1.3
+MIN_DOT_CORE_FILL = 0.5
+
+
+def detect_dots(binary: np.ndarray, stroke_half: float) -> list[dict]:
+    """Filled discs (marked points, circle centres, plotted points)."""
+    distance = cv2.distanceTransform((binary > 0).astype(np.uint8), cv2.DIST_L2, 3)
+    core = (distance >= max(MIN_DOT_CORE_PX, DOT_CORE_STROKES * stroke_half)).astype(np.uint8)
+    count, labels, stats, centroids = cv2.connectedComponentsWithStats(core, connectivity=8)
+    dots: list[dict] = []
+    for label in range(1, count):
+        x, y, w, h, area = (int(v) for v in stats[label])
+        if not MIN_DOT_CORE_AREA <= area <= MAX_DOT_CORE_AREA:
+            continue
+        if max(w, h) > MAX_DOT_CORE_ASPECT * min(w, h) or area < MIN_DOT_CORE_FILL * w * h:
+            continue
+        cx, cy = centroids[label]
+        radius = float(distance[y:y + h, x:x + w].max())
+        dots.append({"type": "dot", "points": [(int(round(cx)), int(round(cy)))], "radius": round(radius, 1)})
+    return dots
+
+
+def _inside_dot(points, dots: list[dict], margin: float) -> bool:
+    return any(all(math.dist(p, dot["points"][0]) <= dot["radius"] + margin for p in points) for dot in dots)
 
 
 def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) -> list[dict]:
@@ -445,7 +484,7 @@ def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) ->
                 continue
             along, across = t.max() - t.min() + 1, n.max() - n.min() + 1
             near = np.abs(n).min()
-            if near > thickness / 2 + 2 or across < MIN_TICK_PX / 2 or across > MAX_TICK_PX:
+            if near > thickness / 2 + TICK_GAP_PX or across < MIN_TICK_PX / 2 or across > MAX_TICK_PX:
                 continue
             if across < TICK_PIECE_ELONGATION * along:
                 continue

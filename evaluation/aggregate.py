@@ -77,6 +77,8 @@ def summarize(rows: list[dict]) -> dict:
     }
     out["right_angle_markers"] = {k: _sum(obj, "right_angle_markers", k) for k in ("gt", "found", "predicted")}
     out["right_angle_markers"]["recall"] = ratio(out["right_angle_markers"]["found"], out["right_angle_markers"]["gt"])
+    out["angle_markers"] = {k: _sum(obj, "angle_markers", k) for k in ("gt", "found", "predicted")}
+    out["angle_markers"]["recall"] = ratio(out["angle_markers"]["found"], out["angle_markers"]["gt"])
     geo = {k: percentiles([v for o in obj for v in o["geometry_errors"][k]]) for k in GEOMETRY_KEYS}
     pts = [s["points"] for s in scored]
     geo["point_localization_px"] = percentiles([v for p in pts for v in p["error_px"]])

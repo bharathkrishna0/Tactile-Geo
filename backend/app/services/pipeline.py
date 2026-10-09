@@ -4,6 +4,7 @@ from app.models.geometry import SemanticGeometry
 from app.services.image_preprocessing import decode_image, preprocess_image
 from app.services.vectorization import drop_shapes_inside_text_regions, extract_shapes, shapes_to_svg, stroke_half_width
 from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
+from app.services.markers import detect_angle_arcs, detect_parallel_chevrons
 from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
 from app.services.ocr import EasyOcrProvider, OcrProvider
 from app.services.ocr_postprocessing import postprocess_detections, restore_radicals
@@ -51,7 +52,13 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     # OCR runs after vectorization, so text glyphs may already have been picked up
     # as small contours. Remove them so labels are not duplicated as geometry.
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
-    right_angles = detect_right_angle_markers(filtered, shapes, stroke_half_width(filtered))
+    stroke_half = stroke_half_width(filtered)
+    text_boxes = [detection.bbox for detection in detections]
+    right_angles = detect_right_angle_markers(filtered, shapes, stroke_half, text_boxes)
+    angle_arcs = detect_angle_arcs(
+        filtered, shapes, stroke_half, text_boxes, exclude_vertices=[marker["vertex"] for marker in right_angles],
+    )
+    parallel_marks = detect_parallel_chevrons(filtered, shapes, stroke_half, text_boxes)
     shapes = drop_marker_strokes(shapes, right_angles)
     mapped_labels = []
     for detection in detections:
@@ -59,7 +66,10 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
         mapped_labels.append({**label, "braille": translator.translate(detection.text)})
     placed_labels = place_braille_markers(mapped_labels, shapes, bounds=(width, height))
     svg = shapes_to_svg(shapes, width, height)
-    semantic = analyze_diagram(shapes, width, height, placed_labels, right_angles=right_angles)
+    semantic = analyze_diagram(
+        shapes, width, height, placed_labels, right_angles=right_angles,
+        angle_arcs=angle_arcs, parallel_marks=parallel_marks,
+    )
     simplified = simplify_geometry(semantic)
     qa_report = run_tactile_qa(simplified.elements, width, height, density_removed=density_removed_count(simplified))
     tactile_svg = render_tactile_svg(simplified.elements, width, height)
