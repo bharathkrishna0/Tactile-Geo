@@ -21,8 +21,9 @@ STAGES = {
     "preprocess_image": "preprocessing",
     "find_diagram_regions": "preprocessing",
     "mask_to_regions": "preprocessing",
-    "extract_shapes": "vectorization",
     "ink_contrast_copy": "ocr",
+    "mask_text_glyphs": "vectorization",
+    "extract_shapes": "vectorization",
     "postprocess_detections": "ocr",
     "restore_radicals": "ocr",
     "drop_shapes_inside_text_regions": "vectorization",
@@ -126,7 +127,7 @@ def capture_result(result, timer_ms: dict, total_ms: float) -> dict:
         "image_quality": _plain(asdict(result.quality_report)) if hasattr(result.quality_report, "__dataclass_fields__") else None,
         "raw_shapes": len(result.shapes),
         "ocr_labels": [{"text": lab.get("text"), "bbox": _plain(lab.get("bbox")), "confidence": _plain(lab.get("confidence")),
-                        "braille": lab.get("braille"), "reading_order": lab.get("reading_order")} for lab in result.labels],
+                        "ocr_provider": lab.get("ocr_provider"), "braille": lab.get("braille"), "reading_order": lab.get("reading_order")} for lab in result.labels],
         "semantic": {"elements": [element_json(e, order) for e in sem.elements],
                      "relationships": [relationship_json(r) for r in sem.relationships],
                      "review_flags": list(sem.review_flags)},
@@ -142,7 +143,8 @@ def capture_result(result, timer_ms: dict, total_ms: float) -> dict:
     }
 
 
-def run_model_a(image_bytes: bytes, ocr_provider, translator, overrides: dict | None = None) -> tuple[dict, object | None]:
+def run_model_a(image_bytes: bytes, ocr_provider, translator, overrides: dict | None = None,
+                mask_text: bool = False) -> tuple[dict, object | None]:
     """Return (captured JSON, PipelineResult or None on failure)."""
     timer = _Timer()
     provider = _TimedProvider(ocr_provider, timer, "ocr", "detect")
@@ -150,7 +152,8 @@ def run_model_a(image_bytes: bytes, ocr_provider, translator, overrides: dict | 
     start = time.perf_counter()
     with timed_pipeline(timer, overrides) as pipeline:
         try:
-            result = pipeline.build_full_analysis(image_bytes, ocr_provider=provider, braille_translator=tr)
+            result = pipeline.build_full_analysis(image_bytes, ocr_provider=provider, braille_translator=tr,
+                                                  mask_text=mask_text)
         except Exception as error:  # a failed analysis is a scored outcome
             total = (time.perf_counter() - start) * 1000
             return ({"error": f"{type(error).__name__}: {error}",
