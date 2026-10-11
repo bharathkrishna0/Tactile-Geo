@@ -1,9 +1,33 @@
 # Edutactile-inspired optimization: Phase 0 audit
 
-Status: audit only, no production code changed. Based on reading `main` (after PRs #16–#18).
-The Edutactile paper itself was not available when this was written; the
-"Edutactile idea" column follows the task brief's description of it and must be
-re-checked against the paper.
+Status: audit only, no production code changed. Based on reading `main` (after PRs #16–#18)
+and the paper: Mech, Kwatra, Das, Chanana, Paul and Balakrishnan, "Edutactile - A tool for
+rapid generation of accurate guideline-compliant tactile graphics for science and
+mathematics", IIT Delhi (8 pages). No Edutactile code was read or copied.
+
+## What the paper describes, and how it maps to TactileGeo
+
+Edutactile is a Java/Swing editor. Its Image Converter takes an **SVG** figure as input,
+not a photo or scan; converting printed images is listed as future work. So it has no
+recognition step. The ideas below are about what happens *after* geometry exists, which is
+TactileGeo's stage after Model A and fusion.
+
+| Paper idea (section 3.2) | TactileGeo today | Section below |
+|---|---|---|
+| Shapes parsed into a table-like "Shape" structure (one row per shape with its attributes) | `DetectedElement` list with typed geometry, ids, provenance | 1 |
+| Scaling: the union ("maximal") bounding box of all shapes is fitted to the page | Fits the whole source image, not the shapes | 3 |
+| Edge/arc decomposition: a rectangle row is replaced by four line rows, so the user can click one line or arc and change its thickness or line type | Polygons are single elements; no per-edge style | 2 |
+| Guideline "specification files" imported and applied to a class of diagrams | One built-in `TactileRules`; no named or importable specs | 4 |
+| Bounded regions computed so textures can be changed with a click; warns when adjacent textures are too similar | No regions or textures | 5 |
+| Spatial decluttering and occlusion removal | Density budget, collinear merging, protected essentials | 6 |
+| Braille translation (BrailleTrans) and label positioning | Liblouis UEB and the placement search | 7 |
+| Teacher annotations | Label edits only; no free annotations | 7 |
+
+Not adopted: the chemical-equations and function-plotting modules (outside image conversion),
+SVG upload as an input path (not requested; adds a parser attack surface), and the paper's
+"guideline-compliant" claim. The paper's evaluation was three special educators (Likert
+ratings) and three students reading six diagrams. That supports usefulness, not a
+measurable compliance claim, so TactileGeo will continue to report only its own benchmark.
 
 ## Baseline already measured on this code
 
@@ -53,7 +77,9 @@ once, at the end.
 - **Failure mode:** one wrong vertex means deleting and losing the whole shape; duplicates and
   fragments inflate density and push sheets over the feature budget (seen on `math_061`).
 - **Minimal change:** derive edge sub-IDs (`el_0.e0`...) for polygons as a view on the same
-  element (not new competing objects); add a `move_vertex` edit that updates dependent
+  element (not new competing objects); let the teacher set a line class per edge or arc
+  (solid / dashed / thick, from the preset), which is the purpose of decomposition in the paper;
+  add a `move_vertex` edit that updates dependent
   relationships and marks them for recompute; add the three metrics first.
 - **Tests:** fragments of one edge merge; two distinct adjacent edges do not; vertex edit keeps
   other elements unmoved; relationships recomputed.
@@ -79,7 +105,8 @@ once, at the end.
   It is effectively one implicit preset.
 - **Missing:** page size and margins live in `tactile_svg.py`; Braille dot geometry is constants;
   there is no named preset, and no way to recompile with different rules without re-analysis.
-- **Minimal change:** move page/margin/Braille constants into one documented default preset;
+- **Minimal change:** move page/margin/Braille constants into one documented default preset,
+  stored as a validated JSON spec so it can be imported like the paper's specification files;
   recompile endpoint takes the session's stored semantic geometry, with no OCR re-run. No
   extra presets until there are requirements.
 - **Tests:** default preset reproduces today's SVG byte-for-byte; changing margin recompiles
@@ -136,7 +163,7 @@ once, at the end.
 ## Proposed order (one PR each, measured on dev15 + validation before and after)
 
 0. Baseline on `main` plus the missing metrics (no pipeline change).
-1. Importance/role fields, ID-stability, edge sub-IDs, `move_vertex` edit.
+1. Importance/role fields, ID-stability, edge sub-IDs with per-edge line class, `move_vertex` edit.
 2. Content-box page scaling plus a default preset holding page/margin/Braille constants.
 3. Regions and textures (pie charts first).
 4. Auditable simplification plus the output-based density fix.
