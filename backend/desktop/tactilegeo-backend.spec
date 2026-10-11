@@ -1,5 +1,6 @@
 # PyInstaller spec for the packaged desktop backend (one-folder build).
 # Run via scripts/build_desktop.ps1, which stages assets into TACTILEGEO_STAGE first.
+import importlib.util
 import os
 from pathlib import Path
 
@@ -14,7 +15,16 @@ datas = [
     (str(stage / "ocr-models"), "ocr-models"),
     *collect_data_files("easyocr"),
 ]
-binaries = [(str(stage / "liblouis" / "liblouis.dll"), ".")]
+# torchvision loads its C++ ops (nms, used by EasyOCR) with torch.ops.load_library
+# from its package folder; the hook only knows the old "_C" name, not "_C_stable".
+torchvision_dir = Path(importlib.util.find_spec("torchvision").origin).parent
+torchvision_ops = sorted(torchvision_dir.glob("*.pyd"))
+if not any(p.stem.startswith("_C") for p in torchvision_ops):
+    raise SystemExit(f"torchvision C++ ops not found in {torchvision_dir}")
+binaries = [
+    (str(stage / "liblouis" / "liblouis.dll"), "."),
+    *[(str(p), "torchvision") for p in [*torchvision_ops, *torchvision_dir.glob("*.dll")]],
+]
 hiddenimports = [
     *collect_submodules("app"),
     *collect_submodules("uvicorn"),
