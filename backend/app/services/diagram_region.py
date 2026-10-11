@@ -15,8 +15,10 @@ import numpy as np
 LONG_COMPONENT_FRACTION = 0.08
 # A small figure (a square, a regular polygon) is short but tall and wide at
 # once; a word, a rule or a line of prose is never both. It must also be drawn
-# in dark ink: a pale watermark letter is just as tall and wide.
+# in dark ink: a pale watermark letter is just as tall and wide, and prose
+# letters joined by a pale watermark stroke are partly pale.
 SMALL_FIGURE_FRACTION = 0.035
+SMALL_FIGURE_DARK_SHARE = 0.95
 # Strokes touching the image edge are page borders, header bars or scan edges.
 BORDER_FRACTION = 0.01
 # Strokes inside a large, mostly solid dark blob are the edges and lettering of
@@ -79,7 +81,8 @@ def find_diagram_regions(binary: np.ndarray, image: np.ndarray) -> list[Box] | N
         if max(w, h) < LONG_COMPONENT_FRACTION * short_side:
             if min(w, h) < SMALL_FIGURE_FRACTION * short_side:
                 continue
-            if np.median(gray[y:y + h, x:x + w][labels[y:y + h, x:x + w] == index]) > dark_ink_limit:
+            pixels = gray[y:y + h, x:x + w][labels[y:y + h, x:x + w] == index]
+            if np.mean(pixels <= dark_ink_limit) < SMALL_FIGURE_DARK_SHARE:
                 continue
         if x <= border or y <= border or x + w >= width - border or y + h >= height - border:
             continue

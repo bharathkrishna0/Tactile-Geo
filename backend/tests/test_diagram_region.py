@@ -46,3 +46,13 @@ def test_prose_line_is_not_a_figure():
     regions = find_diagram_regions(_binary(page), page)
     assert regions is not None
     assert not _covers(regions, 420, 706)
+
+
+def test_letters_joined_by_a_pale_watermark_stroke_are_not_a_figure():
+    page = _page_with_clutter()
+    for x, y in ((451, 674), (465, 662), (479, 650)):
+        cv2.rectangle(page, (x, y), (x + 8, y + 12), (0, 0, 0), -1)
+    cv2.line(page, (452, 684), (486, 652), (200, 200, 200), 2)
+    regions = find_diagram_regions(_binary(page), page)
+    assert regions is not None
+    assert not _covers(regions, 469, 668)
