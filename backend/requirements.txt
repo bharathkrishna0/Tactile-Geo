@@ -4,6 +4,9 @@ python-multipart==0.0.20
 opencv-python-headless>=4.10,<5
 numpy>=1.26,<3
 easyocr==1.7.2
+# Optional second OCR engine for short labels; needs the `tesseract` binary.
+# Without it the pipeline runs EasyOCR only.
+pytesseract==0.3.13
 # Durable sessions when DATABASE_URL is set (Postgres / Supabase).
 psycopg[binary]==3.2.10
 
