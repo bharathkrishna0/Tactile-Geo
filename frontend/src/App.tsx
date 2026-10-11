@@ -7,6 +7,7 @@ import ModelBPanel from './components/ModelBPanel'
 import OriginalView from './components/OriginalView'
 import TactileOutputView from './components/TactileOutputView'
 import TemplateDemo from './components/TemplateDemo'
+import DesktopDownload from './components/DesktopDownload'
 import ViewTabs from './components/ViewTabs'
 import { exportBlockReason } from './lib/exportGate'
 import {
@@ -181,6 +182,7 @@ export default function App() {
         <button type="button" ref={templateButtonRef} className="template-button" onClick={() => setTemplateMode(true)}>
           Template (Demo)
         </button>
+        <DesktopDownload />
       </div>
 
       <input ref={inputRef} className="visually-hidden" type="file" accept="image/png,image/jpeg" aria-label="Choose a worksheet image" onChange={onFileChange} />
