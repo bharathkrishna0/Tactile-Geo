@@ -199,3 +199,16 @@ def test_label_association_records_its_evidence():
     assert evidence["target_type"] == "point"
     assert evidence["reason"] == "point"
     assert 0 < evidence["confidence"] <= 1
+
+
+def test_a_shape_name_goes_to_the_shape_not_a_point_beside_it():
+    def element(eid, gtype, geometry, **kw):
+        return DetectedElement(id=eid, type=gtype, geometry=geometry, confidence=0.9, confidence_level=ConfidenceLevel.HIGH, needs_review=False, source="t", **kw)
+
+    hexagon = element("h", GeometryType.POLYGON, {"points": [(100, 100), (200, 60), (300, 100), (300, 200), (200, 240), (100, 200)]})
+    vertex = element("p", GeometryType.POINT, {"position": (200, 240)})
+    word = element("w", GeometryType.TEXT_LABEL, {"text": "hexagon", "position": (200, 262)}, bbox=(165, 254, 70, 16))
+    name = element("n", GeometryType.TEXT_LABEL, {"text": "E′", "position": (200, 262)}, bbox=(194, 254, 12, 16))
+    _associate_labels([hexagon, vertex, word, name], [])
+    assert word.associated_label_id == "h"
+    assert name.associated_label_id == "p"

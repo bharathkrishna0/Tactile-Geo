@@ -9,6 +9,7 @@ lower confidence so the teacher can correct it later.
 from __future__ import annotations
 
 import math
+import re
 
 from app.models.geometry import (
     ConfidenceLevel,
@@ -166,6 +167,14 @@ def _tick_in_line(position: tuple[float, float], tick: DetectedElement) -> float
     return math.dist(near, position) if off <= TICK_ALIGNMENT_DEG else None
 
 
+WORD_MIN_LETTERS = 3
+
+
+def names_a_point(text: str) -> bool:
+    """Whether ``text`` could name a point: a word ("hexagon", "square") names a shape instead."""
+    return not re.fullmatch(rf"[^\W\d_]{{{WORD_MIN_LETTERS},}}", text.strip())
+
+
 def _choose(label: DetectedElement, position: tuple[float, float], candidates: list[DetectedElement]) -> tuple[DetectedElement, float, str]:
     """Best target and the evidence for it, most specific evidence first.
 
@@ -179,7 +188,7 @@ def _choose(label: DetectedElement, position: tuple[float, float], candidates: l
         (
             (_box_distance((float(e.geometry["position"][0]), float(e.geometry["position"][1])), label.bbox, position), e)
             for e in candidates if e.type is GeometryType.POINT and e.geometry.get("position")
-        ),
+        ) if names_a_point(str(label.geometry.get("text", ""))) else (),
         key=lambda pair: pair[0],
     )
     if points and points[0][0] <= POINT_PREFERENCE_PX:
