@@ -121,5 +121,7 @@ jobs:
           curl -fsSL -o downloaded.exe "$url"
           actual=$(stat -c %s downloaded.exe)
           test "$expected" = "$actual"
-          (cd release && sha256sum -c SHA256SUMS.txt)
-          echo "$url ($actual bytes) verified"
+          expected_sha=$(tr -d '\r' < release/SHA256SUMS.txt | awk '$2 == "TactileGeo-Setup.exe" {print $1}')
+          actual_sha=$(sha256sum downloaded.exe | cut -d' ' -f1)
+          test -n "$expected_sha" && test "$expected_sha" = "$actual_sha"
+          echo "$url ($actual bytes, sha256 $actual_sha) verified"
