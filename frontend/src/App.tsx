@@ -8,6 +8,9 @@ import OriginalView from './components/OriginalView'
 import TactileOutputView from './components/TactileOutputView'
 import TemplateDemo from './components/TemplateDemo'
 import DesktopDownload from './components/DesktopDownload'
+import { EngineBanner, ModelBKeySettings, useEngineState } from './components/DesktopEngine'
+import { desktopConfig } from './lib/desktop'
+import { desktopShell } from './lib/desktopShell'
 import ViewTabs from './components/ViewTabs'
 import { exportBlockReason } from './lib/exportGate'
 import {
@@ -63,17 +66,21 @@ export default function App() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [modelBAvailability, setModelBAvailability] = useState<ModelBAvailability | null>(null)
+  const [desktop] = useState(desktopConfig)
+  const engine = useEngineState(desktop, desktopShell)
+  const engineReady = engine.state === 'ready'
 
   // Availability is fetched once on mount and never blocks the Model A flow.
   // A backend that has Model B switched off, or that is down entirely, must not
   // stand between a teacher and the deterministic result.
   useEffect(() => {
+    if (!engineReady) return
     let active = true
     fetchModelBAvailability()
       .then(value => { if (active) setModelBAvailability(value) })
       .catch(() => { if (active) setModelBAvailability({ available: false, enabled: false, reason: 'The Model B check is unavailable on this server.', provider: '', model: '' }) })
     return () => { active = false }
-  }, [])
+  }, [engineReady])
 
   const selectedElement: DetectedElement | null = analysis?.semantic_geometry?.elements.find(el => el.id === selectedId) ?? null
   const semantic = analysis?.semantic_geometry
@@ -135,11 +142,18 @@ export default function App() {
       return
     }
     setError('')
+    const fileName = `tactile-${analysis.session_id || 'diagram'}.svg`
+    if (desktop) {
+      desktopShell.saveSvg(svg, fileName)
+        .then(path => setStatus(path ? `Saved ${path}` : 'Export cancelled.'))
+        .catch(saveError => setError(saveError instanceof Error ? saveError.message : String(saveError)))
+      return
+    }
     const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `tactile-${analysis.session_id || 'diagram'}.svg`
+    link.download = fileName
     link.click()
     URL.revokeObjectURL(url)
   }
@@ -182,21 +196,22 @@ export default function App() {
         <button type="button" ref={templateButtonRef} className="template-button" onClick={() => setTemplateMode(true)}>
           Template (Demo)
         </button>
-        <DesktopDownload />
+        {desktop ? <ModelBKeySettings shell={desktopShell} /> : <DesktopDownload />}
       </div>
+      {desktop && <EngineBanner state={engine.state} error={engine.error} config={desktop} shell={desktopShell} />}
 
       <input ref={inputRef} className="visually-hidden" type="file" accept="image/png,image/jpeg" aria-label="Choose a worksheet image" onChange={onFileChange} />
       <div className="drop-zone" onDragOver={(event) => event.preventDefault()} onDrop={onDrop}>
         <p>Drag a worksheet image here</p>
         <span>or</span>
-        <button type="button" onClick={() => inputRef.current?.click()} disabled={busy}>Choose image</button>
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={busy || !engineReady}>Choose image</button>
         <small>Supports PNG, JPG, and JPEG up to 10 MB.</small>
       </div>
 
       {file && (
         <div className="selected-file">
           <span>{file.name}</span>
-          <button type="button" onClick={runUpload} disabled={busy}>{analysis ? 'Re-run analysis' : 'Create tactile preview'}</button>
+          <button type="button" onClick={runUpload} disabled={busy || !engineReady}>{analysis ? 'Re-run analysis' : 'Create tactile preview'}</button>
         </div>
       )}
       {status && <p className="status" role="status">{status}</p>}

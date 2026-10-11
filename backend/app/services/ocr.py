@@ -1,4 +1,5 @@
 import math
+import os
 import threading
 from dataclasses import dataclass
 from typing import Protocol
@@ -49,6 +50,18 @@ def ocr_scale_factor(height: int, width: int) -> int:
     return max(1, scale)
 
 
+def _model_storage_options() -> dict[str, object]:
+    """Point EasyOCR at pre-bundled weights when EASYOCR_MODEL_DIR is set.
+
+    Downloads are disabled in that case so a missing file fails loudly instead
+    of silently fetching from the internet on first use.
+    """
+    model_dir = os.environ.get("EASYOCR_MODEL_DIR", "").strip()
+    if not model_dir:
+        return {}
+    return {"model_storage_directory": model_dir, "download_enabled": False}
+
+
 def _get_reader(languages: list[str]):
     import easyocr
 
@@ -58,7 +71,7 @@ def _get_reader(languages: list[str]):
         if reader is None:
             # Loading the model is expensive; share one reader per language set
             # across requests instead of reloading it on every pipeline run.
-            reader = easyocr.Reader(list(languages), gpu=False)
+            reader = easyocr.Reader(list(languages), gpu=False, **_model_storage_options())
             _READER_CACHE[key] = reader
         return reader
 
