@@ -1,0 +1,126 @@
+name: Desktop installer
+
+# Builds release/TactileGeo-Setup.exe on Windows, smoke-tests the installed app
+# with developer tools removed from PATH, and publishes it on a v* tag.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+  pull_request:
+    paths:
+      - ".github/workflows/desktop.yml"
+      - "desktop/**"
+      - "backend/desktop/**"
+      - "backend/desktop_main.py"
+      - "backend/requirements.txt"
+      - "backend/app/**"
+      - "frontend/src/**"
+      - "frontend/package*.json"
+      - "scripts/*desktop*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/desktop/requirements-desktop.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            desktop/package-lock.json
+      - name: Rust toolchain
+        shell: pwsh
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+      - name: Build installer
+        shell: pwsh
+        run: ./scripts/build_desktop.ps1 -Python python
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-reports
+          path: |
+            build/desktop/self-check.json
+            build/desktop/self-check-data/logs/
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TactileGeo-Setup
+          path: release/
+          if-no-files-found: error
+          compression-level: 0
+
+  smoke-test:
+    needs: build
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            scripts
+            backend/app/demo_samples
+      - uses: actions/download-artifact@v4
+        with:
+          name: TactileGeo-Setup
+          path: release
+      - name: Install, process an image, uninstall
+        shell: pwsh
+        run: ./scripts/smoke_test_desktop.ps1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-logs
+          path: |
+            ~/AppData/Local/org.tactilegeo.desktop/logs/
+            ${{ runner.temp }}/tg-smoke-data/logs/
+          if-no-files-found: ignore
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: smoke-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: TactileGeo-Setup
+          path: release
+      - name: Check tag matches app version
+        run: |
+          version=$(jq -r .version desktop/src-tauri/tauri.conf.json)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != app version $version"; exit 1; }
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" release/TactileGeo-Setup.exe release/SHA256SUMS.txt \
+            --title "TactileGeo $GITHUB_REF_NAME (Windows)" --notes-file docs/desktop/RELEASE_NOTES.md
+      - name: Verify public download URL
+        run: |
+          url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${GITHUB_REF_NAME}/TactileGeo-Setup.exe"
+          expected=$(stat -c %s release/TactileGeo-Setup.exe)
+          curl -fsSL -o downloaded.exe "$url"
+          actual=$(stat -c %s downloaded.exe)
+          test "$expected" = "$actual"
+          (cd release && sha256sum -c SHA256SUMS.txt)
+          echo "$url ($actual bytes) verified"
