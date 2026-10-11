@@ -54,6 +54,13 @@ npm install
 npm run dev        # http://localhost:5173, proxies /api to :8000
 ```
 
+The header's **Download Desktop App** button reads `frontend/src/desktopRelease.ts`.
+It stays disabled ("not been published yet") while `url` is `null`. When a
+release with `TactileGeo-Setup.exe` is published on GitHub Releases, set `url` to
+that asset's `https://github.com/bharathkrishna0/Tactile-Geo/releases/download/<tag>/TactileGeo-Setup.exe`
+link, set `version` and `sizeBytes` from the release page, and redeploy the frontend.
+Non-https URLs are ignored, so a local file can't be linked by mistake.
+
 ## Tests and benchmark
 
 ```bash
