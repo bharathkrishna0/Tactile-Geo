@@ -249,3 +249,20 @@ def test_angle_at_scored_against_angle_arc_elements():
     s = metrics.score_relationships(gt, preds, rels, {})
     assert s["by_type"]["ANGLE_AT"]["found"] == 1
     assert s["by_type"]["ANGLE_AT"]["predicted_correct"] == 1
+
+
+def test_labels_are_scored_per_ocr_engine():
+    gt = gt_doc([], labels=[
+        {"id": "a", "text": "A", "bbox": [100, 100, 20, 20], "semantic_importance": "essential"},
+        {"id": "b", "text": "B", "bbox": [300, 100, 20, 20], "semantic_importance": "essential"},
+    ])
+    labels = [{"id": "t1", "text": "A", "bbox": [100, 100, 20, 20], "ocr_provider": "easyocr"},
+              {"id": "t2", "text": "8", "bbox": [300, 100, 20, 20], "ocr_provider": "tesseract"},
+              {"id": "t3", "text": "x", "bbox": [700, 700, 20, 20], "ocr_provider": "tesseract"},
+              {"id": "t4", "text": "y", "bbox": [800, 800, 20, 20]}]
+    s = metrics.score_labels(gt, labels)
+    assert s["per_engine"] == {
+        "easyocr": {"predicted": 1, "on_label": 1, "read_exact": 1},
+        "tesseract": {"predicted": 2, "on_label": 1, "read_exact": 0},
+        "unknown": {"predicted": 1, "on_label": 0, "read_exact": 0},
+    }

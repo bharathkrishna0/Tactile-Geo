@@ -513,6 +513,13 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
             order_pairs += 1
             order_ok += ra < rb
     all_assigned = {id(pl) for v in assigned.values() for pl in v}
+    gt_text = {id(pl): normalize_text(lab["text"]) for lab in gt["labels"] for pl in assigned[lab["id"]]}
+    per_engine: dict[str, dict[str, int]] = {}
+    for pl in pred_labels:
+        counts = per_engine.setdefault(pl.get("ocr_provider") or "unknown", {"predicted": 0, "on_label": 0, "read_exact": 0})
+        counts["predicted"] += 1
+        counts["on_label"] += id(pl) in all_assigned
+        counts["read_exact"] += gt_text.get(id(pl)) == normalize_text(pl["text"])
     return {
         "gt_essential": len(essential),
         "predicted": len(pred_labels),
@@ -531,6 +538,7 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
         "braille_cell_errors": cell_err, "braille_cells": cell_tot,
         "reading_order_pairs": order_pairs, "reading_order_concordant": order_ok,
         "per_label": per_label,
+        "per_engine": per_engine,
     }
 
 
@@ -844,6 +852,16 @@ def label_elements(elements: list[dict]) -> list[dict]:
     return [e for e in elements if e["type"] == "text_label"]
 
 
+def _with_ocr_provider(labels: list[dict], ocr_labels: list[dict]) -> list[dict]:
+    """Final text labels with the OCR engine of the raw reading they came from."""
+    origins = {}
+    for raw in ocr_labels:
+        xs, ys = [p[0] for p in raw["bbox"]], [p[1] for p in raw["bbox"]]
+        origins[(raw["text"], round(min(xs)), round(min(ys)))] = raw.get("ocr_provider")
+    return [{**lab, "ocr_provider": origins.get((lab["text"], round(lab["bbox"][0]), round(lab["bbox"][1])))}
+            if lab.get("bbox") and "ocr_provider" not in lab else lab for lab in labels]
+
+
 def score_image(gt: dict, result: dict, gt_braille: dict | None = None, translate=None) -> dict:
     """Score a captured result (see ``evaluation.capture``) against an annotation."""
     if result.get("error"):
@@ -853,7 +871,8 @@ def score_image(gt: dict, result: dict, gt_braille: dict | None = None, translat
     fin = result["simplified"]["elements"]
     pre = score_objects(gt, geometry_elements(sem))
     post = score_objects(gt, geometry_elements(fin))
-    labels = score_labels(gt, label_elements(fin), gt_braille, translate, geometry_elements(fin), post["_gt_id_to_preds"])
+    final_labels = _with_ocr_provider(label_elements(fin), result.get("ocr_labels") or [])
+    labels = score_labels(gt, final_labels, gt_braille, translate, geometry_elements(fin), post["_gt_id_to_preds"])
     rel_pre = score_relationships(gt, geometry_elements(sem), result["semantic"]["relationships"], pre["_gt_id_to_preds"])
     rel_post = score_relationships(gt, geometry_elements(fin), result["simplified"]["relationships"], post["_gt_id_to_preds"])
     actions = Counter(a["action"] for a in result["simplified"]["actions"])
