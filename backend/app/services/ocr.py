@@ -5,16 +5,26 @@ from typing import Protocol
 
 import numpy as np
 
+from app.services.ocr_fusion import OcrReading, fuse_short_label, prefers_letters
+from app.services.tesseract_ocr import TesseractCropReader, tesseract_available
+
 
 @dataclass(frozen=True)
 class OcrDetection:
     text: str
     bbox: list[tuple[int, int]]
     confidence: float
+    provider: str = "easyocr"
 
 
 class OcrProvider(Protocol):
     def detect(self, image: np.ndarray) -> list[OcrDetection]: ...
+
+
+class CropReader(Protocol):
+    provider: str
+
+    def read(self, crop: np.ndarray, single_char: bool) -> list[OcrReading]: ...
 
 
 # EasyOCR's detector needs glyphs roughly 30px tall to be reliable. Worksheet
@@ -55,12 +65,21 @@ def _get_reader(languages: list[str]):
 
 class EasyOcrProvider:
     """EasyOCR implementation, deliberately isolated behind OcrProvider."""
-    def __init__(self, languages: list[str] | None = None, reader=None, recover_glyphs: bool | None = None) -> None:
+    def __init__(
+        self,
+        languages: list[str] | None = None,
+        reader=None,
+        recover_glyphs: bool | None = None,
+        second_reader: CropReader | None = None,
+    ) -> None:
         self.languages = languages or ["en"]
         self._reader = reader
         # Glyph recovery needs EasyOCR's ``recognize``; an injected reader only
         # promises ``readtext``, so it is opted in explicitly.
         self.recover_glyphs = reader is None if recover_glyphs is None else recover_glyphs
+        if second_reader is None and reader is None and tesseract_available():
+            second_reader = TesseractCropReader(GLYPH_ALLOWLIST)
+        self.second_reader = second_reader
 
     def detect(self, image: np.ndarray) -> list[OcrDetection]:
         try:
@@ -87,7 +106,7 @@ class EasyOcrProvider:
         ]
         if not self.recover_glyphs:
             return found
-        return found + recognize_isolated_glyphs(reader, image, found)
+        return found + recognize_isolated_glyphs(reader, image, found, self.second_reader)
 
 
 # EasyOCR's text detector rarely boxes a lone one- or two-character label (a
@@ -104,11 +123,11 @@ GLYPH_MAX_ASPECT = 2.0
 GLYPH_GROUP_GAP = 0.6
 GLYPH_MAX_CHARS = 3
 GLYPH_CROP_HEIGHT_PX = 64
-GLYPH_MIN_CONFIDENCE = 0.75
+GLYPH_SINGLE_CHAR_ASPECT = 1.1
 GLYPH_MIN_THICKNESS = 0.3
 GLYPH_CLEARANCE_PX = 2
 MAX_GLYPH_CANDIDATES = 80
-GLYPH_ALLOWLIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+GLYPH_ALLOWLIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
 
 
 def _box_bounds(bbox: list[tuple[int, int]]) -> tuple[int, int, int, int]:
@@ -143,6 +162,7 @@ def glyph_candidates(gray: np.ndarray, existing: list[OcrDetection]) -> list[tup
         if any(x < bx1 + pad and x + w > bx0 - pad and y < by1 + pad and y + h > by0 - pad for bx0, by0, bx1, by1 in taken):
             continue
         glyphs.append([x, y, x + w, y + h])
+    glyphs = _drop_dash_glyphs(glyphs)
     glyphs.sort()
     groups: list[list[int]] = []
     for x0, y0, x1, y1 in glyphs:
@@ -161,12 +181,49 @@ def glyph_candidates(gray: np.ndarray, existing: list[OcrDetection]) -> list[tup
     return boxes[:MAX_GLYPH_CANDIDATES]
 
 
-def recognize_isolated_glyphs(reader, image: np.ndarray, existing: list[OcrDetection]) -> list[OcrDetection]:
+DASH_SIZE_TOLERANCE = 0.25
+DASH_MAX_GAP = 1.5
+DASH_COLLINEAR_SIN = 0.12
+
+
+def _drop_dash_glyphs(glyphs: list[list[int]]) -> list[list[int]]:
+    """Remove ink pieces that repeat along a line at a short, regular gap: the dashes of a dashed line."""
+    def similar(a: list[int], b: list[int]) -> bool:
+        wa, ha, wb, hb = a[2] - a[0], a[3] - a[1], b[2] - b[0], b[3] - b[1]
+        return abs(wa - wb) <= DASH_SIZE_TOLERANCE * max(wa, wb) and abs(ha - hb) <= DASH_SIZE_TOLERANCE * max(ha, hb)
+
+    def centre(g: list[int]) -> tuple[float, float]:
+        return (g[0] + g[2]) / 2, (g[1] + g[3]) / 2
+
+    def near(a: list[int], b: list[int]) -> bool:
+        extent = max(a[2] - a[0], a[3] - a[1])
+        gap = max(b[0] - a[2], a[0] - b[2], b[1] - a[3], a[1] - b[3])
+        return gap <= DASH_MAX_GAP * extent
+
+    dashed: set[int] = set()
+    for i, gi in enumerate(glyphs):
+        mates = [j for j, gj in enumerate(glyphs) if j != i and similar(gi, gj) and near(gi, gj)]
+        ci = centre(gi)
+        for a in mates:
+            for b in mates:
+                if a >= b:
+                    continue
+                ca, cb = centre(glyphs[a]), centre(glyphs[b])
+                ux, uy = ca[0] - ci[0], ca[1] - ci[1]
+                vx, vy = cb[0] - ci[0], cb[1] - ci[1]
+                if abs(ux * vy - uy * vx) <= DASH_COLLINEAR_SIN * math.hypot(ux, uy) * math.hypot(vx, vy):
+                    dashed.update({i, a, b})
+    return [g for k, g in enumerate(glyphs) if k not in dashed]
+
+
+def recognize_isolated_glyphs(
+    reader, image: np.ndarray, existing: list[OcrDetection], second_reader: CropReader | None = None,
+) -> list[OcrDetection]:
     import cv2
 
     gray = image if image.ndim == 2 else cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    found: list[OcrDetection] = []
     height, width = gray.shape[:2]
+    read: list[tuple[tuple[int, int, int, int], list[OcrReading]]] = []
     for x, y, w, h in glyph_candidates(gray, existing):
         pad = max(4, h // 2)
         x0, y0 = max(0, x - pad), max(0, y - pad)
@@ -174,14 +231,26 @@ def recognize_isolated_glyphs(reader, image: np.ndarray, existing: list[OcrDetec
         crop = gray[y0:y1, x0:x1]
         factor = GLYPH_CROP_HEIGHT_PX / max(1, crop.shape[0])
         crop = cv2.resize(crop, None, fx=factor, fy=factor, interpolation=cv2.INTER_CUBIC)
-        for _, text, confidence in reader.recognize(crop, allowlist=GLYPH_ALLOWLIST, detail=1):
-            text = text.strip()
-            if 1 <= len(text) <= GLYPH_MAX_CHARS and float(confidence) >= GLYPH_MIN_CONFIDENCE:
-                found.append(OcrDetection(
-                    text=text,
-                    bbox=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
-                    confidence=float(confidence),
-                ))
+        readings = [
+            OcrReading(text=text.strip(), confidence=float(confidence), provider="easyocr")
+            for _, text, confidence in reader.recognize(crop, allowlist=GLYPH_ALLOWLIST, detail=1)
+            if text.strip()
+        ]
+        if second_reader is not None:
+            readings += second_reader.read(crop, single_char=w <= GLYPH_SINGLE_CHAR_ASPECT * h)
+        read.append(((x, y, w, h), readings))
+    first_pass = [fuse_short_label(readings) for _, readings in read]
+    context = prefers_letters([d.text for d in existing] + [f.text for f in first_pass if f is not None])
+    found: list[OcrDetection] = []
+    for (x, y, w, h), readings in read:
+        fused = fuse_short_label(readings, context)
+        if fused is not None and len(fused.text) <= GLYPH_MAX_CHARS:
+            found.append(OcrDetection(
+                text=fused.text,
+                bbox=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
+                confidence=fused.confidence,
+                provider=fused.provider,
+            ))
     return _drop_dash_runs(found)
 
 

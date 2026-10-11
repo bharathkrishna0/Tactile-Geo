@@ -521,6 +521,39 @@ def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) ->
     return ticks
 
 
+GLYPH_MASK_MAX_ASPECT = 2.5
+
+
+def mask_text_glyphs(binary_image: np.ndarray, text_boxes: list[list[tuple[int, int]]], padding: int = 2) -> np.ndarray:
+    """Copy of a stroke mask with the glyphs of read text removed, before tracing.
+
+    Only ink components lying wholly inside a (padded) text box are erased. A
+    stroke that enters or crosses the box, such as a leader line, a dimension
+    line or a side the label touches, extends beyond it and is kept whole.
+    Stroke-shaped components (a "1", "l" or "-", or one dash of a dashed line
+    that OCR read as one) are ambiguous and are kept for the tracer to judge.
+    """
+    if not text_boxes:
+        return binary_image
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(binary_image, connectivity=8)
+    height, width = binary_image.shape[:2]
+    glyph = np.zeros(count, dtype=bool)
+    for bbox in text_boxes:
+        xs, ys = [p[0] for p in bbox], [p[1] for p in bbox]
+        x0, y0 = max(0, min(xs) - padding), max(0, min(ys) - padding)
+        x1, y1 = min(width, max(xs) + padding + 1), min(height, max(ys) + padding + 1)
+        for label in np.unique(labels[y0:y1, x0:x1]):
+            if label == 0:
+                continue
+            x, y, w, h = (int(v) for v in stats[label, :4])
+            stroke_shaped = max(w, h) >= GLYPH_MASK_MAX_ASPECT * max(1, min(w, h))
+            if x >= x0 and y >= y0 and x + w <= x1 and y + h <= y1 and not stroke_shaped:
+                glyph[label] = True
+    masked = binary_image.copy()
+    masked[glyph[labels]] = 0
+    return masked
+
+
 def drop_shapes_inside_text_regions(shapes: list[dict], text_boxes: list[list[tuple[int, int]]], padding: int = 2) -> list[dict]:
     """Remove contours that fall inside an OCR text region.
 
