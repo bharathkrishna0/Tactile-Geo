@@ -13,14 +13,18 @@ any required runtime asset is missing.
 from __future__ import annotations
 
 import argparse
+import faulthandler
 import json
 import logging
 import logging.handlers
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 
+SELF_CHECK_SAMPLE = "labelled_triangle_worksheet.png"
+WORKER_STACK_BYTES = 64 * 1024 * 1024
 DESKTOP_ORIGINS = "http://tauri.localhost,https://tauri.localhost,tauri://localhost"
 logger = logging.getLogger("tactilegeo.desktop")
 
@@ -104,22 +108,29 @@ def self_check() -> dict[str, object]:
         return model_dir
 
     def model_a() -> str:
-        import cv2
-        import numpy as np
-
         from app.services.pipeline import build_full_analysis
 
-        canvas = np.full((480, 640, 3), 255, dtype=np.uint8)
-        cv2.line(canvas, (100, 380), (540, 380), (0, 0, 0), 4)
-        cv2.line(canvas, (100, 380), (100, 100), (0, 0, 0), 4)
-        cv2.line(canvas, (100, 100), (540, 380), (0, 0, 0), 4)
-        cv2.putText(canvas, "A", (70, 95), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 0), 3)
-        ok, encoded = cv2.imencode(".png", canvas)
-        if not ok:
-            raise RuntimeError("could not encode test image")
-        result = build_full_analysis(encoded.tobytes())
+        app_root = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+        sample = app_root / "app" / "demo_samples" / SELF_CHECK_SAMPLE
+        outcome: dict[str, object] = {}
+
+        def analyse() -> None:
+            try:
+                outcome["result"] = build_full_analysis(sample.read_bytes())
+            except Exception as error:  # noqa: BLE001 - re-raised on the calling thread
+                outcome["error"] = error
+
+        # Same conditions as a request: a worker thread, not the main thread.
+        worker = threading.Thread(target=analyse, name="self-check-model-a")
+        worker.start()
+        worker.join()
+        if "error" in outcome:
+            raise outcome["error"]  # type: ignore[misc]
+        result = outcome["result"]
         if not result.tactile_svg or "<svg" not in result.tactile_svg:
             raise RuntimeError("no tactile SVG produced")
+        if not result.labels:
+            raise RuntimeError("OCR read no labels from the sample worksheet")
         return f"{len(result.shapes)} shapes, {len(result.labels)} labels"
 
     run("app_import", app_import)
@@ -141,6 +152,12 @@ def main(argv: list[str] | None = None) -> int:
     logs = configure_environment(args.data_dir, resources)
     configure_logging(logs)
     logger.info("TactileGeo backend starting (frozen=%s, resources=%s)", getattr(sys, "frozen", False), resources)
+    # Native crashes (torch, OpenCV, Liblouis) bypass logging; keep their tracebacks.
+    crash_log = open(logs / "crash.log", "a", encoding="utf-8")  # noqa: SIM115 - lives for the process
+    faulthandler.enable(crash_log)
+    # The frozen exe gets the 1 MB Windows default thread stack (python.exe uses
+    # more); request handlers run Model A on worker threads, so give them room.
+    threading.stack_size(WORKER_STACK_BYTES)
 
     if args.self_check:
         report = self_check()

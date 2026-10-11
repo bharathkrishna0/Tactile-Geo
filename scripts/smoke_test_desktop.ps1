@@ -51,7 +51,9 @@ Write-Host ("Installed size: {0:N0} MB" -f $installedMB)
 Step "Installed backend: health, upload, process"
 $port = 18765
 $smokeData = Join-Path $PSScriptRoot "..\build\smoke-data"
-$backend = Start-Process $BackendExe -ArgumentList @("--port", $port, "--data-dir", "`"$smokeData`"") -PassThru
+New-Item -ItemType Directory -Force (Join-Path $smokeData "logs") | Out-Null
+$backend = Start-Process $BackendExe -ArgumentList @("--port", $port, "--data-dir", "`"$smokeData`"") -PassThru `
+  -RedirectStandardOutput (Join-Path $smokeData "logs\stdout.txt") -RedirectStandardError (Join-Path $smokeData "logs\stderr.txt")
 try {
   $base = "http://127.0.0.1:$port"
   $healthy = $false
