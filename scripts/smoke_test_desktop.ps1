@@ -25,7 +25,8 @@ $SampleImage = (Resolve-Path $SampleImage).Path
 
 Step "Strip developer tools from PATH"
 $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot;$env:SystemRoot\System32\WindowsPowerShell\v1.0;$env:SystemRoot\System32\Wbem"
-foreach ($tool in "python", "py", "node", "npm", "cargo", "rustc") {
+# py.exe (the Python launcher) lives in C:\Windows on the runner; it is not checked.
+foreach ($tool in "python", "node", "npm", "cargo", "rustc") {
   Check (-not (Get-Command $tool -ErrorAction SilentlyContinue)) "$tool is not on PATH"
 }
 Remove-Item Env:OPENROUTER_API_KEY, Env:MODEL_B_ENABLED -ErrorAction SilentlyContinue
