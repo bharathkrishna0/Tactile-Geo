@@ -13,6 +13,10 @@ import numpy as np
 
 # A figure stroke spans a meaningful share of the page; letters do not.
 LONG_COMPONENT_FRACTION = 0.08
+# A small figure (a square, a regular polygon) is short but tall and wide at
+# once; a word, a rule or a line of prose is never both. It must also be drawn
+# in dark ink: a pale watermark letter is just as tall and wide.
+SMALL_FIGURE_FRACTION = 0.035
 # Strokes touching the image edge are page borders, header bars or scan edges.
 BORDER_FRACTION = 0.01
 # Strokes inside a large, mostly solid dark blob are the edges and lettering of
@@ -66,11 +70,17 @@ def find_diagram_regions(binary: np.ndarray, image: np.ndarray) -> list[Box] | N
     margin = round(short_side * REGION_MARGIN_FRACTION)
     banners = _banner_boxes(image, short_side, border)
     count, labels, stats, _ = cv2.connectedComponentsWithStats(binary, connectivity=8)
+    gray = image if image.ndim == 2 else image.min(axis=2)
+    ink = gray[binary > 0]
+    dark_ink_limit = (float(np.percentile(ink, 5)) + float(np.median(gray))) / 2 if ink.size else 0.0
     boxes: list[Box] = []
     for index in range(1, count):
         x, y, w, h = (int(v) for v in stats[index][:4])
         if max(w, h) < LONG_COMPONENT_FRACTION * short_side:
-            continue
+            if min(w, h) < SMALL_FIGURE_FRACTION * short_side:
+                continue
+            if np.median(gray[y:y + h, x:x + w][labels[y:y + h, x:x + w] == index]) > dark_ink_limit:
+                continue
         if x <= border or y <= border or x + w >= width - border or y + h >= height - border:
             continue
         if any(bx0 <= x and by0 <= y and x + w <= bx1 and y + h <= by1 for bx0, by0, bx1, by1 in banners):
