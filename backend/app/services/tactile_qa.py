@@ -59,6 +59,7 @@ BLOCKING_CHECKS = frozenset({
     "no_tactile_geometry",
     "exceeds_tactile_density",
     "density_reduction_requires_review",
+    "density_removed_essential_geometry",
 })
 DEFAULT_SEVERITY = "warning"
 
@@ -276,8 +277,10 @@ def run_tactile_qa(
     image_width: int,
     image_height: int,
     density_removed: int = 0,
+    essential_removed: int = 0,
 ) -> QAReport:
-    """``density_removed`` is how many features simplification dropped to meet the tactile budget."""
+    """``density_removed`` is how many features simplification dropped to meet the tactile budget;
+    ``essential_removed`` is how many of those were figure structure, ticks or markers."""
     collector = _IssueCollector()
     checks = 0
     mm_per_px = page_layout(image_width, image_height).mm_per_px
@@ -293,6 +296,14 @@ def run_tactile_qa(
                 f"{density_removed} of {density_removed + len(embossed)} features were dropped to fit one tactile "
                 "page, so the sheet may no longer represent the diagram. Crop or split the image, or delete "
                 "features in the editor, before exporting."
+            ),
+        )
+    elif essential_removed:
+        collector.add(
+            "density_removed_essential_geometry",
+            (
+                f"{essential_removed} feature(s) that are part of the figure, its ticks or its markers were dropped "
+                "to fit one tactile page. Crop or split the image, or delete other features, before exporting."
             ),
         )
     elif density_removed:

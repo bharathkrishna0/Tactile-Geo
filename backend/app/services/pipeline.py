@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from app.models.geometry import SemanticGeometry
-from app.services.image_preprocessing import decode_image, preprocess_image
+from app.services.image_preprocessing import decode_image, preprocess_image, tick_ink_mask
 from app.services.vectorization import (
     drop_shapes_inside_text_regions,
     extract_shapes,
@@ -20,7 +20,12 @@ from app.services.braille_layout import place_braille_markers
 from app.services.image_quality import QualityReport, assess_image_quality
 from app.services.image_enhancement import enhance_copy, ink_contrast_copy
 from app.services.diagram_analysis import analyze_diagram
-from app.services.tactile_simplification import SimplifiedGeometry, density_removed_count, simplify_geometry
+from app.services.tactile_simplification import (
+    SimplifiedGeometry,
+    density_removed_count,
+    essential_density_removed_count,
+    simplify_geometry,
+)
 from app.services.tactile_qa import QAReport, run_tactile_qa
 from app.services.tactile_svg import render_tactile_svg
 
@@ -43,9 +48,11 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     # Enhance a working copy for CV/OCR; the original image is never modified.
     processing_image = enhance_copy(image)
     filtered = preprocess_image(processing_image, edge_sensitivity)
+    tick_evidence = tick_ink_mask(processing_image, edge_sensitivity)
     regions = find_diagram_regions(filtered, processing_image)
     if regions:
         filtered = mask_to_regions(filtered, regions)
+        tick_evidence = mask_to_regions(tick_evidence, regions) if tick_evidence is not None else None
     height, width = processing_image.shape[:2]
     provider = ocr_provider or EasyOcrProvider()
     translator = braille_translator or LouisBrailleTranslator()
@@ -56,7 +63,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     if regions:
         detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     stroke_mask = mask_text_glyphs(filtered, [detection.bbox for detection in detections]) if mask_text else filtered
-    shapes = extract_shapes(stroke_mask, edge_sensitivity)
+    shapes = extract_shapes(stroke_mask, edge_sensitivity, tick_evidence)
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
     stroke_half = stroke_half_width(filtered)
     text_boxes = [detection.bbox for detection in detections]
@@ -77,7 +84,11 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
         angle_arcs=angle_arcs, parallel_marks=parallel_marks,
     )
     simplified = simplify_geometry(semantic)
-    qa_report = run_tactile_qa(simplified.elements, width, height, density_removed=density_removed_count(simplified))
+    qa_report = run_tactile_qa(
+        simplified.elements, width, height,
+        density_removed=density_removed_count(simplified),
+        essential_removed=essential_density_removed_count(simplified),
+    )
     tactile_svg = render_tactile_svg(simplified.elements, width, height)
     return PipelineResult(
         preview_svg=svg,
@@ -95,9 +106,11 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     image = decode_image(image_bytes)
     processing_image = enhance_copy(image)
     filtered = preprocess_image(processing_image, edge_sensitivity)
+    tick_evidence = tick_ink_mask(processing_image, edge_sensitivity)
     regions = find_diagram_regions(filtered, processing_image)
     if regions:
         filtered = mask_to_regions(filtered, regions)
+        tick_evidence = mask_to_regions(tick_evidence, regions) if tick_evidence is not None else None
     height, width = processing_image.shape[:2]
     provider = ocr_provider or EasyOcrProvider()
     translator = braille_translator or LouisBrailleTranslator()
@@ -107,7 +120,7 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     if regions:
         detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     stroke_mask = mask_text_glyphs(filtered, [detection.bbox for detection in detections]) if mask_text else filtered
-    shapes = extract_shapes(stroke_mask, edge_sensitivity)
+    shapes = extract_shapes(stroke_mask, edge_sensitivity, tick_evidence)
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
     mapped_labels = []
     for detection in detections:

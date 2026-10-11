@@ -460,7 +460,7 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
     char_err_det = char_tot_det = 0
     exact = exact_norm = detected = 0
     quantitative = quantitative_ok = 0
-    assoc_total = assoc_ok = 0
+    assoc_total = assoc_ok = assoc_target_missing = 0
     braille_total = braille_exact = braille_consistent = 0
     cell_err = cell_tot = 0
     order_pairs = order_ok = 0
@@ -493,6 +493,7 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
                 linked = {pl.get("associated_element_id") for pl in got} - {None}
                 ok_ids = set(gt_to_preds.get(target, [])) | point_map.get(target, set())
                 assoc_ok += bool(linked & ok_ids)
+                assoc_target_missing += not ok_ids
             if gt_braille is not None and len(got) == 1:
                 braille_total += 1
                 pb = got[0].get("braille") or ""
@@ -534,6 +535,7 @@ def score_labels(gt: dict, pred_labels: list[dict], gt_braille: dict[str, str] |
         "exact_match": exact, "exact_match_normalized": exact_norm,
         "quantitative_labels": quantitative, "quantitative_preserved": quantitative_ok,
         "association_total": assoc_total, "association_correct": assoc_ok,
+        "association_target_missing": assoc_target_missing,
         "braille_total": braille_total, "braille_exact": braille_exact, "braille_consistent": braille_consistent,
         "braille_cell_errors": cell_err, "braille_cells": cell_tot,
         "reading_order_pairs": order_pairs, "reading_order_concordant": order_ok,

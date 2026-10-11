@@ -3,7 +3,15 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field, replace
 
-from app.models.geometry import ConfidenceLevel, DetectedElement, ElementRelationship, GeometryType, SemanticGeometry
+from app.models.geometry import (
+    ConfidenceLevel,
+    DetectedElement,
+    ElementRelationship,
+    GeometryType,
+    RelationshipType,
+    SemanticGeometry,
+)
+from app.services.braille_layout import clear_braille_position
 from app.services.segment_geometry import (
     angle_diff as sg_angle_diff,
     line_angle_deg as sg_line_angle_deg,
@@ -12,7 +20,7 @@ from app.services.segment_geometry import (
     segments_overlap_or_touch as sg_segments_overlap_or_touch,
     spanning_endpoints as sg_spanning_endpoints,
 )
-from app.services.tactile_qa import element_extent
+from app.services.tactile_qa import braille_clearance_mm, braille_rect, element_extent, outline_segments
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.tactile_svg import is_embossed_geometry, page_layout
 
@@ -88,10 +96,15 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     kept, tick_actions, tick_explanations = _enlarge_ticks(kept, semantic.image_width, semantic.image_height)
     actions.extend(tick_actions)
     explanations.extend(tick_explanations)
+    kept, reseat_actions, reseat_explanations = _reseat_braille_beside_ticks(
+        kept, {action.element_id for action in tick_actions}, semantic.image_width, semantic.image_height,
+    )
+    actions.extend(reseat_actions)
+    explanations.extend(reseat_explanations)
 
     # Pass 5: fit the sheet to what can be explored by touch on one A4 page.
     kept, budget_actions, budget_explanations, budget_removed = _fit_tactile_budget(
-        kept, semantic.image_width, semantic.image_height,
+        kept, semantic.image_width, semantic.image_height, semantic.relationships,
     )
     actions.extend(budget_actions)
     explanations.extend(budget_explanations)
@@ -131,8 +144,76 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     )
 
 
+DENSITY_ACTIONS = frozenset({"removed_density_budget", "removed_density_essential"})
+
+
 def density_removed_count(simplified: SimplifiedGeometry) -> int:
-    return sum(1 for action in simplified.actions if action.action == "removed_density_budget")
+    return sum(1 for action in simplified.actions if action.action in DENSITY_ACTIONS)
+
+
+def essential_density_removed_count(simplified: SimplifiedGeometry) -> int:
+    return sum(1 for action in simplified.actions if action.action == "removed_density_essential")
+
+
+# Relationships that make a feature part of the figure's structure: losing it
+# changes the shape, an angle, or a stated equality.
+STRUCTURAL_RELATIONSHIPS = frozenset({
+    RelationshipType.ENDPOINT_OF,
+    RelationshipType.VERTEX_OF,
+    RelationshipType.CONNECTED_LINES,
+    RelationshipType.ANGLE_BETWEEN,
+    RelationshipType.ANGLE_ASSOCIATION,
+    RelationshipType.PERPENDICULAR_LINES,
+    RelationshipType.PARALLEL_LINES,
+    RelationshipType.EQUAL_LENGTH,
+    RelationshipType.CENTER_OF,
+    RelationshipType.CIRCLE_CENTER,
+})
+MARKER_PROPERTIES = ("angle_marker", "right_angle", "parallel_marks")
+
+
+CLOSED_FIGURES = frozenset({
+    GeometryType.CIRCLE,
+    GeometryType.ELLIPSE,
+    GeometryType.TRIANGLE,
+    GeometryType.RECTANGLE,
+    GeometryType.POLYGON,
+})
+
+
+def essential_ids(
+    elements: list[DetectedElement],
+    relationships: list[ElementRelationship],
+    mm_per_px: float | None = None,
+) -> set[str]:
+    """Non-point features that carry mathematical meaning: markers, ticks, and figure structure.
+
+    With ``mm_per_px``, a closed figure large enough to be felt is a figure in its own
+    right, even when nothing is related to it.
+    """
+    ids = {e.id for e in elements}
+    structural: set[str] = set()
+    for rel in relationships:
+        if rel.type in STRUCTURAL_RELATIONSHIPS and len(set(rel.element_ids) & ids) >= 2:
+            structural.update(rel.element_ids)
+    essential: set[str] = set()
+    for element in elements:
+        if element.type in (GeometryType.POINT, GeometryType.TEXT_LABEL):
+            continue
+        props = element.semantic_properties
+        if (
+            element.id in structural
+            or props.get("role") == "tick"
+            or any(props.get(key) for key in MARKER_PROPERTIES)
+            or element.geometry.get("right_angle_marker")
+            or (
+                mm_per_px is not None
+                and element.type in CLOSED_FIGURES
+                and element_extent(element) * mm_per_px >= TACTILE_RULES.minimum_feature_size_mm
+            )
+        ):
+            essential.add(element.id)
+    return essential
 
 
 def is_protected(element: DetectedElement) -> bool:
@@ -195,6 +276,44 @@ def _enlarge_ticks(
     return result, actions, explanations
 
 
+def _reseat_braille_beside_ticks(
+    elements: list[DetectedElement], enlarged: set[str], image_width: int, image_height: int,
+) -> tuple[list[DetectedElement], list[SimplificationAction], list[str]]:
+    """Move braille that a lengthened tick now runs into; it was placed against the drawn tick."""
+    if not enlarged or image_width <= 0 or image_height <= 0:
+        return elements, [], []
+    bounds = (image_width, image_height)
+    mm_per_px = page_layout(*bounds).mm_per_px
+    ticks = [e for e in elements if e.id in enlarged]
+    labels = [e for e in elements if e.type is GeometryType.TEXT_LABEL]
+    segments = [seg for e in elements if e.type is not GeometryType.TEXT_LABEL for seg in outline_segments(e)]
+    rects = {e.id: braille_rect(e, *bounds) for e in labels}
+    moved: dict[str, DetectedElement] = {}
+    actions: list[SimplificationAction] = []
+    explanations: list[str] = []
+    for label in labels:
+        rect = rects[label.id]
+        if rect is None or all(
+            braille_clearance_mm(rect, tick, mm_per_px) >= TACTILE_RULES.braille_to_line_clearance_mm for tick in ticks
+        ):
+            continue
+        position = tuple(label.geometry["position"])
+        others = [r for key, r in rects.items() if key != label.id and r is not None]
+        braille = str(label.geometry.get("braille") or label.geometry.get("text") or "")
+        new_position = clear_braille_position(position, braille, bounds, segments, others)
+        if new_position == position:
+            continue
+        moved[label.id] = replace(label, geometry={**label.geometry, "position": list(new_position)})
+        rects[label.id] = braille_rect(moved[label.id], *bounds)
+        actions.append(SimplificationAction(
+            element_id=label.id,
+            action="moved_braille_from_tick",
+            detail="Braille moved clear of a tick that was lengthened to the touch minimum.",
+        ))
+        explanations.append(f"Moved braille {label.id} clear of a lengthened tick.")
+    return [moved.get(e.id, e) for e in elements], actions, explanations
+
+
 GRID_AXIS_TOLERANCE_DEG = 3.0
 GRID_MIN_LENGTH_PX = 80.0
 GRID_MIN_FAMILY = 5
@@ -239,22 +358,56 @@ def _budget_priority(element: DetectedElement, mm_per_px: float, grid: set[str])
     )
 
 
+def _isolated_speck(
+    element: DetectedElement, elements: list[DetectedElement], essential: set[str], spacing_px: float,
+) -> bool:
+    """A labelled sub-minimum outline touching nothing: a text fragment or blot, not a figure."""
+    if element.type not in (GeometryType.POLYGON, GeometryType.TRIANGLE, GeometryType.RECTANGLE) or element.id in essential:
+        return False
+    if element.source == "teacher_override" or element.geometry.get("right_angle_marker"):
+        return False
+    return all(
+        _outline_gap(element, other) > spacing_px
+        for other in elements
+        if other.id != element.id and is_embossed_geometry(other)
+    )
+
+
+def _outline_gap(a: DetectedElement, b: DetectedElement) -> float:
+    """Closest approach between two embossed outlines, measured to their sides, not only their vertices."""
+    a_segments, b_segments = outline_segments(a), outline_segments(b)
+    if not a_segments or not b_segments:
+        return float("inf")
+    return min(
+        min(sg_point_to_segment_distance(p, *seg) for p in (s0, s1) for seg in others)
+        for own, others in ((a_segments, b_segments), (b_segments, a_segments))
+        for s0, s1 in own
+    )
+
+
 def _fit_tactile_budget(
-    elements: list[DetectedElement], image_width: int, image_height: int,
+    elements: list[DetectedElement],
+    image_width: int,
+    image_height: int,
+    relationships: list[ElementRelationship] | None = None,
 ) -> tuple[list[DetectedElement], list[SimplificationAction], list[str], set[str]]:
     if image_width <= 0 or image_height <= 0:
         return elements, [], [], set()
     mm_per_px = page_layout(image_width, image_height).mm_per_px
     minimum_mm = TACTILE_RULES.minimum_feature_size_mm
+    spacing_px = TACTILE_RULES.minimum_feature_spacing_mm / mm_per_px
+    essential = essential_ids(elements, relationships or [], mm_per_px)
     actions: list[SimplificationAction] = []
     explanations: list[str] = []
     removed: set[str] = set()
 
     for element in elements:
-        if not is_embossed_geometry(element) or is_protected(element):
+        if not is_embossed_geometry(element):
             continue
         extent_mm = element_extent(element) * mm_per_px
-        if 0 < extent_mm < minimum_mm:
+        if not 0 < extent_mm < minimum_mm:
+            continue
+        if not is_protected(element):
             removed.add(element.id)
             actions.append(SimplificationAction(
                 element_id=element.id,
@@ -262,8 +415,20 @@ def _fit_tactile_budget(
                 detail=f"Unlabelled feature is {extent_mm:.1f}mm on the printed sheet, below the {minimum_mm:g}mm touch minimum.",
             ))
             explanations.append(f"Removed {element.id}: {extent_mm:.1f}mm is too small to feel.")
+        elif _isolated_speck(element, elements, essential, spacing_px):
+            removed.add(element.id)
+            actions.append(SimplificationAction(
+                element_id=element.id,
+                action="removed_isolated_speck",
+                detail=(
+                    f"Isolated {extent_mm:.1f}mm outline touching no other feature, linked to label "
+                    f"{element.associated_label_id}; treated as noise. The label stays on the sheet."
+                ),
+            ))
+            explanations.append(f"Removed {element.id}: an isolated {extent_mm:.1f}mm speck, not a figure.")
 
     target = TACTILE_RULES.tactile_feature_target
+    limit = TACTILE_RULES.tactile_feature_limit
     embossed = [e for e in elements if is_embossed_geometry(e) and e.id not in removed]
     excess = len(embossed) - target
     if excess > 0:
@@ -272,7 +437,8 @@ def _fit_tactile_budget(
             (e for e in embossed if not is_protected(e)),
             key=lambda e: _budget_priority(e, mm_per_px, grid),
         )
-        for element in candidates[:excess]:
+        optional = [e for e in candidates if e.id not in essential]
+        for element in optional[:excess]:
             removed.add(element.id)
             actions.append(SimplificationAction(
                 element_id=element.id,
@@ -283,6 +449,20 @@ def _fit_tactile_budget(
                 ),
             ))
             explanations.append(f"Removed {element.id} to keep the sheet within the {target}-feature tactile budget.")
+        # Figure structure, ticks and markers give way only above the hard limit,
+        # and QA then blocks export: the sheet no longer shows the whole figure.
+        over_limit = len(embossed) - len(optional[:excess]) - limit
+        for element in [e for e in candidates if e.id in essential][:max(0, over_limit)]:
+            removed.add(element.id)
+            actions.append(SimplificationAction(
+                element_id=element.id,
+                action="removed_density_essential",
+                detail=(
+                    f"Part of the figure's structure, removed because the sheet has more than {limit} embossed "
+                    "features. Crop or split the image before exporting."
+                ),
+            ))
+            explanations.append(f"Removed essential feature {element.id} to stay under the {limit}-feature limit.")
 
     return [e for e in elements if e.id not in removed], actions, explanations, removed
 

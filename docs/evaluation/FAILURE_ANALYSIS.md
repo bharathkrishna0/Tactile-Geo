@@ -133,3 +133,21 @@ the OCR-driven failures change, because the mask only affects vectorisation.
 5. **Noise and text strokes** (24 + 17): mask OCR boxes before vectorising;
    the U-Net pilot shows a learned foreground mask removes much of this on
    synthetic data.
+
+## V2a update (dev15 + validation, `v2base` -> `v2a5`)
+
+Full tables in `ACCURACY_V2.md`. Status of the causes above that V2a targeted:
+
+| Cause | Before (V1) | After (V2a) | Status |
+|---|---|---|---|
+| Open stroke traced around both sides (`math_064`) | 5 duplicate edges from one contour; dev15 duplicate rate 0.103 | traced once (`origin: folded_outline`); 0.056 | fixed on dev15 |
+| Ring broken in thresholding (`math_055`, `math_063`) | emitted as a doubled outline | one closed outline, no extra corner | fixed, regression tests |
+| Axis / number-line ticks never built | 19 dev15 labels linked to a target that was never built | 13; `math_022` strict matches 2 -> 8 | partly fixed: `math_059`, `math_087` (validation) still 0 ticks |
+| Density budget removed essential lines and exported (`math_061`, old test) | 3 essential lost, exported with a warning | 0 lost; removing essential features now blocks export | fixed |
+| Closed figure dropped by the budget (`math_063` octagon, seen in an intermediate run) | removed as "lowest priority" | closed figures >= 5 mm are essential | fixed |
+| Lengthened tick running into braille (`math_022`, intermediate run) | `braille_on_line` block | braille moved to the nearest clear spot | fixed on dev15 |
+| Speck under the header (`math_076`, old test) | blocked: `feature_below_minimum_size` | unchanged: the feature touches other geometry, so it is not an isolated speck | open |
+
+New failure introduced: a false crossing tick on `math_023` (validation),
+object precision 0.258 -> 0.255. Unchanged and still largest: OCR label recall
+(dev15 0.540, validation 0.627) and wrong-target associations, which are V2b.

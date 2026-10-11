@@ -110,37 +110,48 @@ def _positioned(label: dict, desired: tuple[int, int], position: tuple[int, int]
 
 
 def _place_on_page(labels: list[dict], shapes: list[dict], bounds: tuple[int, int]) -> list[dict]:
-    mm_per_px = page_layout(*bounds).mm_per_px
-    line_clearance = TACTILE_RULES.braille_to_line_clearance_mm / mm_per_px
-    marker_spacing = TACTILE_RULES.braille_to_braille_spacing_mm / mm_per_px
     segments = _line_segments(shapes)
     placed_rects: list[tuple[float, float, float, float]] = []
     positioned: list[dict] = []
     for label in labels:
         desired = label["desired_position"]
         braille = str(label.get("braille") or label.get("text") or "")
+        position = clear_braille_position(desired, braille, bounds, segments, placed_rects)
         width, height = braille_text_extent(braille, *bounds)
-        position = _clamp_to_page(desired, braille, bounds)
-        step = max(1, math.ceil(min(width, height) / 4))
-        maximum_search = math.ceil(max(width, height) * _MAX_SEARCH_BLOCKS)
-        found = False
-        for radius in range(0, maximum_search + 1, step):
-            for direction_x, direction_y in _SEARCH_DIRECTIONS:
-                proposed = (desired[0] + direction_x * radius, desired[1] + direction_y * radius)
-                if not _on_page(proposed, braille, bounds):
-                    continue
-                rect = rect_around(proposed, width, height)
-                if all(segment_to_rect_distance(a, b, rect) >= line_clearance for a, b in segments) and all(
-                    rect_gap(rect, prior) >= marker_spacing for prior in placed_rects
-                ):
-                    position = proposed
-                    found = True
-                    break
-            if found:
-                break
         placed_rects.append(rect_around(position, width, height))
         positioned.append(_positioned(label, desired, position))
     return _with_reading_order(positioned)
+
+
+def clear_braille_position(
+    desired: tuple[int, int],
+    braille: str,
+    bounds: tuple[int, int],
+    segments: list[tuple[tuple[float, float], tuple[float, float]]],
+    placed_rects: list[tuple[float, float, float, float]],
+) -> tuple[int, int]:
+    """Nearest position to ``desired`` whose cell block clears every line and placed block.
+
+    Falls back to ``desired`` (clamped to the page) when nothing within reach is clear,
+    leaving the conflict for QA to report.
+    """
+    mm_per_px = page_layout(*bounds).mm_per_px
+    line_clearance = TACTILE_RULES.braille_to_line_clearance_mm / mm_per_px
+    marker_spacing = TACTILE_RULES.braille_to_braille_spacing_mm / mm_per_px
+    width, height = braille_text_extent(braille, *bounds)
+    step = max(1, math.ceil(min(width, height) / 4))
+    maximum_search = math.ceil(max(width, height) * _MAX_SEARCH_BLOCKS)
+    for radius in range(0, maximum_search + 1, step):
+        for direction_x, direction_y in _SEARCH_DIRECTIONS:
+            proposed = (desired[0] + direction_x * radius, desired[1] + direction_y * radius)
+            if not _on_page(proposed, braille, bounds):
+                continue
+            rect = rect_around(proposed, width, height)
+            if all(segment_to_rect_distance(a, b, rect) >= line_clearance for a, b in segments) and all(
+                rect_gap(rect, prior) >= marker_spacing for prior in placed_rects
+            ):
+                return proposed
+    return _clamp_to_page(desired, braille, bounds)
 
 
 def _with_reading_order(markers: list[dict]) -> list[dict]:
