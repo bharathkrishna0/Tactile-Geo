@@ -12,7 +12,7 @@ export interface DesktopRelease {
 }
 
 export const DESKTOP_RELEASE: DesktopRelease = {
-  url: null,
-  version: null,
-  sizeBytes: null,
+  url: 'https://github.com/bharathkrishna0/Tactile-Geo/releases/download/v0.1.0/TactileGeo-Setup.exe',
+  version: '0.1.0',
+  sizeBytes: 277_096_659,
 }
