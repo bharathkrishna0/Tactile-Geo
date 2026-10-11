@@ -29,6 +29,24 @@ def test_implausible_strings_are_rejected_however_confident():
         assert fuse_short_label([_r(text, 0.99, "easyocr"), _r(text, 0.99, "tesseract")]) is None
 
 
+def test_one_letter_read_in_both_cases_is_that_capital():
+    assert fuse_short_label([_r("-C", 0.51, "easyocr"), _r("Cc", 0.41, "tesseract")]).text == "C"
+    assert fuse_short_label([_r("Cc", 0.9, "tesseract")]) is None
+
+
+def test_stray_ink_beside_a_label_is_confirmed_only_by_the_other_engine():
+    assert fuse_short_label([_r("Ra", 0.29, "easyocr"), _r("R", 0.6, "tesseract")]).text == "R"
+    assert fuse_short_label([_r("Ra", 0.29, "easyocr"), _r("Ra", 0.6, "tesseract")]) is None
+    assert fuse_short_label([_r("Bt", 0.13, "easyocr"), _r("B", 0.69, "tesseract")]) is None
+    assert fuse_short_label([_r("Ra", 0.29, "easyocr"), _r("F", 0.6, "tesseract")]) is None
+
+
+def test_a_dash_is_not_confirmed_by_stroke_like_readings():
+    assert fuse_short_label([_r("I", 0.6, "easyocr"), _r("1-", 0.5, "tesseract")]) is None
+    assert fuse_short_label([_r("I", 0.6, "easyocr"), _r("iI", 0.5, "tesseract")]) is None
+    assert fuse_short_label([_r("8", 0.6, "easyocr"), _r("Bt", 0.5, "tesseract")]) is None
+
+
 def test_fusion_never_returns_two_labels_for_one_crop():
     fused = fuse_short_label([_r("R", 0.95, "easyocr"), _r("F", 0.9, "tesseract")])
     assert fused is not None and fused.text in {"R", "F"} and fused.provider in {"easyocr", "tesseract"}
@@ -108,6 +126,22 @@ def test_glyph_recovery_uses_page_letters_to_read_o():
             OcrDetection("B", [(400, 10), (410, 10), (410, 22), (400, 22)], 0.9)]
     found = recognize_isolated_glyphs(_Recognizer("0", 1.0), _letter_image(), page, _SecondReader("O", 0.1))
     assert [d.text for d in found] == ["O"]
+
+
+class _PageReader(_Recognizer):
+    def __init__(self, page_text, text, confidence):
+        super().__init__(text, confidence)
+        self.page_text = page_text
+
+    def readtext(self, image, detail=1, paragraph=False):
+        return [([(780, 520), (900, 520), (900, 620), (780, 620)], self.page_text, 0.84)]
+
+
+def test_a_page_reading_with_stray_characters_does_not_hide_the_glyph_beneath():
+    provider = EasyOcrProvider(reader=_PageReader('Q"', "Q", 0.4), recover_glyphs=True, second_reader=_SecondReader("Q", 0.8))
+    assert ("Q", "easyocr+tesseract") in [(d.text, d.provider) for d in provider.detect(_letter_image())]
+    provider = EasyOcrProvider(reader=_PageReader("Q", "Q", 0.4), recover_glyphs=True, second_reader=_SecondReader("Q", 0.8))
+    assert [d.provider for d in provider.detect(_letter_image())] == ["easyocr"]
 
 
 def test_injected_reader_does_not_pick_up_tesseract():

@@ -11,14 +11,13 @@ from math import hypot
 
 import numpy as np
 
-from app.services.ocr import OcrDetection
+from app.services.ocr import VALID_TEXT_PATTERN, OcrDetection
 
 
 _MIN_CONFIDENCE = 0.15
 _MAX_TEXT_LENGTH = 20
 _MIN_TEXT_LENGTH = 1
 _DUPLICATE_DISTANCE_PX = 30.0
-_VALID_TEXT_PATTERN = re.compile(r"^[A-Za-z0-9\s\.\,\;\:\!\?\-\+\/\=\(\)\[\]]*$")
 
 
 def postprocess_detections(detections: list[OcrDetection]) -> list[OcrDetection]:
@@ -39,7 +38,7 @@ def _filter_by_text_quality(detections: list[OcrDetection]) -> list[OcrDetection
         text = detection.text.strip()
         if len(text) < _MIN_TEXT_LENGTH or len(text) > _MAX_TEXT_LENGTH:
             continue
-        if not _VALID_TEXT_PATTERN.match(text):
+        if not VALID_TEXT_PATTERN.match(text):
             continue
         result.append(detection)
     return result

@@ -25,6 +25,9 @@ SHORT_LABEL = re.compile(r"^(?:[A-Za-z]|[A-Z][0-9]|-?(?:0|[1-9][0-9]{0,2}))$")
 # Per-engine bar for accepting an unconfirmed reading.
 SOLO_MIN_CONFIDENCE = {"easyocr": 0.75, "tesseract": 0.85}
 AGREEMENT_MIN_CONFIDENCE = 0.2
+GLYPH_RUN_MAX = 3
+# What a stray stroke (a dash, a tick, a line end) is read as; never confirmation.
+STROKE_GLYPHS = frozenset("1Iil|-")
 
 
 # Single glyphs the engines confuse; each maps to the digit it resembles.
@@ -68,20 +71,64 @@ def plausible_short_label(text: str) -> bool:
     return bool(SHORT_LABEL.match(_key(text)))
 
 
+def _case_pair(reading: OcrReading) -> OcrReading:
+    """One letter read as both cases (``"Cc"``, ``"uU"``) is that capital, as confirmation only."""
+    key = _key(reading.text)
+    if (
+        reading.confidence >= AGREEMENT_MIN_CONFIDENCE
+        and len(key) == 2
+        and key.isalpha()
+        and key[0].lower() == key[1].lower()
+        and key[0] != key[1]
+        and key[0] not in STROKE_GLYPHS
+        and key[1] not in STROKE_GLYPHS
+    ):
+        return OcrReading(text=key.upper()[0], confidence=reading.confidence, provider=reading.provider)
+    return reading
+
+
+def _contained_glyphs(readings: list[OcrReading]) -> list[OcrReading]:
+    """Single glyphs inside a short implausible reading (``"Bt"``, ``"-C"``): stray ink beside a label.
+
+    Only another engine's plausible single-glyph reading can confirm one; on its
+    own a contained glyph is never accepted.
+    """
+    return [
+        OcrReading(text=glyph, confidence=r.confidence, provider=r.provider)
+        for r in readings
+        if r.confidence >= AGREEMENT_MIN_CONFIDENCE
+        and not plausible_short_label(r.text)
+        and 2 <= len(_key(r.text)) <= GLYPH_RUN_MAX
+        for glyph in dict.fromkeys(_key(r.text))
+        if glyph.isalnum() and glyph not in STROKE_GLYPHS
+    ]
+
+
 def fuse_short_label(readings: list[OcrReading], prefer_letters: bool | None = None) -> OcrReading | None:
     """Best reading of a short label crop, or None when no engine is convincing.
 
     Engines that disagree only on a lookalike pair (``O``/``0``, ``I``/``1``)
     agree on the glyph; the page context (``prefer_letters``) picks the form.
     """
+    solo_candidates = [r for r in readings if plausible_short_label(r.text)]
+    readings = [_case_pair(r) for r in readings]
     candidates = [r for r in readings if plausible_short_label(r.text)]
     if not candidates:
         return None
     by_text: dict[str, list[OcrReading]] = {}
     for reading in candidates:
         by_text.setdefault(_group(reading.text), []).append(reading)
+    contained = _contained_glyphs(readings)
     agreed = [
-        group for group in by_text.values()
+        group + [
+            c for c in contained
+            if c.provider not in {g.provider for g in group}
+            and any(_key(g.text).upper() == c.text.upper() for g in group)
+        ]
+        for group in by_text.values()
+    ]
+    agreed = [
+        group for group in agreed
         if len({r.provider for r in group}) > 1 and max(r.confidence for r in group) >= AGREEMENT_MIN_CONFIDENCE
     ]
     if agreed:
@@ -89,7 +136,7 @@ def fuse_short_label(readings: list[OcrReading], prefer_letters: bool | None = N
         providers = "+".join(sorted({r.provider for r in group}))
         text = _resolve_lookalike(group, prefer_letters)
         return OcrReading(text=text, confidence=max(r.confidence for r in group), provider=providers)
-    solo = [r for r in candidates if r.confidence >= SOLO_MIN_CONFIDENCE.get(r.provider, 1.0)]
+    solo = [r for r in solo_candidates if r.confidence >= SOLO_MIN_CONFIDENCE.get(r.provider, 1.0)]
     if not solo:
         return None
     best = max(solo, key=lambda r: r.confidence)
