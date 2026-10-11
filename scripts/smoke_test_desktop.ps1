@@ -50,7 +50,7 @@ Write-Host ("Installed size: {0:N0} MB" -f $installedMB)
 
 Step "Installed backend: health, upload, process"
 $port = 18765
-$smokeData = Join-Path $env:RUNNER_TEMP "tg-smoke-data"
+$smokeData = Join-Path $PSScriptRoot "..\build\smoke-data"
 $backend = Start-Process $BackendExe -ArgumentList @("--port", $port, "--data-dir", "`"$smokeData`"") -PassThru
 try {
   $base = "http://127.0.0.1:$port"
@@ -62,8 +62,8 @@ try {
   Check $healthy ("health endpoint answered after {0:N0} s" -f ((Get-Date) - $started).TotalSeconds)
   Check (-not (Get-NetTCPConnection -LocalPort $port -State Listen | Where-Object { $_.LocalAddress -ne "127.0.0.1" })) "backend listens on 127.0.0.1 only"
 
-  $form = @{ image = Get-Item $SampleImage }
-  $session = Invoke-RestMethod "$base/api/sessions" -Method Post -Form $form
+  # -Form would send application/octet-stream; the API accepts only PNG/JPEG types.
+  $session = curl.exe -sS --fail-with-body -F "image=@$SampleImage;type=image/png" "$base/api/sessions" | ConvertFrom-Json
   Check ($session.session_id) "upload created session $($session.session_id)"
   $t = Get-Date
   $result = Invoke-RestMethod "$base/api/sessions/$($session.session_id)/process" -Method Post -TimeoutSec 300

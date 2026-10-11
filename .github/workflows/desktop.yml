@@ -89,8 +89,7 @@ jobs:
         with:
           name: smoke-test-logs
           path: |
-            ~/AppData/Local/org.tactilegeo.desktop/logs/
-            ${{ runner.temp }}/tg-smoke-data/logs/
+            build/smoke-data/logs/
           if-no-files-found: ignore
 
   release:
