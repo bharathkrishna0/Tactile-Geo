@@ -80,6 +80,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model-b", action="store_true", help="add Model B + fusion + simulated teacher (needs key)")
     parser.add_argument("--unet", action="store_true", help="U-Net foreground mask (alone: replaces CV binarisation; "
                                                             "with --model-a: intersected with it)")
+    parser.add_argument("--mask-text-glyphs", action="store_true",
+                        help="erase OCR-read glyphs from the stroke mask before tracing (off in production)")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "evaluation" / "results")
     parser.add_argument("--dataset", type=Path, default=DATASET)
     parser.add_argument("--ids-file", type=Path, default=None,
@@ -142,7 +144,10 @@ def main(argv: list[str] | None = None) -> int:
         "date_utc": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
         "git_commit": git_commit(), "dataset_version": meta["dataset_version"], "dataset_seed": meta["seed"],
         "model_a": {"name": "TactileGeo Model A", "entry": "app.services.pipeline.build_full_analysis",
-                    "edge_sensitivity": 50, "ocr": "EasyOCR (en)", "braille": translator.table},
+                    "edge_sensitivity": 50,
+                    "ocr": "EasyOCR (en)" + (" + Tesseract glyph fusion" if ocr.second_reader else ""),
+                    "text_glyph_masking": args.mask_text_glyphs,
+                    "braille": translator.table},
         "model_b": model_b_runner.describe() if model_b_runner else None,
         "unet": unet_info, "image_timeout_s": args.image_timeout,
         "matching_tolerance": "max(4 px, 1.5% of image diagonal), symmetric mean outline distance",
@@ -152,7 +157,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Warm OCR models once so the first image's latency is not a model download.
     warm = (args.dataset / load_annotation(args.dataset, ids[0])["file"]).read_bytes()
-    run_model_a(warm, ocr, translator, overrides)
+    run_model_a(warm, ocr, translator, overrides, args.mask_text_glyphs)
 
     signal.signal(signal.SIGALRM, _alarm)
     rows = []
@@ -166,7 +171,7 @@ def main(argv: list[str] | None = None) -> int:
         start = time.perf_counter()
         signal.alarm(args.image_timeout)
         try:
-            captured, result = run_model_a(data, ocr, translator, overrides)
+            captured, result = run_model_a(data, ocr, translator, overrides, args.mask_text_glyphs)
         except ImageTimeout:
             captured, result = {"error": f"ImageTimeout: Model A exceeded {args.image_timeout} s",
                                 "timings_ms": {"total": round((time.perf_counter() - start) * 1000, 1)}}, None
