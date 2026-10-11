@@ -1,5 +1,6 @@
 import math
 import os
+import re
 import threading
 from dataclasses import dataclass
 from typing import Protocol
@@ -119,7 +120,8 @@ class EasyOcrProvider:
         ]
         if not self.recover_glyphs:
             return found
-        return found + recognize_isolated_glyphs(reader, image, found, self.second_reader)
+        kept = [d for d in found if VALID_TEXT_PATTERN.match(d.text)]
+        return found + recognize_isolated_glyphs(reader, image, kept, self.second_reader)
 
 
 # EasyOCR's text detector rarely boxes a lone one- or two-character label (a
@@ -141,6 +143,10 @@ GLYPH_MIN_THICKNESS = 0.3
 GLYPH_CLEARANCE_PX = 2
 MAX_GLYPH_CANDIDATES = 80
 GLYPH_ALLOWLIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-"
+
+# Characters a label can contain; a page detection with any other character
+# (``7"``, ``€C``) is discarded later, so it must not hide the glyphs beneath it.
+VALID_TEXT_PATTERN = re.compile(r"^[A-Za-z0-9\s\.\,\;\:\!\?\-\+\/\=\(\)\[\]]*$")
 
 
 def _box_bounds(bbox: list[tuple[int, int]]) -> tuple[int, int, int, int]:

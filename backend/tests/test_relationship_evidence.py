@@ -143,3 +143,9 @@ def test_crossing_segments_without_a_grid_still_intersect_and_touching_ones_do_n
     rels = infer_relationships([a, b, c, d])
     pairs = {frozenset(r.element_ids) for r in rels if r.type is RelationshipType.INTERSECTS}
     assert frozenset(("a", "b")) in pairs and frozenset(("c", "d")) not in pairs
+
+
+def test_a_shape_name_beside_a_vertex_does_not_make_it_a_point():
+    triangle = _element("t", GeometryType.TRIANGLE, {"points": [(100, 300), (300, 300), (200, 120)]})
+    label = {"text": "hexagon", "bbox": [[70, 305], [97, 305], [97, 320], [70, 320]]}
+    assert _detect_points([triangle], 10, [label])[0] == []

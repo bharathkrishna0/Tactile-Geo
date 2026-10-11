@@ -13,6 +13,7 @@ from app.models.geometry import (
     classify_confidence,
 )
 from app.services.geometry_relations import grid_like_ids, infer_relationships
+from app.services.label_association import names_a_point
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.vectorization import MIN_ROUND_VERTICES
 
@@ -423,7 +424,7 @@ def _detect_points(
     """Create point elements at shared endpoints, labelled polygon vertices and marked circle centres."""
     significant: dict[tuple[int, int], int] = {}
     explanations: list[TransformationExplanation] = []
-    anchors = [a for a in (_label_anchor(label) for label in labels or []) if a]
+    anchors = [a for a in (_label_anchor(label) for label in labels or [] if names_a_point(str(label.get("text", "")))) if a]
     plain_lines = [
         element for element in elements
         if element.type is GeometryType.LINE_SEGMENT and not element.semantic_properties.get("role")

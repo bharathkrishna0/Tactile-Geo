@@ -38,6 +38,11 @@ KEY_METRICS = [
     ("Angle-arc marker recall", ("angle_markers", "recall")),
     ("Label detection recall", ("ocr", "label_detection_recall")),
     ("Label detection precision", ("ocr", "label_detection_precision")),
+    *[row for engine in ("easyocr", "tesseract", "easyocr+tesseract") for row in (
+        (f"Labels from {engine}", ("ocr_by_engine", engine, "predicted")),
+        (f"Precision of {engine} labels", ("ocr_by_engine", engine, "precision")),
+        (f"Exactly read, {engine} labels", ("ocr_by_engine", engine, "read_exact_rate")),
+    )],
     ("OCR CER (all essential labels; missed label = all chars wrong)", ("ocr", "cer")),
     ("OCR CER (detected labels only)", ("ocr", "cer_detected_only")),
     ("OCR WER (all essential labels)", ("ocr", "wer")),

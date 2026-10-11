@@ -98,6 +98,14 @@ def summarize(rows: list[dict]) -> dict:
         "label_association_accuracy": ratio(_sum(lab, "association_correct"), _sum(lab, "association_total")),
         "association_evaluated": _sum(lab, "association_total"),
     }
+    engines: dict[str, Counter] = {}
+    for l in lab:
+        for name, counts in (l.get("per_engine") or {}).items():
+            engines.setdefault(name, Counter()).update(counts)
+    out["ocr_by_engine"] = {
+        name: {**c, "precision": ratio(c["on_label"], c["predicted"]), "read_exact_rate": ratio(c["read_exact"], c["predicted"])}
+        for name, c in sorted(engines.items())
+    }
     out["braille"] = {
         "evaluated_labels": _sum(lab, "braille_total"),
         "end_to_end_exact": ratio(_sum(lab, "braille_exact"), _sum(lab, "braille_total")),
