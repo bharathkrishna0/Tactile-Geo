@@ -70,7 +70,8 @@ try {
   $t = Get-Date
   $result = Invoke-RestMethod "$base/api/sessions/$($session.session_id)/process" -Method Post -TimeoutSec 300
   $elements = $result.semantic_geometry.element_count
-  $braille = @($result.semantic_geometry.elements | Where-Object { $_.geometry.braille }).Count
+  # StrictMode: elements without Braille have no 'braille' key at all.
+  $braille = @($result.semantic_geometry.elements | Where-Object { $_.geometry.PSObject.Properties['braille'] -and $_.geometry.braille }).Count
   Write-Host ("Processed in {0:N1} s: {1} elements, {2} Braille labels, readiness {3}" -f ((Get-Date) - $t).TotalSeconds, $elements, $braille, $result.qa_report.score_0_100)
   Check ($elements -gt 0) "Model A found elements"
   Check ($result.tactile_svg -match "<svg") "tactile SVG produced"
