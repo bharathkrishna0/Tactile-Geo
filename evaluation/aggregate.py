@@ -96,6 +96,7 @@ def summarize(rows: list[dict]) -> dict:
         "exact_match_rate_detected": ratio(_sum(lab, "exact_match"), _sum(lab, "detected")),
         "exact_match_rate_normalized_detected": ratio(_sum(lab, "exact_match_normalized"), _sum(lab, "detected")),
         "label_association_accuracy": ratio(_sum(lab, "association_correct"), _sum(lab, "association_total")),
+        "label_association_target_missing": _sum(lab, "association_target_missing"),
         "association_evaluated": _sum(lab, "association_total"),
     }
     engines: dict[str, Counter] = {}
@@ -192,6 +193,7 @@ def summarize(rows: list[dict]) -> dict:
     svg = [s["svg"] for s in scored]
     out["tactile_qa"] = {
         "pass_rate_all_images": ratio(sum(q["passes"] for q in qa), n),
+        "export_blocked_rate": ratio(sum(not q["passes"] for q in qa), n),
         "issues": dict(sum((Counter(q["issues"]) for q in qa), Counter()).most_common()),
         "blocking_images": dict(sum((Counter(q["blocking"]) for q in qa), Counter()).most_common()),
     }

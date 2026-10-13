@@ -29,6 +29,8 @@ MIN_ATTACHED_HAIRLINE_DARKNESS = 0.6
 MIN_ATTACHED_TICK_SPAN_PX = 5
 MIN_ATTACHED_TICK_ELONGATION = 2.5
 MIN_ATTACHED_TICK_DARKNESS = 0.6
+# Per-pixel darkness, relative to the bold ink, for the unthinned tick evidence.
+MIN_TICK_EVIDENCE_DARKNESS = 0.8
 
 
 def _hairline_components(thresholded: np.ndarray, opened: np.ndarray) -> np.ndarray:
@@ -74,14 +76,38 @@ def _attached_hairlines(grayscale: np.ndarray, thresholded: np.ndarray, opened: 
     return np.where(keep[labels], 255, 0).astype(np.uint8)
 
 
+def _threshold(grayscale: np.ndarray, edge_sensitivity: int) -> np.ndarray:
+    threshold_offset = max(2, min(16, 16 - round(edge_sensitivity * 0.14)))
+    return cv2.adaptiveThreshold(grayscale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 31, threshold_offset)
+
+
+def tick_ink_mask(image: np.ndarray, edge_sensitivity: int = 50) -> np.ndarray | None:
+    """Unthinned ink as dark as the bold strokes: evidence for thin axis ticks.
+
+    The stroke mask's opening and erosion cut a thin tick into short pieces
+    detached from its axis. Light grid lines and paper texture are excluded by
+    darkness. None on dark paper, where the thin threshold response is noise.
+    """
+    grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if np.median(grayscale) < MIN_PAPER_LEVEL:
+        return None
+    thresholded = _threshold(grayscale, edge_sensitivity)
+    opened = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3)))
+    if not opened.any():
+        return None
+    darkness = 255.0 - grayscale.astype(np.float64)
+    bold_darkness = float(np.median(darkness[opened > 0]))
+    dark = darkness >= bold_darkness * MIN_TICK_EVIDENCE_DARKNESS
+    return np.where((thresholded > 0) & dark, 255, 0).astype(np.uint8)
+
+
 def preprocess_image(image: np.ndarray, edge_sensitivity: int = 50) -> np.ndarray:
     """Section 6.1: adaptive thresholding then 3x3 opening and erosion.
 
     Hairline strokes that the opening would erase are kept unthinned.
     """
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    threshold_offset = max(2, min(16, 16 - round(edge_sensitivity * 0.14)))
-    thresholded = cv2.adaptiveThreshold(grayscale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 31, threshold_offset)
+    thresholded = _threshold(grayscale, edge_sensitivity)
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
     opened = cv2.morphologyEx(thresholded, cv2.MORPH_OPEN, kernel)
     eroded = cv2.erode(opened, kernel, iterations=1)

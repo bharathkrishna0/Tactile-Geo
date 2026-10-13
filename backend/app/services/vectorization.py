@@ -162,6 +162,89 @@ def _point_segment_distance(point, start, end) -> float:
     return math.hypot(point[0] - (start[0] + t * dx), point[1] - (start[1] + t * dy))
 
 
+# A hole-less outline whose every point has a partner across one stroke width,
+# further along the outline, is the two sides of one open stroke (an open
+# polyline, or a polygon whose ring is broken), not a filled shape.
+FOLDED_PARTNER_FRACTION = 0.85
+FOLDED_PARTNER_SEPARATION = 4.0
+# The stroke's two ends are where the outline turns back on itself: points a
+# short way either side along the outline lie across one stroke width.
+FOLDED_TIP_REACH = 2.0
+# Ends this close (in stroke bands) are a closed figure whose ring has a break.
+FOLDED_CLOSED_GAP = 4.0
+# More sides than this is a curve or scribble, left as an outline.
+MAX_FOLDED_SIDES = 5
+
+
+def _folded_tips(points: np.ndarray, band: float) -> list[int]:
+    count = len(points)
+    reach = max(2, int(FOLDED_TIP_REACH * band))
+    index = np.arange(count)
+    across = np.hypot(*(points[(index - reach) % count] - points[(index + reach) % count]).T)
+    turning = across <= band
+    if turning.all() or not turning.any():
+        return []
+    first = int(np.argmin(turning))
+    tips, run = [], []
+    for offset in range(1, count + 1):
+        i = (first + offset) % count
+        if turning[i]:
+            run.append(i)
+        elif run:
+            tips.append(run[len(run) // 2])
+            run = []
+    return tips
+
+
+def _folded_stroke_path(
+    contour: np.ndarray, stroke_half: float,
+) -> tuple[str, list[tuple[int, int]]] | None:
+    """The drawn path of a stroke traced around both of its sides, traced once.
+
+    ``("closed", vertices)`` when the two ends almost meet (a polygon whose ring
+    broke in thresholding), ``("open", vertices)`` for an open polyline, and
+    None for a filled shape, a junction of several strokes, or a curve.
+    """
+    points = contour.reshape(-1, 2).astype(np.float64)
+    count = len(points)
+    band = 2 * stroke_half + STROKE_BAND_TOLERANCE_PX
+    min_separation = int(FOLDED_PARTNER_SEPARATION * band)
+    if count < 4 * min_separation:
+        return None
+    step = max(1, count // 400)
+    sample = np.arange(0, count, step)
+    index = np.arange(count)
+    partnered = 0
+    for i in sample:
+        along = np.abs(index - i)
+        along = np.minimum(along, count - along)
+        far = along > min_separation
+        if np.hypot(*(points[far] - points[i]).T).min() <= band:
+            partnered += 1
+    if partnered < FOLDED_PARTNER_FRACTION * len(sample):
+        return None
+    tips = _folded_tips(points, band)
+    if len(tips) != 2:
+        return None
+    a, b = tips
+    side = contour[a:b + 1] if a < b else np.concatenate([contour[a:], contour[:b + 1]])
+    epsilon = 0.01 * cv2.arcLength(side, True)
+    path = [(int(p[0][0]), int(p[0][1])) for p in cv2.approxPolyDP(side, epsilon, False)]
+    if math.dist(points[a], points[b]) <= FOLDED_CLOSED_GAP * band:
+        if math.dist(path[0], path[-1]) <= band:
+            path = path[:-1]
+        # The tips fall wherever the ring broke, usually part-way along a side.
+        path = _drop_collinear_vertices(path)
+        return ("closed", path) if len(path) >= 3 else None
+    if len(path) - 1 > MAX_FOLDED_SIDES or any(math.dist(p, q) < 2 * band for p, q in zip(path, path[1:])):
+        return None
+    return "open", path
+
+
+def _segment_within(a, b, other, band: float) -> bool:
+    return _point_segment_distance(a, *other) <= band and _point_segment_distance(b, *other) <= band
+
+
 def _contour_explained_by_lines(contour: np.ndarray, segments, stroke_half_width: float) -> bool:
     """True when a hole-less blob is just the stroke of already-detected lines."""
     points = contour.reshape(-1, 2)
@@ -190,7 +273,7 @@ def _min_segment_distances(points: np.ndarray, segments, chunk: int = 4096) -> n
     return out
 
 
-def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list[dict]:
+def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50, tick_evidence: np.ndarray | None = None) -> list[dict]:
     """Vectorise a binary stroke mask into lines, closed outlines and ellipses.
 
     Each drawn feature is emitted once: a closed outline (a contour with an inner
@@ -226,7 +309,18 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
             continue
         if hole_area < area * MIN_HOLE_AREA_FRACTION:
             if not _contour_explained_by_lines(contour, segments, stroke_half):
-                open_contours.append({"type": "contour", "points": outer_points})
+                folded = _folded_stroke_path(contour, stroke_half)
+                if folded is None:
+                    open_contours.append({"type": "contour", "points": outer_points})
+                elif folded[0] == "closed":
+                    open_contours.append({"type": "contour", "points": folded[1], "origin": "folded_outline"})
+                else:
+                    band = 2 * stroke_half + STROKE_BAND_TOLERANCE_PX
+                    open_contours.extend(
+                        {"type": "line", "points": [a, b], "origin": "folded_outline"}
+                        for a, b in zip(folded[1], folded[1][1:])
+                        if not any(_segment_within(a, b, seg, band) for seg in segments)
+                    )
             continue
 
         outlines.append(contour)
@@ -263,7 +357,7 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50) -> list
         if not any(_line_covered_by_outline((start, end), outer, band_px) for outer in outlines)
     ]
     shapes = reconstruct_closed_shapes(shapes)
-    shapes.extend(recover_ticks(binary_image, shapes, stroke_half))
+    shapes.extend(recover_ticks(binary_image, shapes, stroke_half, tick_evidence))
     shapes.extend(closed_shapes)
     shapes.extend(open_contours)
     dots = detect_dots(binary_image, stroke_half)
@@ -408,6 +502,16 @@ TICK_PERPENDICULAR_DEG = 20.0
 TICK_MIN_ELONGATION = 2.5
 TICK_PIECE_ELONGATION = 1.5
 TICK_PAIR_PX = 5
+MIN_TICK_PIECE_PIXELS = 3
+# Pixel extents measured along a slightly tilted line fall just short of whole pixels.
+PIXEL_SAMPLING_TOLERANCE = 0.5
+# Ticks drawn on one side of an axis form a regular series: at least this many
+# strokes of similar length (within the tolerance) at multiples of one pitch.
+MIN_TICK_SERIES = 3
+TICK_SERIES_LENGTH_TOLERANCE = 0.4
+TICK_SERIES_PITCH_TOLERANCE = 0.12
+TICK_SERIES_MIN_SLACK_PX = 3.0
+TICK_SERIES_MAX_SKIP = 2
 # Blur or JPEG can open a small gap between a tick half and its line.
 TICK_GAP_PX = 2
 
@@ -445,37 +549,58 @@ def _inside_dot(points, dots: list[dict], margin: float) -> bool:
     return any(all(math.dist(p, dot["points"][0]) <= dot["radius"] + margin for p in points) for dot in dots)
 
 
-def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) -> list[dict]:
-    """Short strokes drawn across a long line (axis / number-line ticks).
+def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float, evidence: np.ndarray | None = None) -> list[dict]:
+    """Short strokes drawn across, or outward from, a long line (axis / number-line ticks).
 
     Ticks are shorter than the Hough minimum line length, so they are found as
     ink left over next to a long line once that line's stroke is removed: a
     small elongated component, perpendicular to the line, that touches it. The
-    pieces on either side of the line at the same position form one tick.
+    pieces on either side of the line at the same position form one tick. A
+    one-sided stroke is a tick only as part of an evenly spaced series of
+    similar strokes on the same side, which an angle arc or a label is not.
+
+    ``evidence`` is an unthinned ink mask. Thin tick halves that the stroke
+    mask's opening and erosion cut away are measured there too; a tick found in
+    either mask is kept once.
     """
-    height, width = binary.shape[:2]
+    ticks = _ticks_in(binary, shapes, stroke_half)
+    if evidence is None:
+        return ticks
+    for tick in _ticks_in(evidence, shapes, max(stroke_half, stroke_half_width(evidence))):
+        if not any(_tick_distance(tick, kept) <= TICK_PAIR_PX for kept in ticks):
+            ticks.append(tick)
+    return ticks
+
+
+def _tick_distance(a: dict, b: dict) -> float:
+    (a0, a1), (b0, b1) = a["points"], b["points"]
+    return math.dist(((a0[0] + a1[0]) / 2, (a0[1] + a1[1]) / 2), ((b0[0] + b1[0]) / 2, (b0[1] + b1[1]) / 2))
+
+
+def _ticks_in(ink: np.ndarray, shapes: list[dict], ink_half: float) -> list[dict]:
+    height, width = ink.shape[:2]
     hosts = [s for s in shapes if s["type"] == "line" and math.dist(*s["points"]) >= MIN_TICK_HOST_PX]
     if not hosts:
         return []
-    line_mask = np.zeros_like(binary)
-    thickness = max(3, int(round(2 * stroke_half + 3)))
+    line_mask = np.zeros_like(ink)
+    thickness = max(3, int(round(2 * ink_half + 3)))
     for shape in shapes:
         if shape["type"] == "line":
             cv2.line(line_mask, tuple(map(int, shape["points"][0])), tuple(map(int, shape["points"][1])), 255, thickness)
-    residual = cv2.bitwise_and(binary, cv2.bitwise_not(line_mask))
+    residual = cv2.bitwise_and(ink, cv2.bitwise_not(line_mask))
     ticks: list[dict] = []
     for host in hosts:
         (x1, y1), (x2, y2) = host["points"]
         length = math.dist((x1, y1), (x2, y2))
         ux, uy = (x2 - x1) / length, (y2 - y1) / length
-        band = np.zeros_like(binary)
+        band = np.zeros_like(ink)
         cv2.line(band, (int(x1), int(y1)), (int(x2), int(y2)), 255, 2 * TICK_BAND_PX)
         local = cv2.bitwise_and(residual, band)
         count, labels, stats, _ = cv2.connectedComponentsWithStats(local, connectivity=8)
         pieces = []
         for label in range(1, count):
             ys, xs = np.nonzero(labels == label)
-            if len(xs) < 4:
+            if len(xs) < MIN_TICK_PIECE_PIXELS:
                 continue
             pts = np.column_stack([xs, ys]).astype(float)
             t = (pts[:, 0] - x1) * ux + (pts[:, 1] - y1) * uy
@@ -484,7 +609,7 @@ def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) ->
                 continue
             along, across = t.max() - t.min() + 1, n.max() - n.min() + 1
             near = np.abs(n).min()
-            if near > thickness / 2 + TICK_GAP_PX or across < MIN_TICK_PX / 2 or across > MAX_TICK_PX:
+            if near > thickness / 2 + TICK_GAP_PX or across < MIN_TICK_PX / 2 - PIXEL_SAMPLING_TOLERANCE or across > MAX_TICK_PX:
                 continue
             if across < TICK_PIECE_ELONGATION * along:
                 continue
@@ -505,20 +630,61 @@ def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float) ->
                 merged[-1][3] = max(merged[-1][3], along)
             else:
                 merged.append([t_mid, n_lo, n_hi, along])
+        found: list[tuple[float, float, float, str]] = []
+        one_sided: dict[int, list[tuple[float, float, float]]] = {-1: [], 1: []}
         for t_mid, n_lo, n_hi, along in merged:
-            # A tick crosses its line; a stroke on one side only is usually
-            # part of an angle arc or a label drawn against the line.
-            if n_lo > -thickness / 2 or n_hi < thickness / 2:
+            crosses = n_lo <= -thickness / 2 and n_hi >= thickness / 2
+            if crosses:
+                lo, hi = n_lo, n_hi
+            elif n_lo > -thickness / 2:
+                lo, hi = 0.0, n_hi
+            else:
+                lo, hi = n_lo, 0.0
+            span = hi - lo
+            if span < MIN_TICK_PX - PIXEL_SAMPLING_TOLERANCE or span > MAX_TICK_PX or span < TICK_MIN_ELONGATION * along:
                 continue
-            span = n_hi - n_lo
-            if span < MIN_TICK_PX or span > MAX_TICK_PX or span < TICK_MIN_ELONGATION * along:
-                continue
+            if crosses:
+                found.append((t_mid, lo, hi, "crossing"))
+            else:
+                one_sided[1 if hi > 0 else -1].append((t_mid, lo, hi))
+        for series in one_sided.values():
+            found.extend((t_mid, lo, hi, "series") for t_mid, lo, hi in _regular_tick_series(series))
+        for t_mid, n_lo, n_hi, kind in found:
             cx, cy = x1 + ux * t_mid, y1 + uy * t_mid
             a = (int(round(cx - uy * n_lo)), int(round(cy + ux * n_lo)))
             b = (int(round(cx - uy * n_hi)), int(round(cy + ux * n_hi)))
             if all(0 <= p[0] < width and 0 <= p[1] < height for p in (a, b)):
-                ticks.append({"type": "line", "points": [a, b], "role": "tick"})
+                ticks.append({"type": "line", "points": [a, b], "role": "tick", "tick_evidence": kind})
     return ticks
+
+
+def _regular_tick_series(candidates: list[tuple[float, float, float]]) -> list[tuple[float, float, float]]:
+    """One-sided strokes of similar length at evenly spaced positions along their line."""
+    if len(candidates) < MIN_TICK_SERIES:
+        return []
+    spans = sorted(hi - lo for _, lo, hi in candidates)
+    typical = spans[len(spans) // 2]
+    similar = sorted(
+        (c for c in candidates if abs((c[2] - c[1]) - typical) <= TICK_SERIES_LENGTH_TOLERANCE * typical),
+        key=lambda c: c[0],
+    )
+    if len(similar) < MIN_TICK_SERIES:
+        return []
+    gaps = sorted(b[0] - a[0] for a, b in zip(similar, similar[1:]))
+    pitch = gaps[len(gaps) // 2]
+    if pitch <= 0:
+        return []
+    slack = max(TICK_SERIES_MIN_SLACK_PX, TICK_SERIES_PITCH_TOLERANCE * pitch)
+
+    def on_pitch(gap: float) -> bool:
+        steps = round(gap / pitch)
+        return 1 <= steps <= TICK_SERIES_MAX_SKIP and abs(gap - steps * pitch) <= slack
+
+    kept = [
+        c for i, c in enumerate(similar)
+        if any(on_pitch(abs(c[0] - other[0])) for j, other in enumerate(similar) if j != i)
+    ]
+    return kept if len(kept) >= MIN_TICK_SERIES else []
 
 
 GLYPH_MASK_MAX_ASPECT = 2.5

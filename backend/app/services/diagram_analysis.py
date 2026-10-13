@@ -147,9 +147,15 @@ def _analyze_line(shape: dict, id: int) -> tuple[list[DetectedElement], list[Ele
         bbox=(min(start[0], end[0]), min(start[1], end[1]), abs(end[0] - start[0]), abs(end[1] - start[1])),
         semantic_properties={"length": round(length, 2), **({"role": shape["role"]} if shape.get("role") else {})},
         provenance=_line_provenance(length, start, end, confidence)
-        + (" Recovered as a tick drawn across a longer line." if shape.get("role") == "tick" else ""),
+        + (TICK_PROVENANCE.get(shape.get("tick_evidence", "crossing"), "") if shape.get("role") == "tick" else ""),
     )
     return [element], []
+
+
+TICK_PROVENANCE = {
+    "crossing": " Recovered as a tick drawn across a longer line.",
+    "series": " Recovered as one of an evenly spaced series of ticks drawn on one side of a longer line.",
+}
 
 
 def _line_provenance(length: float, start, end, confidence: float) -> str:

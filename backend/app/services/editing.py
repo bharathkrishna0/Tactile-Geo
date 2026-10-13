@@ -13,7 +13,12 @@ from collections.abc import Callable
 from app.models.geometry import ConfidenceLevel, DetectedElement, ElementRelationship, GeometryType, SemanticGeometry, TransformationExplanation, classify_confidence
 from app.services.geometry_relations import infer_relationships
 from app.services.tactile_qa import QAReport, run_tactile_qa
-from app.services.tactile_simplification import SimplifiedGeometry, density_removed_count, simplify_geometry
+from app.services.tactile_simplification import (
+    SimplifiedGeometry,
+    density_removed_count,
+    essential_density_removed_count,
+    simplify_geometry,
+)
 from app.services.tactile_svg import render_tactile_svg
 
 
@@ -133,6 +138,7 @@ def regenerate(semantic: SemanticGeometry, translator=None) -> tuple[SimplifiedG
     qa_report = run_tactile_qa(
         simplified.elements, semantic.image_width, semantic.image_height,
         density_removed=density_removed_count(simplified),
+        essential_removed=essential_density_removed_count(simplified),
     )
     tactile_svg = render_tactile_svg(simplified.elements, semantic.image_width, semantic.image_height)
     return simplified, qa_report, tactile_svg
