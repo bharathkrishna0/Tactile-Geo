@@ -124,6 +124,9 @@ def restore_radicals(detections: list[OcrDetection], gray: np.ndarray) -> list[O
 _DEGREE_CANDIDATE = re.compile("^([0-9]{1,3})([?8o0O2\u00ba*\u00b0\"']?)$")
 _DEGREE_MAX_HEIGHT_FRACTION = 0.6
 _DEGREE_MAX_BOTTOM_FRACTION = 0.65
+# A drawn degree sign is a ring about a third of the digit height; a speck is not.
+_DEGREE_MIN_SIZE_FRACTION = 0.2
+_DEGREE_MIN_SIZE_PX = 2
 _DEGREE_BOX_PAD_PX = 2
 # Pieces of one glyph broken by thresholding overlap horizontally.
 _GLYPH_OVERLAP_PX = 1
@@ -168,6 +171,7 @@ def _digits_before_degree_sign(gray: np.ndarray, bbox: list[tuple[int, int]]) ->
         height > 0
         and last[0] >= max(x + w for x, _, w, _ in digits) - 1
         and last[3] <= _DEGREE_MAX_HEIGHT_FRACTION * height
+        and min(last[2], last[3]) >= max(_DEGREE_MIN_SIZE_PX, _DEGREE_MIN_SIZE_FRACTION * height)
         and last[1] + last[3] - top <= _DEGREE_MAX_BOTTOM_FRACTION * height
     )
     return len(digits) if raised else None

@@ -83,6 +83,13 @@ def test_full_height_last_digit_is_not_a_degree_sign():
     assert restore_degrees([_det("358", bbox)], gray)[0].text == "358"
 
 
+def test_speck_after_a_number_is_not_a_degree_sign():
+    gray, bbox = _degree_label("13", sign=False)
+    right = bbox[1][0] - 3
+    gray[30, right - 1] = 0
+    assert restore_degrees([_det("13", bbox)], gray)[0].text == "13"
+
+
 def test_degree_labels_pass_text_validation():
     gray, bbox = _degree_label("25")
     restored = restore_degrees([_det('25"', bbox)], gray)
