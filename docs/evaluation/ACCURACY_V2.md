@@ -255,8 +255,42 @@ these runs ran two at a time. Re-run one at a time on six dev15 images
 18.5 s per image, so the machine's timing noise is larger than any difference
 these changes make. A controlled latency claim either way is **NOT MEASURED**.
 
+### Tactile SVG: angle arcs and angle Braille (`arcs2`)
+
+The first SVG made from the supplied image had no angle arcs, because the SVG
+writer only drew right-angle squares, and the `25°` Braille sat below the
+bottom-right corner, outside the figure.
+
+- **Arcs are embossed** (`tactile_svg.angle_arc_sweep`, `_angle_arc_path`): an
+  angle with a detected arc (`angle_marker` and `arc_radius`) is drawn as an SVG
+  arc at its measured radius, sweeping the side that matches its measured
+  degrees. Angles inferred from geometry without a drawn arc are still not
+  embossed.
+- **QA sees the arc** (`tactile_qa`): the arc is a polyline for Braille
+  clearance and spacing. An arc or right-angle square is not reported as
+  overlapping its own arms or another marker at the same vertex, but it is
+  still checked against every other line.
+- **Angle Braille goes inside the angle** (`tactile_simplification`, pass 6):
+  each linked angle label is placed between the arms, past the arc, at the
+  first spot that clears every line and every other Braille block. When the
+  angle is too narrow it goes to the nearest clear spot beside the arc. Other
+  Braille sitting on an arc is moved off it.
+
+Supplied image: 4 arcs drawn (70°, 35°, 25°, x). `70°`, `35°` and `x` sit
+inside their angles. The 25° wedge is too narrow for its Braille, so `25°` sits
+just outside the right side next to its arc. QA still passes with score 86.
+
+Benchmark (`thin4` -> `arcs2`): every accuracy metric in the table above is
+unchanged on dev15 and validation, and the QA pass rate (0.800 / 0.867) and
+critical problems exported (0 / 0) are unchanged. Overlap warnings fell
+(dev15 148 -> 133, validation 133 -> 127) because markers no longer flag their
+own arms. Embossing arcs uses feature budget: on `math_023` 3 more
+non-essential features are dropped to fit the page (no essential ones). The
+SVG check's `open_paths` count rises from 0 to 3 (dev15) and 7 (validation);
+those are the arcs, which are open by design.
+
 ### Verification
 
-Backend `pytest`: 776 passed, 10 skipped. Benchmark tests: 142 passed.
+Backend `pytest`: 780 passed, 10 skipped. Benchmark tests: 142 passed.
 Frontend: 118 tests, typecheck and build pass. New regression tests are in
 `backend/tests/test_line_art_marks.py`.

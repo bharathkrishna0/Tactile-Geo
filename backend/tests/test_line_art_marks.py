@@ -272,3 +272,15 @@ def test_angle_braille_is_seated_inside_its_angle_and_clear_of_the_arc():
     assert math.dist((x, y), (390, 292)) > 40
     qa = run_tactile_qa(simplified.elements, 480, 360)
     assert "braille_on_line" not in {i.check for i in qa.issues}
+
+
+def test_angle_arc_meets_its_arms_but_still_needs_spacing_from_other_lines():
+    elements = _corner_with_arcs()
+    lower = next(e for e in elements if e.id == "lower")
+    stray = _element("stray", GeometryType.LINE_SEGMENT, {"start": [352, 268], "end": [352, 250]})
+    issues = run_tactile_qa(elements + [stray], 480, 360).issues
+    flagged = [i.message for i in issues if i.check in ("overlap", "spacing")]
+    assert not any(lower.id in m and ("base" in m or "diag" in m or "upper" in m) for m in flagged)
+    assert any("lower" in m and "stray" in m for m in flagged)
+    clean = run_tactile_qa(elements, 480, 360).issues
+    assert not any(i.check in ("overlap", "spacing") and "lower" in i.message for i in clean)
