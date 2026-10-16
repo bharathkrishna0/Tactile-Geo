@@ -7,7 +7,7 @@ from app.models.geometry import DetectedElement, GeometryType
 from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.segment_geometry import Rect, point_to_segment_distance, rect_around, rect_gap, segment_to_rect_distance
-from app.services.tactile_svg import angle_arc_points, braille_text_extent, is_angle_marker, is_embossed_geometry, page_layout
+from app.services.tactile_svg import angle_arc_points, braille_text_extent, curve_arc_points, is_angle_marker, is_embossed_geometry, page_layout
 
 
 @dataclass
@@ -248,7 +248,12 @@ def outline_segments(element: DetectedElement) -> list[tuple[tuple[float, float]
                         GeometryType.CIRCLE, GeometryType.ELLIPSE):
         points = [(float(p[0]), float(p[1])) for p in outline_points(element)]
         return list(zip(points, points[1:] + points[:1])) if len(points) >= 2 else []
-    arc = angle_arc_points(geo) if element.type is GeometryType.ANGLE else []
+    if element.type is GeometryType.ANGLE:
+        arc = angle_arc_points(geo)
+    elif element.type is GeometryType.ARC:
+        arc = curve_arc_points(geo)
+    else:
+        arc = []
     if arc:
         return list(zip(arc, arc[1:]))
     if element.type is GeometryType.ANGLE and geo.get("vertex") and geo.get("arms"):

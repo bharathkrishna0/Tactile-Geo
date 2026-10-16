@@ -883,7 +883,8 @@ def score_image(gt: dict, result: dict, gt_braille: dict | None = None, translat
     essential_ids = {o["id"] for o in gt["objects"] if o["semantic_importance"] == "essential"}
     qa = result["qa"]
     issues = Counter(i["check"] for i in qa["issues"])
-    embossed = [e for e in fin if e["type"] not in ("text_label", "arc")
+    embossed = [e for e in fin if e["type"] != "text_label"
+                and (e["type"] != "arc" or (e.get("geometry") or {}).get("points"))
                 and (e["type"] != "angle" or (e.get("geometry") or {}).get("right_angle_marker"))]
     for part in (pre, post):
         part.pop("_gt_id_to_preds")

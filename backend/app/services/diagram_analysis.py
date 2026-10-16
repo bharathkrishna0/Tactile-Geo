@@ -44,6 +44,11 @@ def analyze_diagram(shapes: list[dict], width: int, height: int, labels: list[di
             element = _analyze_ellipse(shape, id_counter)
             id_counter += 1
             elements.append(element)
+        elif shape["type"] in ("circle", "arc"):
+            element, rels = _analyze_curve(shape, id_counter)
+            id_counter += 1
+            elements.append(element)
+            relationships.extend(rels)
         elif shape["type"] == "dot":
             elements.append(_analyze_dot(shape, id_counter))
             id_counter += 1
@@ -221,6 +226,48 @@ def _analyze_dot(shape: dict, id: int) -> DetectedElement:
     )
 
 
+CURVE_CONFIDENCE = 0.85
+
+
+def _analyze_curve(shape: dict, id: int) -> tuple[DetectedElement, list[ElementRelationship]]:
+    """A circle or circular arc recovered from ink shared with other strokes."""
+    cx, cy = shape["center"]
+    r = float(shape["radius"])
+    geometry: dict = {"center": [cx, cy], "radius": r}
+    if shape["type"] == "arc":
+        gtype = GeometryType.ARC
+        geometry.update(start_deg=shape["start_deg"], sweep_deg=shape["sweep_deg"], points=[list(p) for p in shape["points"]])
+        xs, ys = [p[0] for p in shape["points"]], [p[1] for p in shape["points"]]
+        bbox = (min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys))
+        described = f"arc of {shape['sweep_deg']:.0f} deg"
+    else:
+        gtype = GeometryType.CIRCLE
+        bbox = (cx - r, cy - r, 2 * r, 2 * r)
+        described = "circle"
+    element = DetectedElement(
+        id=f"el_{id}",
+        type=gtype,
+        geometry=geometry,
+        confidence=CURVE_CONFIDENCE,
+        confidence_level=classify_confidence(CURVE_CONFIDENCE),
+        needs_review=False,
+        source="curve_fit",
+        bbox=bbox,
+        semantic_properties={"radius": r, "fit_error_px": shape.get("fit_error_px")},
+        provenance=f"Fitted a {described} (centre ({cx},{cy}), radius {r:.0f} px, mean error {shape.get('fit_error_px')} px) "
+        "to ink that touches or crosses other strokes.",
+    )
+    relationships = [] if gtype is GeometryType.ARC else [ElementRelationship(
+        id=f"rel_{id}_center",
+        type=RelationshipType.CIRCLE_CENTER,
+        element_ids=[element.id],
+        confidence=0.9,
+        confidence_level=ConfidenceLevel.HIGH,
+        needs_review=False,
+    )]
+    return element, relationships
+
+
 def _analyze_ellipse(shape: dict, id: int) -> DetectedElement:
     center = shape["center"]
     semi_a, semi_b = shape["semi_axes"]
@@ -383,7 +430,7 @@ DOT_MERGE_PX = 12.0
 
 def _round_outline(element: DetectedElement) -> tuple[tuple[float, float], float] | None:
     geo = element.geometry
-    if element.type is GeometryType.CIRCLE and "center" in geo and "radius" in geo:
+    if element.type in (GeometryType.CIRCLE, GeometryType.ARC) and "center" in geo and "radius" in geo:
         return (float(geo["center"][0]), float(geo["center"][1])), float(geo["radius"])
     if element.type is GeometryType.ELLIPSE and "center" in geo and geo.get("semi_axes"):
         a, b = (float(v) for v in geo["semi_axes"])
@@ -471,7 +518,7 @@ def _detect_points(
             for coord in points:
                 # A vertex named by a nearby label is a point in its own right.
                 significant[coord] = significant.get(coord, 0) + (2 if labelled(coord) else 1)
-        elif element.type is GeometryType.CIRCLE and "center" in element.geometry:
+        elif element.type in (GeometryType.CIRCLE, GeometryType.ARC) and "center" in element.geometry:
             centre = tuple(int(round(v)) for v in element.geometry["center"])
             # A radius or diameter drawn to the centre makes the centre a point.
             if any(math.dist(centre, end) <= CIRCLE_CENTRE_PX for end in line_ends):

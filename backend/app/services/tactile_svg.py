@@ -212,6 +212,29 @@ def _angle_arc_path(geo: dict) -> str | None:
     return f"M {x1:.1f} {y1:.1f} A {radius:.1f} {radius:.1f} 0 {large} 1 {x2:.1f} {y2:.1f}"
 
 
+def curve_arc_points(geo: dict) -> list[tuple[float, float]]:
+    """A drawn circular arc (``center``, ``radius``, ``start_deg``, ``sweep_deg``) as a polyline."""
+    if not geo.get("center") or not geo.get("radius") or geo.get("sweep_deg") is None or geo.get("start_deg") is None:
+        return []
+    cx, cy = (float(v) for v in geo["center"])
+    radius, start, sweep = float(geo["radius"]), math.radians(float(geo["start_deg"])), math.radians(float(geo["sweep_deg"]))
+    steps = max(2, math.ceil(sweep * ANGLE_ARC_SEGMENTS_PER_RADIAN))
+    return [
+        (cx + radius * math.cos(start + sweep * i / steps), cy + radius * math.sin(start + sweep * i / steps))
+        for i in range(steps + 1)
+    ]
+
+
+def _curve_arc_path(geo: dict) -> str | None:
+    points = curve_arc_points(geo)
+    if not points:
+        return None
+    radius, sweep = float(geo["radius"]), math.radians(float(geo["sweep_deg"]))
+    (x1, y1), (x2, y2) = points[0], points[-1]
+    large = 1 if sweep > math.pi else 0
+    return f"M {x1:.1f} {y1:.1f} A {radius:.1f} {radius:.1f} 0 {large} 1 {x2:.1f} {y2:.1f}"
+
+
 def is_angle_marker(element: DetectedElement) -> bool:
     """A drawn right-angle square or angle arc, which meets its arms by design."""
     return element.type is GeometryType.ANGLE and (
@@ -225,7 +248,9 @@ def is_embossed_geometry(element: DetectedElement) -> bool:
         return False
     if element.type is GeometryType.ANGLE:
         return is_angle_marker(element)
-    return element.type is not GeometryType.ARC
+    if element.type is GeometryType.ARC:
+        return bool(curve_arc_points(element.geometry))
+    return True
 
 
 def render_tactile_svg(elements: list[DetectedElement], width: int, height: int) -> str:
@@ -254,6 +279,8 @@ def render_tactile_svg(elements: list[DetectedElement], width: int, height: int)
             semi_a, semi_b = geo["semi_axes"]
             angle = geo.get("angle", 0)
             glyphs.append(f'<ellipse {attr} cx="{cx:.1f}" cy="{cy:.1f}" rx="{semi_a:.1f}" ry="{semi_b:.1f}" transform="rotate({angle:.1f} {cx:.1f} {cy:.1f})"/>')
+        elif element.type is GeometryType.ARC and (path := _curve_arc_path(geo)):
+            glyphs.append(f'<path {attr} class="arc" d="{path}"/>')
         elif element.type is GeometryType.ANGLE and geo.get("right_angle_marker"):
             symbol = _right_angle_symbol(geo, RIGHT_ANGLE_SYMBOL_MM / layout.mm_per_px)
             if symbol:
