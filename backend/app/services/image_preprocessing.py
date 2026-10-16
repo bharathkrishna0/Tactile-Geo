@@ -31,6 +31,17 @@ MIN_ATTACHED_TICK_ELONGATION = 2.5
 MIN_ATTACHED_TICK_DARKNESS = 0.6
 # Per-pixel darkness, relative to the bold ink, for the unthinned tick evidence.
 MIN_TICK_EVIDENCE_DARKNESS = 0.8
+# Clean line art (a rendered or digital drawing) thresholds into strokes and
+# glyphs with almost no speck-sized components; paper texture and sensor noise
+# threshold into thousands of them.
+SPECK_AREA_PX = 6
+MAX_CLEAN_SPECK_SHARE = 0.1
+# A drawing with only a few strokes and glyphs may still keep a JPEG speck or two.
+CLEAN_SPECK_ALLOWANCE = 2
+# On clean line art the opening only thins strokes. A stroke two or three pixels
+# wide (a small or downscaled drawing) is not thinned but cut into a row of dots;
+# such a component is kept unthinned.
+MIN_SHATTERED_PIECES = 6
 
 
 def _hairline_components(thresholded: np.ndarray, opened: np.ndarray) -> np.ndarray:
@@ -76,6 +87,27 @@ def _attached_hairlines(grayscale: np.ndarray, thresholded: np.ndarray, opened: 
     return np.where(keep[labels], 255, 0).astype(np.uint8)
 
 
+def _shattered_strokes(thresholded: np.ndarray, opened: np.ndarray) -> np.ndarray:
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(thresholded, connectivity=8)
+    pieces_count, pieces = cv2.connectedComponents(opened, connectivity=8)
+    inked = opened > 0
+    pairs = np.unique(labels[inked].astype(np.int64) * pieces_count + pieces[inked])
+    fragments = np.bincount(pairs // pieces_count, minlength=count)
+    span = np.maximum(stats[:, cv2.CC_STAT_WIDTH], stats[:, cv2.CC_STAT_HEIGHT])
+    shattered = (fragments >= MIN_SHATTERED_PIECES) & (span >= MIN_THIN_COMPONENT_SPAN_PX)
+    shattered[0] = False
+    return np.where(shattered[labels], 255, 0).astype(np.uint8)
+
+
+def is_clean_line_art(grayscale: np.ndarray, edge_sensitivity: int = 50) -> bool:
+    """True when thresholding leaves strokes and glyphs but almost no specks."""
+    count, _, stats, _ = cv2.connectedComponentsWithStats(_threshold(grayscale, edge_sensitivity), connectivity=8)
+    if count <= 1:
+        return False
+    specks = int(np.count_nonzero(stats[1:, cv2.CC_STAT_AREA] < SPECK_AREA_PX))
+    return specks <= max(CLEAN_SPECK_ALLOWANCE, MAX_CLEAN_SPECK_SHARE * (count - 1))
+
+
 def _threshold(grayscale: np.ndarray, edge_sensitivity: int) -> np.ndarray:
     threshold_offset = max(2, min(16, 16 - round(edge_sensitivity * 0.14)))
     return cv2.adaptiveThreshold(grayscale, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 31, threshold_offset)
@@ -104,7 +136,8 @@ def tick_ink_mask(image: np.ndarray, edge_sensitivity: int = 50) -> np.ndarray |
 def preprocess_image(image: np.ndarray, edge_sensitivity: int = 50) -> np.ndarray:
     """Section 6.1: adaptive thresholding then 3x3 opening and erosion.
 
-    Hairline strokes that the opening would erase are kept unthinned.
+    Hairline strokes that the opening would erase, and on clean line art
+    strokes it would cut into dots, are kept unthinned.
     """
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     thresholded = _threshold(grayscale, edge_sensitivity)
@@ -114,4 +147,6 @@ def preprocess_image(image: np.ndarray, edge_sensitivity: int = 50) -> np.ndarra
     if np.median(grayscale) < MIN_PAPER_LEVEL:
         return eroded
     hairlines = cv2.bitwise_or(_hairline_components(thresholded, opened), _attached_hairlines(grayscale, thresholded, opened))
+    if is_clean_line_art(grayscale, edge_sensitivity):
+        hairlines = cv2.bitwise_or(hairlines, _shattered_strokes(thresholded, opened))
     return cv2.bitwise_or(eroded, hairlines)

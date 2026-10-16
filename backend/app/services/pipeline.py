@@ -10,10 +10,10 @@ from app.services.vectorization import (
     stroke_half_width,
 )
 from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
-from app.services.markers import detect_angle_arcs, detect_parallel_chevrons
+from app.services.markers import detect_angle_arcs, detect_parallel_chevrons, drop_ticks_on_arcs
 from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
 from app.services.ocr import EasyOcrProvider, OcrProvider
-from app.services.ocr_postprocessing import postprocess_detections, restore_radicals
+from app.services.ocr_postprocessing import postprocess_detections, restore_degrees, restore_radicals
 from app.services.label_mapping import map_label_to_geometry
 from app.services.braille import LouisBrailleTranslator
 from app.services.braille_layout import place_braille_markers
@@ -59,7 +59,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     # Text first: read labels before tracing; mask_text also erases their glyphs from the stroke mask.
     ocr_image = ink_contrast_copy(processing_image)
     raw_detections = provider.detect(ocr_image)
-    detections = restore_radicals(postprocess_detections(raw_detections), ocr_image[:, :, 0])
+    detections = restore_radicals(postprocess_detections(restore_degrees(raw_detections, ocr_image[:, :, 0])), ocr_image[:, :, 0])
     if regions:
         detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     stroke_mask = mask_text_glyphs(filtered, [detection.bbox for detection in detections]) if mask_text else filtered
@@ -71,6 +71,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     angle_arcs = detect_angle_arcs(
         filtered, shapes, stroke_half, text_boxes, exclude_vertices=[marker["vertex"] for marker in right_angles],
     )
+    shapes = drop_ticks_on_arcs(shapes, angle_arcs, stroke_half)
     parallel_marks = detect_parallel_chevrons(filtered, shapes, stroke_half, text_boxes)
     shapes = drop_marker_strokes(shapes, right_angles)
     mapped_labels = []
@@ -116,7 +117,7 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     translator = braille_translator or LouisBrailleTranslator()
     ocr_image = ink_contrast_copy(processing_image)
     raw_detections = provider.detect(ocr_image)
-    detections = restore_radicals(postprocess_detections(raw_detections), ocr_image[:, :, 0])
+    detections = restore_radicals(postprocess_detections(restore_degrees(raw_detections, ocr_image[:, :, 0])), ocr_image[:, :, 0])
     if regions:
         detections = [detection for detection in detections if inside_regions(detection.bbox, regions)]
     stroke_mask = mask_text_glyphs(filtered, [detection.bbox for detection in detections]) if mask_text else filtered

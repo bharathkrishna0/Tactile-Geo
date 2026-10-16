@@ -514,6 +514,12 @@ TICK_SERIES_MIN_SLACK_PX = 3.0
 TICK_SERIES_MAX_SKIP = 2
 # Blur or JPEG can open a small gap between a tick half and its line.
 TICK_GAP_PX = 2
+# A short crossing tick on a small drawing barely clears the line's stroke mask.
+# It is found instead as a local widening of the stroke's cross-section that
+# sticks out on both sides by this much beyond the usual stroke edges.
+MIN_TICK_OVERHANG_PX = 2.0
+TICK_PROFILE_STEP_PX = 0.5
+TICK_END_MARGIN_PX = 12
 
 
 # A drawn dot is a filled disc several strokes wide: its distance-transform core
@@ -564,11 +570,94 @@ def recover_ticks(binary: np.ndarray, shapes: list[dict], stroke_half: float, ev
     either mask is kept once.
     """
     ticks = _ticks_in(binary, shapes, stroke_half)
-    if evidence is None:
-        return ticks
-    for tick in _ticks_in(evidence, shapes, max(stroke_half, stroke_half_width(evidence))):
+    candidates = _profile_ticks(binary, shapes, stroke_half)
+    if evidence is not None:
+        candidates = _ticks_in(evidence, shapes, max(stroke_half, stroke_half_width(evidence))) + candidates
+    for tick in candidates:
         if not any(_tick_distance(tick, kept) <= TICK_PAIR_PX for kept in ticks):
             ticks.append(tick)
+    return ticks
+
+
+def _ink_run_across(ink: np.ndarray, cx: float, cy: float, nx: float, ny: float, offsets: np.ndarray):
+    """Extent (lo, hi) along the normal of the ink run through the stroke at (cx, cy)."""
+    height, width = ink.shape[:2]
+    xs = np.clip(np.rint(cx + nx * offsets).astype(int), 0, width - 1)
+    ys = np.clip(np.rint(cy + ny * offsets).astype(int), 0, height - 1)
+    inked = ink[ys, xs] > 0
+    centre = len(offsets) // 2
+    near = np.flatnonzero(inked[max(0, centre - 3):centre + 4])
+    if not len(near):
+        return None
+    start = end = max(0, centre - 3) + int(near[0])
+    while start > 0 and inked[start - 1]:
+        start -= 1
+    while end + 1 < len(inked) and inked[end + 1]:
+        end += 1
+    return float(offsets[start]), float(offsets[end])
+
+
+def _plain_stroke(run: tuple[float, float] | None, lo_edge: float, hi_edge: float, overhang: float) -> bool:
+    """A cross-section at the line's usual width: a tick is a short widening, an arrowhead is not."""
+    return run is not None and run[0] > lo_edge - overhang / 2 and run[1] < hi_edge + overhang / 2
+
+
+def _profile_ticks(ink: np.ndarray, shapes: list[dict], ink_half: float) -> list[dict]:
+    """Short ticks drawn across a long line, measured as a local widening of its stroke."""
+    hosts = [s for s in shapes if s["type"] == "line" and math.dist(*s["points"]) >= MIN_TICK_HOST_PX]
+    if not hosts:
+        return []
+    thickness = max(3, int(round(2 * ink_half + 3)))
+    overhang = max(MIN_TICK_OVERHANG_PX, ink_half)
+    offsets = np.arange(-MAX_TICK_PX / 2, MAX_TICK_PX / 2 + TICK_PROFILE_STEP_PX, TICK_PROFILE_STEP_PX)
+    ticks: list[dict] = []
+    for host in hosts:
+        others = np.zeros_like(ink)
+        for shape in shapes:
+            points = shape.get("points") or []
+            if shape is host or len(points) < 2 or shape["type"] not in ("line", "contour"):
+                continue
+            closed = shape["type"] == "contour"
+            cv2.polylines(others, [np.array(points, dtype=np.int32)], closed, 255, thickness)
+        (x1, y1), (x2, y2) = host["points"]
+        length = math.dist((x1, y1), (x2, y2))
+        ux, uy = (x2 - x1) / length, (y2 - y1) / length
+        samples = []
+        for t in np.arange(TICK_END_MARGIN_PX, length - TICK_END_MARGIN_PX, 1.0):
+            cx, cy = x1 + ux * t, y1 + uy * t
+            run = _ink_run_across(ink, cx, cy, -uy, ux, offsets)
+            if run is not None:
+                samples.append((float(t), *run))
+        if len(samples) < 2 * TICK_END_MARGIN_PX:
+            continue
+        profile = {t: (lo, hi) for t, lo, hi in samples}
+        lo_edge = float(np.median([lo for _, lo, _ in samples]))
+        hi_edge = float(np.median([hi for _, _, hi in samples]))
+        wide = [(t, lo, hi) for t, lo, hi in samples if lo <= lo_edge - overhang and hi >= hi_edge + overhang]
+        groups: list[list[tuple[float, float, float]]] = []
+        for sample in wide:
+            if groups and sample[0] - groups[-1][-1][0] <= 1.5:
+                groups[-1].append(sample)
+            else:
+                groups.append([sample])
+        for group in groups:
+            along = group[-1][0] - group[0][0] + 1
+            lo, hi = min(g[1] for g in group), max(g[2] for g in group)
+            span = hi - lo
+            if along > 2 * thickness or not MIN_TICK_PX <= span <= MAX_TICK_PX or span < TICK_MIN_ELONGATION * along:
+                continue
+            if lo <= offsets[0] or hi >= offsets[-1]:
+                continue
+            if not all(_plain_stroke(profile.get(t), lo_edge, hi_edge, overhang)
+                       for t in (group[0][0] - thickness, group[-1][0] + thickness)):
+                continue
+            t_mid = float(np.median([g[0] for g in group]))
+            cx, cy = x1 + ux * t_mid, y1 + uy * t_mid
+            if others[int(round(cy)), int(round(cx))]:
+                continue
+            a = (int(round(cx - uy * lo)), int(round(cy + ux * lo)))
+            b = (int(round(cx - uy * hi)), int(round(cy + ux * hi)))
+            ticks.append({"type": "line", "points": [a, b], "role": "tick", "tick_evidence": "crossing"})
     return ticks
 
 

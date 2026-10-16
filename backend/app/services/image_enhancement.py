@@ -10,6 +10,8 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
+from app.services.image_preprocessing import is_clean_line_art
+
 # CLAHE (adaptive) contrast limit and tile grid size.
 _CLIP_LIMIT = 2.0
 _TILE_GRID_SIZE = (8, 8)
@@ -28,11 +30,16 @@ _GRAIN_NO_SHARPEN = 2.5
 # lighter tone (chalkboard, inverted scan, underexposed light-on-dark print).
 _DARK_PAGE_MEDIAN = 128
 
+# Clean line art spanning at least this much of the grey range already has full
+# contrast; CLAHE and sharpening would only turn its JPEG ringing into specks.
+_FULL_CONTRAST_RANGE = 160
+
 
 def enhance_copy(image: np.ndarray) -> np.ndarray:
     """Produce an improved copy of ``image`` for CV processing.
 
-    Steps (each applied to a working copy, original untouched):
+    Clean, full-contrast line art is returned unchanged apart from polarity.
+    Otherwise (each step applied to a working copy, original untouched):
       1. Adaptive contrast (CLAHE) on the luminance channel.
       2. Conditional mild sharpening to restore edge definition.
       3. Polarity normalisation so ink is always darker than the page.
@@ -41,6 +48,11 @@ def enhance_copy(image: np.ndarray) -> np.ndarray:
     working = image.copy()
     if len(working.shape) == 2:
         working = cv2.cvtColor(working, cv2.COLOR_GRAY2BGR)
+
+    gray = cv2.cvtColor(working, cv2.COLOR_BGR2GRAY)
+    low, high = np.percentile(gray, [1, 99])
+    if high - low >= _FULL_CONTRAST_RANGE and is_clean_line_art(gray):
+        return normalize_polarity(working)
 
     lab = cv2.cvtColor(working, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)

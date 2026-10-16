@@ -146,7 +146,7 @@ GLYPH_ALLOWLIST = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345678
 
 # Characters a label can contain; a page detection with any other character
 # (``7"``, ``€C``) is discarded later, so it must not hide the glyphs beneath it.
-VALID_TEXT_PATTERN = re.compile(r"^[A-Za-z0-9\s\.\,\;\:\!\?\-\+\/\=\(\)\[\]]*$")
+VALID_TEXT_PATTERN = re.compile(r"^[A-Za-z0-9\s\.\,\;\:\!\?\-\+\/\=\(\)\[\]\u00b0]*$")
 
 
 def _box_bounds(bbox: list[tuple[int, int]]) -> tuple[int, int, int, int]:
