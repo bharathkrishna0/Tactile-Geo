@@ -6,8 +6,8 @@ from dataclasses import dataclass, field
 from app.models.geometry import DetectedElement, GeometryType
 from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
-from app.services.segment_geometry import Rect, rect_around, rect_gap, segment_to_rect_distance
-from app.services.tactile_svg import braille_text_extent, is_embossed_geometry, page_layout
+from app.services.segment_geometry import Rect, point_to_segment_distance, rect_around, rect_gap, segment_to_rect_distance
+from app.services.tactile_svg import angle_arc_points, braille_text_extent, is_angle_marker, is_embossed_geometry, page_layout
 
 
 @dataclass
@@ -179,6 +179,8 @@ def _element_points(element: DetectedElement) -> list[tuple[float, float]]:
     if "arms" in geo:
         for arm in geo["arms"]:
             points.append((float(arm[0]), float(arm[1])))
+    if element.type is GeometryType.ANGLE:
+        points.extend(angle_arc_points(geo))
     return points
 
 
@@ -246,6 +248,9 @@ def outline_segments(element: DetectedElement) -> list[tuple[tuple[float, float]
                         GeometryType.CIRCLE, GeometryType.ELLIPSE):
         points = [(float(p[0]), float(p[1])) for p in outline_points(element)]
         return list(zip(points, points[1:] + points[:1])) if len(points) >= 2 else []
+    arc = angle_arc_points(geo) if element.type is GeometryType.ANGLE else []
+    if arc:
+        return list(zip(arc, arc[1:]))
     if element.type is GeometryType.ANGLE and geo.get("vertex") and geo.get("arms"):
         vertex = (float(geo["vertex"][0]), float(geo["vertex"][1]))
         return [(vertex, (float(arm[0]), float(arm[1]))) for arm in geo["arms"]]
@@ -253,6 +258,17 @@ def outline_segments(element: DetectedElement) -> list[tuple[tuple[float, float]
         position = (float(geo["position"][0]), float(geo["position"][1]))
         return [(position, position)]
     return []
+
+
+def meets_marker_vertex(marker: DetectedElement, other: DetectedElement, tolerance_px: float) -> bool:
+    """True when ``other`` is an arm of angle marker ``marker`` or marks the same vertex."""
+    vertex = marker.geometry.get("vertex")
+    if not is_angle_marker(marker) or not vertex:
+        return False
+    v = (float(vertex[0]), float(vertex[1]))
+    if is_angle_marker(other) and other.geometry.get("vertex"):
+        return math.dist(v, [float(c) for c in other.geometry["vertex"]]) <= tolerance_px
+    return any(point_to_segment_distance(v, a, b) <= tolerance_px for a, b in outline_segments(other))
 
 
 def braille_rect(label: DetectedElement, image_width: int, image_height: int) -> Rect | None:
@@ -411,8 +427,11 @@ def run_tactile_qa(
                 )
             checks += 1
 
+    vertex_tolerance_px = MIN_FEATURE_SPACING / mm_per_px
     for index, a in enumerate(embossed):
         for b in embossed[index + 1:]:
+            if meets_marker_vertex(a, b, vertex_tolerance_px) or meets_marker_vertex(b, a, vertex_tolerance_px):
+                continue
             distance_mm = _distance_between_elements(a, b) * mm_per_px
             if distance_mm <= OVERLAP_TOLERANCE:
                 collector.add(

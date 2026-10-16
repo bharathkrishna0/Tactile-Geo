@@ -168,18 +168,52 @@ def _tick_in_line(position: tuple[float, float], tick: DetectedElement) -> float
 
 
 WORD_MIN_LETTERS = 3
+ANGLE_MEASURE = re.compile(r"\d+(\.\d+)?\u00b0")
+# How far from the vertex, in arc radii, text inside an angle's arms still names it.
+ANGLE_LABEL_REACH_RADII = 3.0
+ANGLE_LABEL_MIN_REACH_PX = 40.0
 
 
 def names_a_point(text: str) -> bool:
-    """Whether ``text`` could name a point: a word ("hexagon", "square") names a shape instead."""
-    return not re.fullmatch(rf"[^\W\d_]{{{WORD_MIN_LETTERS},}}", text.strip())
+    """Whether ``text`` could name a point: a word ("hexagon", "square") or a measure ("70°") does not."""
+    text = text.strip()
+    return not (re.fullmatch(rf"[^\W\d_]{{{WORD_MIN_LETTERS},}}", text) or ANGLE_MEASURE.fullmatch(text))
+
+
+def _text_centre(label: DetectedElement, fallback: tuple[float, float]) -> tuple[float, float]:
+    """Centre of the text as read; the stored position may be where its Braille was moved to."""
+    if not label.bbox:
+        return fallback
+    x, y, w, h = (float(v) for v in label.bbox)
+    return (x + w / 2, y + h / 2)
+
+
+def _in_angle_arc(centre: tuple[float, float], angle: DetectedElement) -> float | None:
+    """Distance from a drawn angle arc to text between its arms, or None outside them."""
+    geo = angle.geometry
+    if angle.type is not GeometryType.ANGLE or not geo.get("angle_marker") or len(geo.get("arms") or []) != 2:
+        return None
+    vx, vy = (float(v) for v in geo["vertex"])
+    radius = float(geo.get("arc_radius") or 0.0)
+    distance = math.hypot(centre[0] - vx, centre[1] - vy)
+    if distance > max(ANGLE_LABEL_REACH_RADII * radius, radius + ANGLE_LABEL_MIN_REACH_PX):
+        return None
+    heading = [math.degrees(math.atan2(float(a[1]) - vy, float(a[0]) - vx)) % 360 for a in geo["arms"]]
+    towards = math.degrees(math.atan2(centre[1] - vy, centre[0] - vx)) % 360
+    start, span = (heading[0], (heading[1] - heading[0]) % 360)
+    if span > 180:
+        start, span = heading[1], 360 - span
+    if (towards - start) % 360 > span:
+        return None
+    return abs(distance - radius)
 
 
 def _choose(label: DetectedElement, position: tuple[float, float], candidates: list[DetectedElement]) -> tuple[DetectedElement, float, str]:
     """Best target and the evidence for it, most specific evidence first.
 
-    A labelled point beside the text names that point; text continuing a tick
-    names the tick; text inside a closed shape (a table cell, a region) names
+    A labelled point beside the text names that point; text between the arms
+    of a drawn angle arc names that angle; text continuing a tick names the
+    tick, though a statement such as "x = ?" never names one; text inside a closed shape (a table cell, a region) names
     the smallest shape around it; otherwise the text names the geometry whose
     drawn outline is nearest.
     """
@@ -193,6 +227,13 @@ def _choose(label: DetectedElement, position: tuple[float, float], candidates: l
     )
     if points and points[0][0] <= POINT_PREFERENCE_PX:
         return points[0][1], points[0][0], "point"
+    centre = _text_centre(label, position)
+    arcs = sorted(((d, e) for e in candidates if (d := _in_angle_arc(centre, e)) is not None), key=lambda pair: pair[0])
+    if arcs:
+        return arcs[0][1], arcs[0][0], "angle"
+    if "=" in str(label.geometry.get("text", "")):
+        candidates = [e for e in candidates if e.semantic_properties.get("role") != "tick"] or candidates
+        distances = [(e, d) for e, d in distances if e in candidates]
     ticks = sorted(
         ((d, e) for e in candidates if (d := _tick_in_line(position, e)) is not None and d <= TICK_PREFERENCE_PX),
         key=lambda pair: pair[0],
@@ -209,6 +250,7 @@ def _choose(label: DetectedElement, position: tuple[float, float], candidates: l
 
 REASON_TEXT = {
     "point": "the labelled point beside it",
+    "angle": "the angle arc whose arms it sits between",
     "tick": "the tick it continues",
     "inside": "the smallest closed shape around it",
     "nearest_outline": "the nearest drawn outline",
@@ -221,7 +263,7 @@ def associate_label(label: DetectedElement, elements: list[DetectedElement], max
     Returns a dict with:
       - ``target_id``: the chosen element id (or None)
       - ``target_type``: the chosen element's geometry type
-      - ``reason``: the evidence used (``point``, ``tick``, ``inside`` or ``nearest_outline``)
+      - ``reason``: the evidence used (``point``, ``angle``, ``tick``, ``inside`` or ``nearest_outline``)
       - ``confidence``: association confidence (0..1)
       - ``confidence_level``
       - ``needs_review``: True when the association is uncertain

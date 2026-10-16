@@ -122,29 +122,82 @@ def _angle_gap(a: float, b: float) -> float:
     return abs((a - b + 180) % 360 - 180)
 
 
-def _longest_run(occupied: np.ndarray) -> tuple[int, int, int] | None:
-    """Longest circular run of occupied bins allowing short gaps: (start, length, filled)."""
+def _arc_runs(occupied: np.ndarray, bridged: np.ndarray) -> list[tuple[int, int, int, int]]:
+    """Circular runs of occupied bins: (start, length, filled, bridged).
+
+    A run crosses gaps of up to ``ARC_MAX_GAP_BINS`` empty bins, and any gap
+    where a measured arm (whose ink was removed) crosses the arc.
+    """
+    passable = occupied | bridged
+    if passable.all():
+        return []
     n = len(occupied)
-    if occupied.all():
-        return 0, n, n
-    best = None
-    start_bins = [i for i in range(n) if occupied[i] and not occupied[i - 1]]
-    for start in start_bins:
-        length = filled = gap = 0
-        last_end = 0
-        for step in range(n):
-            if occupied[(start + step) % n]:
-                filled += 1
-                gap = 0
-                last_end = step + 1
-            else:
-                gap += 1
-                if gap > ARC_MAX_GAP_BINS:
-                    break
-        length = last_end
-        if best is None or length > best[1]:
-            best = (start, length, filled)
-    return best
+    first = int(np.flatnonzero(~passable)[0])
+    order = [(first + 1 + k) % n for k in range(n)]
+    spans: list[list[int]] = []
+    current: list[int] | None = None
+    gap = 0
+    for k, b in enumerate(order):
+        if passable[b]:
+            if current is None:
+                current = [k, k]
+            current[1] = k
+            gap = 0
+        elif current is not None:
+            gap += 1
+            if gap > ARC_MAX_GAP_BINS:
+                spans.append(current)
+                current, gap = None, 0
+    if current is not None:
+        spans.append(current)
+    runs = []
+    for k0, k1 in spans:
+        inked = [k for k in range(k0, k1 + 1) if occupied[order[k]]]
+        if not inked:
+            continue
+        ka, kb = inked[0], inked[-1]
+        bins = [order[k] for k in range(ka, kb + 1)]
+        runs.append((order[ka], kb - ka + 1, int(occupied[bins].sum()), int((bridged[bins] & ~occupied[bins]).sum())))
+    return runs
+
+
+def _distinct(directions: list[float]) -> list[float]:
+    out: list[float] = []
+    for d in sorted(directions):
+        if all(_angle_gap(d, q) > ARC_BIN_DEG for q in out):
+            out.append(d)
+    return out
+
+
+def _arc_candidates(directions: list[float], runs, clip: float) -> list[tuple[float, float, float, float]]:
+    """(score, from-arm, to-arm, degrees) for each angle a drawn arc marks.
+
+    The arc must stop on a measured arm at both ends; the line mask cuts
+    ``clip`` degrees off each end. An arm it crosses splits it into the angles
+    on either side, each marked by the same arc.
+    """
+    tolerance = ARC_ARM_DEG + clip
+    out = []
+    for start, length, filled, bridged in runs:
+        span = length * ARC_BIN_DEG
+        if not MIN_ARC_SPAN_DEG <= span <= MAX_ARC_SPAN_DEG or filled < MIN_ARC_COVERAGE * (length - bridged):
+            continue
+        a0, a1 = start * ARC_BIN_DEG, (start + length) * ARC_BIN_DEG % 360
+        arm0 = min(directions, key=lambda d: _angle_gap(d, a0))
+        arm1 = min(directions, key=lambda d: _angle_gap(d, a1))
+        if arm0 == arm1 or _angle_gap(a0, arm0) > tolerance or _angle_gap(a1, arm1) > tolerance:
+            continue
+        sweep = (arm1 - arm0) % 360
+        if sweep < MIN_ARC_SPAN_DEG or abs(sweep - (span + 2 * clip)) > ARC_ARM_DEG:
+            continue
+        inside = sorted((d for d in directions if 0 < (d - arm0) % 360 < sweep), key=lambda d: (d - arm0) % 360)
+        stops = [arm0, *inside, arm1]
+        score = span * filled / length
+        for left, right in zip(stops, stops[1:]):
+            degrees = (right - left) % 360
+            if degrees >= MIN_ARC_SPAN_DEG:
+                out.append((score, left, right, degrees))
+    return out
 
 
 def detect_angle_arcs(binary: np.ndarray, shapes: list[dict], stroke_half: float, text_boxes=(),
@@ -158,13 +211,14 @@ def detect_angle_arcs(binary: np.ndarray, shapes: list[dict], stroke_half: float
     if not len(xs):
         return []
     band = stroke_half + 1.5
+    mask_half = max(3, int(round(2 * stroke_half + 3))) / 2
     bins = 360 // ARC_BIN_DEG
     arcs: list[dict] = []
     for vertex in _vertices(edges):
         if any(math.dist(vertex, v) <= 12 for v in exclude_vertices):
             continue
-        directions = _directions(vertex, edges)
-        if not directions:
+        directions = _distinct(_directions(vertex, edges))
+        if len(directions) < 2:
             continue
         near = (np.abs(xs - vertex[0]) <= MAX_ARC_RADIUS_PX + band) & (np.abs(ys - vertex[1]) <= MAX_ARC_RADIUS_PX + band)
         if not near.any():
@@ -172,47 +226,51 @@ def detect_angle_arcs(binary: np.ndarray, shapes: list[dict], stroke_half: float
         dx, dy = xs[near] - vertex[0], ys[near] - vertex[1]
         radii = np.hypot(dx, dy)
         thetas = (np.degrees(np.arctan2(dy, dx)) % 360)
-        best = None
+        best: dict[tuple[float, float], tuple[float, int, float]] = {}
         for radius in range(MIN_ARC_RADIUS_PX, MAX_ARC_RADIUS_PX + 1, 2):
             on = np.abs(radii - radius) <= band
             if on.sum() < 6:
                 continue
             occupied = np.zeros(bins, dtype=bool)
             occupied[(thetas[on] // ARC_BIN_DEG).astype(int) % bins] = True
-            run = _longest_run(occupied)
-            if run is None:
-                continue
-            start, length, filled = run
-            span = length * ARC_BIN_DEG
-            if not MIN_ARC_SPAN_DEG <= span <= MAX_ARC_SPAN_DEG or filled < MIN_ARC_COVERAGE * length:
-                continue
-            # The arc's own pixels must mostly lie on this circle, not cross it.
-            if best is None or span * filled / length > best[0]:
-                best = (span * filled / length, radius, start * ARC_BIN_DEG, (start + length) * ARC_BIN_DEG % 360, span)
-        if best is None:
-            continue
-        _, radius, a0, a1, span = best
-        arm0 = min(directions, key=lambda d: _angle_gap(d, a0))
-        arm1 = min(directions, key=lambda d: _angle_gap(d, a1))
-        # Both ends of the arc must stop on two different measured arms, and the
-        # arc must sweep the angle between them, not more and not less.
-        if _angle_gap(a0, arm0) > ARC_ARM_DEG or _angle_gap(a1, arm1) > ARC_ARM_DEG:
-            continue
-        degrees = _angle_gap(arm0, arm1)
-        if span > 180:
-            degrees = 360 - degrees
-        if degrees < MIN_ARC_SPAN_DEG or abs(degrees - span) > ARC_ARM_DEG:
-            continue
-        ends = [arm0, arm1]
-        arm_len = max(MIN_EDGE_PX, 3 * radius)
-        arcs.append({
-            "vertex": (round(vertex[0]), round(vertex[1])),
-            "arms": [(round(vertex[0] + math.cos(math.radians(d)) * arm_len),
-                      round(vertex[1] + math.sin(math.radians(d)) * arm_len)) for d in ends],
-            "radius": radius,
-            "degrees": round(degrees, 1),
-        })
+            clip = math.degrees(math.atan2(mask_half, radius))
+            centres = (np.arange(bins) + 0.5) * ARC_BIN_DEG
+            bridged = np.zeros(bins, dtype=bool)
+            for d in directions:
+                bridged |= np.abs((centres - d + 180) % 360 - 180) <= clip + ARC_BIN_DEG / 2
+            for score, left, right, degrees in _arc_candidates(directions, _arc_runs(occupied, bridged), clip):
+                if (left, right) not in best or score > best[(left, right)][0]:
+                    best[(left, right)] = (score, radius, degrees)
+        for (left, right), (_, radius, degrees) in best.items():
+            arm_len = max(MIN_EDGE_PX, 3 * radius)
+            arcs.append({
+                "vertex": (round(vertex[0]), round(vertex[1])),
+                "arms": [(round(vertex[0] + math.cos(math.radians(d)) * arm_len),
+                          round(vertex[1] + math.sin(math.radians(d)) * arm_len)) for d in (left, right)],
+                "radius": radius,
+                "degrees": round(degrees, 1),
+            })
     return arcs
+
+
+def drop_ticks_on_arcs(shapes: list[dict], arcs: list[dict], stroke_half: float) -> list[dict]:
+    """Drop tick strokes that are where an angle arc crosses an arm, not ticks."""
+    band = 2 * stroke_half + 3
+
+    def on_arc(tick: dict) -> bool:
+        (ax, ay), (bx, by) = tick["points"]
+        mid = ((ax + bx) / 2, (ay + by) / 2)
+        for arc in arcs:
+            vertex = arc["vertex"]
+            if abs(math.dist(mid, vertex) - arc["radius"]) > band:
+                continue
+            theta = math.degrees(math.atan2(mid[1] - vertex[1], mid[0] - vertex[0])) % 360
+            ends = [math.degrees(math.atan2(arm[1] - vertex[1], arm[0] - vertex[0])) % 360 for arm in arc["arms"]]
+            if (theta - ends[0]) % 360 <= arc["degrees"] + ARC_ARM_DEG or (ends[0] - theta) % 360 <= ARC_ARM_DEG:
+                return True
+        return False
+
+    return [shape for shape in shapes if shape.get("role") != "tick" or not on_arc(shape)]
 
 
 def _piece_angle(pts: np.ndarray) -> float:

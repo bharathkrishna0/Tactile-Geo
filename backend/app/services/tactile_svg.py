@@ -29,6 +29,9 @@ BRAILLE_DOT_DIAMETER_MM = 1.5
 # never more than this share of the shorter edge so it stays inside the angle.
 RIGHT_ANGLE_SYMBOL_MM = 6.0
 RIGHT_ANGLE_MAX_ARM_FRACTION = 0.4
+# A drawn angle arc is embossed at its measured radius, traced as a polyline
+# of this many segments per radian wherever its outline is measured.
+ANGLE_ARC_SEGMENTS_PER_RADIAN = 8
 # Unicode braille dot bit -> (column, row) inside the cell.
 _BRAILLE_DOT_POSITIONS = ((0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2), (0, 3), (1, 3))
 UNICODE_BRAILLE_BASE = 0x2800
@@ -160,12 +163,68 @@ def _right_angle_symbol(geo: dict, side: float) -> str | None:
     return " ".join(f"{x:.1f},{y:.1f}" for x, y in (p1, corner, p2))
 
 
+def angle_arc_sweep(geo: dict) -> tuple[tuple[float, float], float, float, float] | None:
+    """``(vertex, radius, start, sweep)`` in radians, image axes, for a drawn angle arc.
+
+    The sweep runs in increasing image angle (clockwise on screen) from ``start``
+    and spans the measured ``degrees`` when they are known, else the smaller angle.
+    """
+    if not geo.get("angle_marker") or geo.get("right_angle_marker"):
+        return None
+    radius = float(geo.get("arc_radius") or 0.0)
+    arms = geo.get("arms") or []
+    if radius <= 0 or not geo.get("vertex") or len(arms) != 2:
+        return None
+    vx, vy = (float(v) for v in geo["vertex"])
+    directions = [math.atan2(float(arm[1]) - vy, float(arm[0]) - vx) for arm in arms]
+    forward = (directions[1] - directions[0]) % (2 * math.pi)
+    backward = 2 * math.pi - forward
+    if forward == 0:
+        return None
+    degrees = geo.get("degrees")
+    target = math.radians(float(degrees)) if degrees else min(forward, backward)
+    if abs(forward - target) <= abs(backward - target):
+        return (vx, vy), radius, directions[0], forward
+    return (vx, vy), radius, directions[1], backward
+
+
+def angle_arc_points(geo: dict) -> list[tuple[float, float]]:
+    """The drawn angle arc as a polyline, or ``[]`` when ``geo`` is not an angle arc."""
+    arc = angle_arc_sweep(geo)
+    if arc is None:
+        return []
+    (vx, vy), radius, start, sweep = arc
+    steps = max(2, math.ceil(sweep * ANGLE_ARC_SEGMENTS_PER_RADIAN))
+    return [
+        (vx + radius * math.cos(start + sweep * i / steps), vy + radius * math.sin(start + sweep * i / steps))
+        for i in range(steps + 1)
+    ]
+
+
+def _angle_arc_path(geo: dict) -> str | None:
+    arc = angle_arc_sweep(geo)
+    if arc is None:
+        return None
+    (vx, vy), radius, start, sweep = arc
+    x1, y1 = vx + radius * math.cos(start), vy + radius * math.sin(start)
+    x2, y2 = vx + radius * math.cos(start + sweep), vy + radius * math.sin(start + sweep)
+    large = 1 if sweep > math.pi else 0
+    return f"M {x1:.1f} {y1:.1f} A {radius:.1f} {radius:.1f} 0 {large} 1 {x2:.1f} {y2:.1f}"
+
+
+def is_angle_marker(element: DetectedElement) -> bool:
+    """A drawn right-angle square or angle arc, which meets its arms by design."""
+    return element.type is GeometryType.ANGLE and (
+        bool(element.geometry.get("right_angle_marker")) or angle_arc_sweep(element.geometry) is not None
+    )
+
+
 def is_embossed_geometry(element: DetectedElement) -> bool:
     """True for elements the compiler embosses as a tactile line, shape or dot."""
     if element.type is GeometryType.TEXT_LABEL:
         return False
     if element.type is GeometryType.ANGLE:
-        return bool(element.geometry.get("right_angle_marker"))
+        return is_angle_marker(element)
     return element.type is not GeometryType.ARC
 
 
@@ -199,6 +258,8 @@ def render_tactile_svg(elements: list[DetectedElement], width: int, height: int)
             symbol = _right_angle_symbol(geo, RIGHT_ANGLE_SYMBOL_MM / layout.mm_per_px)
             if symbol:
                 glyphs.append(f'<polyline {attr} class="right-angle" points="{symbol}"/>')
+        elif element.type is GeometryType.ANGLE and (path := _angle_arc_path(geo)):
+            glyphs.append(f'<path {attr} class="angle-arc" d="{path}"/>')
         elif element.type is GeometryType.POINT:
             pos = geo.get("position")
             if pos:
