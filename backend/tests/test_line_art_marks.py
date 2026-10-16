@@ -13,6 +13,10 @@ from app.services.markers import detect_angle_arcs, drop_ticks_on_arcs
 from app.services.ocr import OcrDetection
 from app.services.ocr_postprocessing import postprocess_detections, restore_degrees
 from app.services.vectorization import recover_ticks
+from app.models.geometry import SemanticGeometry
+from app.services.tactile_qa import outline_segments, run_tactile_qa
+from app.services.tactile_simplification import simplify_geometry
+from app.services.tactile_svg import angle_arc_points, is_embossed_geometry, render_tactile_svg
 
 
 def _jpeg(image: np.ndarray, quality: int = 75) -> np.ndarray:
@@ -223,3 +227,48 @@ def test_statement_is_not_read_as_a_tick_value():
     tick.semantic_properties["role"] = "tick"
     result = associate_label(_text("X=?", (359, 167, 50, 22)), [side, tick])
     assert result["target_id"] == "side"
+
+
+def _quadrilateral_with_arc_labels():
+    elements = _corner_with_arcs() + [
+        _element("left", GeometryType.LINE_SEGMENT, {"start": [94, 292], "end": [157, 120]}),
+        _element("top", GeometryType.LINE_SEGMENT, {"start": [157, 120], "end": [304, 133]}),
+    ]
+    lower = next(e for e in elements if e.id == "lower")
+    lower.associated_label_id = "deg35"
+    label = _element("deg35", GeometryType.TEXT_LABEL, {"text": "35\u00b0", "braille": "\u283c\u2809\u2811\u2818\u281a",
+                                                        "position": [364, 306]}, bbox=(320, 266, 40, 20))
+    label.associated_label_id = "lower"
+    return elements + [label]
+
+
+def test_drawn_angle_arc_is_embossed_along_its_measured_sweep():
+    lower = next(e for e in _corner_with_arcs() if e.id == "lower")
+    assert is_embossed_geometry(lower)
+    points = angle_arc_points(lower.geometry)
+    assert all(abs(math.dist(p, (390, 292)) - 40) < 1e-6 for p in points)
+    turn = math.degrees(math.atan2(points[-1][1] - 292, points[-1][0] - 390) - math.atan2(points[0][1] - 292, points[0][0] - 390))
+    assert abs(abs((turn + 180) % 360 - 180) - 36.4) < 2.0
+    assert len(outline_segments(lower)) == len(points) - 1
+    svg = render_tactile_svg(_corner_with_arcs(), 480, 360)
+    assert svg.count('class="angle-arc"') == 2
+
+
+def test_inferred_angle_without_a_drawn_arc_is_not_embossed():
+    angle = _element("inferred", GeometryType.ANGLE, {"vertex": [304, 133], "arms": [[157, 120], [390, 292]],
+                                                      "degrees": 123.5})
+    assert not is_embossed_geometry(angle)
+    assert 'class="angle-arc"' not in render_tactile_svg([angle], 480, 360)
+
+
+def test_angle_braille_is_seated_inside_its_angle_and_clear_of_the_arc():
+    semantic = SemanticGeometry(elements=_quadrilateral_with_arc_labels(), image_width=480, image_height=360)
+    simplified = simplify_geometry(semantic)
+    label = next(e for e in simplified.elements if e.id == "deg35")
+    x, y = label.geometry["position"]
+    direction = math.degrees(math.atan2(y - 292, x - 390)) % 360
+    # Between the base (180 degrees) and the diagonal (about 216 degrees), past the 40 px arc.
+    assert 180 < direction < 217
+    assert math.dist((x, y), (390, 292)) > 40
+    qa = run_tactile_qa(simplified.elements, 480, 360)
+    assert "braille_on_line" not in {i.check for i in qa.issues}

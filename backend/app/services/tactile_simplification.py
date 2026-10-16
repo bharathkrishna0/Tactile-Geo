@@ -17,12 +17,14 @@ from app.services.segment_geometry import (
     line_angle_deg as sg_line_angle_deg,
     point_to_line_distance as sg_point_to_line_distance,
     point_to_segment_distance as sg_point_to_segment_distance,
+    rect_gap,
+    segment_to_rect_distance,
     segments_overlap_or_touch as sg_segments_overlap_or_touch,
     spanning_endpoints as sg_spanning_endpoints,
 )
 from app.services.tactile_qa import braille_clearance_mm, braille_rect, element_extent, outline_segments
 from app.services.tactile_rules import TACTILE_RULES
-from app.services.tactile_svg import is_embossed_geometry, page_layout
+from app.services.tactile_svg import angle_arc_sweep, braille_text_extent, is_embossed_geometry, page_layout
 
 NOISE_CONFIDENCE_THRESHOLD = 0.3
 TEXT_LABEL_ALWAYS_KEEP = True
@@ -110,6 +112,13 @@ def simplify_geometry(semantic: SemanticGeometry) -> SimplifiedGeometry:
     explanations.extend(budget_explanations)
     removed_ids |= budget_removed
     removed_count += len(budget_removed)
+
+    # Pass 6: seat each angle's braille inside its arc, and move braille off arcs.
+    kept, arc_actions, arc_explanations = _seat_braille_at_angle_arcs(
+        kept, semantic.image_width, semantic.image_height,
+    )
+    actions.extend(arc_actions)
+    explanations.extend(arc_explanations)
 
     kept_ids = {element.id for element in kept}
     kept_relationships = [
@@ -311,6 +320,107 @@ def _reseat_braille_beside_ticks(
             detail="Braille moved clear of a tick that was lengthened to the touch minimum.",
         ))
         explanations.append(f"Moved braille {label.id} clear of a lengthened tick.")
+    return [moved.get(e.id, e) for e in elements], actions, explanations
+
+
+ANGLE_BRAILLE_STEP_FRACTION = 0.25
+ANGLE_BRAILLE_SWEEP_FRACTIONS = (0.5, 0.4, 0.6, 0.3, 0.7)
+
+
+def _seat_braille_at_angle_arcs(
+    elements: list[DetectedElement], image_width: int, image_height: int,
+) -> tuple[list[DetectedElement], list[SimplificationAction], list[str]]:
+    """Put an angle's braille inside the angle, past its arc; clear other braille off arcs.
+
+    A measure printed inside an angle belongs inside it on the sheet too, and the
+    embossed arc needs the same clearance from braille as any line. Every angle
+    first tries for a clear spot between its own arms; only those with no room get
+    the nearest clear spot to their arc. A label is only moved to a spot that
+    clears every line and every other braille block.
+    """
+    arcs = {e.id: (e, sweep) for e in elements if e.type is GeometryType.ANGLE and (sweep := angle_arc_sweep(e.geometry))}
+    if not arcs or image_width <= 0 or image_height <= 0:
+        return elements, [], []
+    bounds = (image_width, image_height)
+    mm_per_px = page_layout(*bounds).mm_per_px
+    clearance_px = TACTILE_RULES.braille_to_line_clearance_mm / mm_per_px
+    spacing_px = TACTILE_RULES.braille_to_braille_spacing_mm / mm_per_px
+    angle_of = {e.associated_label_id: key for key, (e, _) in arcs.items() if e.associated_label_id}
+    labels = [e for e in elements if e.type is GeometryType.TEXT_LABEL and braille_rect(e, *bounds) is not None]
+    segments = [seg for e in elements if is_embossed_geometry(e) for seg in outline_segments(e)]
+    rects = {e.id: braille_rect(e, *bounds) for e in labels}
+    moved: dict[str, DetectedElement] = {}
+    actions: list[SimplificationAction] = []
+    explanations: list[str] = []
+
+    def braille_of(label: DetectedElement) -> str:
+        return str(label.geometry.get("braille") or label.geometry.get("text") or "")
+
+    def clear_at(label: DetectedElement, position: tuple[int, int]):
+        candidate = replace(label, geometry={**label.geometry, "position": list(position)})
+        rect = braille_rect(candidate, *bounds)
+        if rect is None or not (rect[0] >= 0 and rect[1] >= 0 and rect[2] <= image_width and rect[3] <= image_height):
+            return None
+        if all(segment_to_rect_distance(a, b, rect) >= clearance_px for a, b in segments) and all(
+            rect_gap(rect, other) >= spacing_px for key, other in rects.items() if key != label.id
+        ):
+            return candidate
+        return None
+
+    def seat(label: DetectedElement, candidate: DetectedElement, reason: str) -> None:
+        moved[label.id] = candidate
+        rects[label.id] = braille_rect(candidate, *bounds)
+        actions.append(SimplificationAction(
+            element_id=label.id, action="seated_braille_at_angle_arc", detail=f"Braille placed {reason}.",
+        ))
+        explanations.append(f"Moved braille {label.id} {reason}.")
+
+    def inside_angle(label: DetectedElement, angle: DetectedElement, sweep) -> DetectedElement | None:
+        (vx, vy), radius, start, span = sweep
+        width, height = braille_text_extent(braille_of(label), *bounds)
+        vertex = angle.geometry["vertex"]
+        reach_limit = min(math.dist(vertex, arm) for arm in angle.geometry["arms"])
+        step = max(1.0, ANGLE_BRAILLE_STEP_FRACTION * min(width, height))
+        reach = radius + clearance_px + min(width, height) / 2
+        while reach <= reach_limit:
+            for fraction in ANGLE_BRAILLE_SWEEP_FRACTIONS:
+                direction = start + span * fraction
+                position = (round(vx + reach * math.cos(direction)), round(vy + reach * math.sin(direction)))
+                if (candidate := clear_at(label, position)) is not None:
+                    return candidate
+            reach += step
+        return None
+
+    angle_labels = [label for label in labels if label.id in angle_of]
+    crowded: list[DetectedElement] = []
+    for label in sorted(angle_labels, key=lambda e: -arcs[angle_of[e.id]][1][3]):
+        angle, sweep = arcs[angle_of[label.id]]
+        candidate = inside_angle(label, angle, sweep)
+        if candidate is None:
+            crowded.append(label)
+        elif list(candidate.geometry["position"]) != list(label.geometry["position"]):
+            seat(label, candidate, f"inside angle {angle.id}, past its arc")
+    arc_elements = [e for e, _ in arcs.values()]
+    for label in crowded + [label for label in labels if label.id not in angle_of]:
+        current = moved.get(label.id, label)
+        if label.id not in angle_of and all(
+            braille_clearance_mm(rects[label.id], arc, mm_per_px) >= TACTILE_RULES.braille_to_line_clearance_mm
+            for arc in arc_elements
+        ):
+            continue
+        if label.id in angle_of:
+            (vx, vy), radius, start, span = arcs[angle_of[label.id]][1]
+            reach = radius + clearance_px
+            desired = (round(vx + reach * math.cos(start + span / 2)), round(vy + reach * math.sin(start + span / 2)))
+        else:
+            desired = tuple(int(round(v)) for v in current.geometry["position"])
+        position = clear_braille_position(
+            desired, braille_of(label), bounds, segments, [r for key, r in rects.items() if key != label.id],
+        )
+        candidate = clear_at(label, position)
+        if candidate is None or list(position) == list(current.geometry["position"]):
+            continue
+        seat(label, candidate, "beside its angle's arc" if label.id in angle_of else "clear of an angle arc")
     return [moved.get(e.id, e) for e in elements], actions, explanations
 
 

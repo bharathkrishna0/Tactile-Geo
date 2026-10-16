@@ -7,7 +7,7 @@ from app.models.geometry import DetectedElement, GeometryType
 from app.services.label_association import outline_points
 from app.services.tactile_rules import TACTILE_RULES
 from app.services.segment_geometry import Rect, rect_around, rect_gap, segment_to_rect_distance
-from app.services.tactile_svg import braille_text_extent, is_embossed_geometry, page_layout
+from app.services.tactile_svg import angle_arc_points, braille_text_extent, is_angle_marker, is_embossed_geometry, page_layout
 
 
 @dataclass
@@ -246,6 +246,9 @@ def outline_segments(element: DetectedElement) -> list[tuple[tuple[float, float]
                         GeometryType.CIRCLE, GeometryType.ELLIPSE):
         points = [(float(p[0]), float(p[1])) for p in outline_points(element)]
         return list(zip(points, points[1:] + points[:1])) if len(points) >= 2 else []
+    arc = angle_arc_points(geo) if element.type is GeometryType.ANGLE else []
+    if arc:
+        return list(zip(arc, arc[1:]))
     if element.type is GeometryType.ANGLE and geo.get("vertex") and geo.get("arms"):
         vertex = (float(geo["vertex"][0]), float(geo["vertex"][1]))
         return [(vertex, (float(arm[0]), float(arm[1]))) for arm in geo["arms"]]
@@ -413,6 +416,8 @@ def run_tactile_qa(
 
     for index, a in enumerate(embossed):
         for b in embossed[index + 1:]:
+            if is_angle_marker(a) or is_angle_marker(b):
+                continue
             distance_mm = _distance_between_elements(a, b) * mm_per_px
             if distance_mm <= OVERLAP_TOLERANCE:
                 collector.add(
