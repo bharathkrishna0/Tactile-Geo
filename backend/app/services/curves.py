@@ -27,6 +27,11 @@ MIN_PIECE_SWEEP_DEG = 20.0
 # Drawn rim of a whole curve, and of an arc, in degrees.
 MIN_ARC_SWEEP_DEG = 45.0
 FULL_CIRCLE_DEG = 330.0
+# Of a curve's drawn rim, this share must carry ink; handwriting and graph curves that
+# a circle happens to touch now and then leave most of it bare.
+MIN_ARC_INKED_FRACTION = 0.7
+# A traced outline whose vertices lie this many bands from a curve's rim is that curve.
+TRACED_OUTLINE_BANDS = 2.0
 # Uncovered runs of rim up to this long are where other strokes cross or touch it.
 GAP_BRIDGE_DEG = 12.0
 BIN_DEG = 2
@@ -93,8 +98,12 @@ def _rim_points(cx: float, cy: float, r: float, start_deg: float, sweep_deg: flo
     ]
 
 
-def _drawn_rim(ink: np.ndarray, cx: float, cy: float, r: float, band: float) -> tuple[float, float] | None:
-    """``(start, sweep)`` in degrees of the drawn part of a rim, or ``None`` when it is whole."""
+def _drawn_rim(ink: np.ndarray, cx: float, cy: float, r: float, band: float) -> tuple[float, float, float]:
+    """``(start, sweep, inked fraction)`` of the drawn part of a rim; a whole rim sweeps 360.
+
+    Start and sweep are in degrees; the inked fraction is the share of that
+    sweep with ink on the rim before short gaps are bridged.
+    """
     bins = 360 // BIN_DEG
     covered = np.zeros(bins, dtype=bool)
     for index in range(bins):
@@ -105,7 +114,7 @@ def _drawn_rim(ink: np.ndarray, cx: float, cy: float, r: float, band: float) -> 
                 covered[index] = True
                 break
     if not covered.any():
-        return 0.0, 0.0
+        return 0.0, 0.0, 0.0
     # Bridge short gaps: crossing and tangent strokes were cut out of the residual.
     bridge = int(GAP_BRIDGE_DEG // BIN_DEG)
     filled = covered.copy()
@@ -121,7 +130,7 @@ def _drawn_rim(ink: np.ndarray, cx: float, cy: float, r: float, band: float) -> 
         else:
             run += 1
     if filled.sum() * BIN_DEG >= FULL_CIRCLE_DEG:
-        return None
+        return 0.0, 360.0, float(covered.mean())
     # The arc is the rim outside the longest undrawn run.
     longest, longest_end, run = 0, 0, 0
     for step in range(2 * bins):
@@ -130,7 +139,89 @@ def _drawn_rim(ink: np.ndarray, cx: float, cy: float, r: float, band: float) -> 
         if run > longest:
             longest, longest_end = min(run, bins), index
     arc_start = (longest_end + 1) % bins
-    return arc_start * BIN_DEG, (bins - longest) * BIN_DEG
+    span = bins - longest
+    inked = sum(bool(covered[(arc_start + step) % bins]) for step in range(span))
+    return arc_start * BIN_DEG, span * BIN_DEG, inked / max(span, 1)
+
+
+def _traced_outline(shapes: list[dict], cx: float, cy: float, r: float, band: float) -> dict | None:
+    """The closed outline or ellipse that ``extract_shapes`` traced along this circle, if any."""
+    tolerance = TRACED_OUTLINE_BANDS * band
+    for shape in shapes:
+        if shape["type"] == "ellipse":
+            a, b = shape["semi_axes"]
+            if math.dist(shape["center"], (cx, cy)) <= tolerance and max(abs(a - r), abs(b - r)) <= tolerance:
+                return shape
+        elif shape["type"] == "contour" and len(shape.get("points") or []) >= 3:
+            points = np.array(shape["points"], float)
+            if (np.abs(np.hypot(points[:, 0] - cx, points[:, 1] - cy) - r) <= tolerance).mean() >= COVERED_FRACTION:
+                if _sweep_deg(points, cx, cy) >= FULL_CIRCLE_DEG - 60:
+                    return shape
+    return None
+
+
+def _outline_error(xy: np.ndarray, points) -> float:
+    """Mean distance from ``xy`` to the closed outline through ``points``, each edge refitted.
+
+    Every pixel goes to its nearest edge and every edge is refitted as a line
+    through its pixels, so a traced outline offset from the stroke centre is
+    judged on its shape alone, as the circle it competes with is.
+    """
+    a = np.array(points, float)
+    ab = np.roll(a, -1, axis=0) - a
+    t = np.clip(((xy[:, None, :] - a) * ab).sum(-1) / np.maximum((ab * ab).sum(-1), 1e-9), 0.0, 1.0)
+    gap = np.linalg.norm(xy[:, None, :] - (a + t[..., None] * ab), axis=-1)
+    edge = gap.argmin(axis=1)
+    distance = gap[np.arange(len(xy)), edge]
+    for index in np.unique(edge):
+        mine = edge == index
+        if mine.sum() < 3:
+            continue
+        centred = xy[mine] - xy[mine].mean(axis=0)
+        normal = np.linalg.svd(centred, full_matrices=False)[2][-1]
+        distance[mine] = np.abs(centred @ normal)
+    return float(distance.mean()) if len(distance) else float("inf")
+
+
+# A traced outline needs this many vertices before it can be a polygonised circle.
+MIN_ROUND_OUTLINE_VERTICES = 8
+
+
+def _rounded_outlines(ink: np.ndarray, shapes: list[dict], band: float, limit: float) -> list[dict]:
+    """``shapes`` with polygonised circles replaced by the circle their ink draws.
+
+    A large circle traced as a closed contour keeps only its corners; ink between
+    them bows away from the chords and would be left over. A regular polygon has
+    its corners on a circle too, but its ink runs along the chords, so the
+    outline fits it at least as well as any circle and it stays a polygon.
+    """
+    ink_xy = np.c_[np.nonzero(ink)[::-1]]
+    out = []
+    for shape in shapes:
+        points = shape.get("points") or []
+        if shape["type"] != "contour" or len(points) < MIN_ROUND_OUTLINE_VERTICES:
+            out.append(shape)
+            continue
+        cx, cy, r, _ = fit_circle(np.array(points, float))
+        width = max(band, 0.04 * r)
+        near = ink_xy[np.abs(np.hypot(ink_xy[:, 0] - cx, ink_xy[:, 1] - cy) - r) <= width]
+        if r < MIN_CURVE_RADIUS_PX or len(near) < MIN_PIECE_PIXELS:
+            out.append(shape)
+            continue
+        cx, cy, r, error = fit_circle(near)
+        _, sweep, inked = _drawn_rim(ink, cx, cy, r, band)
+        if (
+            error > limit or sweep < 360.0 or inked < MIN_ARC_INKED_FRACTION
+            or _outline_error(near, points) <= error
+        ):
+            out.append(shape)
+            continue
+        out.append({
+            "type": "circle", "center": (round(cx), round(cy)), "radius": round(r, 1),
+            "points": _rim_points(cx, cy, r, 0.0, 360.0)[:-1],
+            "fit_error_px": round(error, 2),
+        })
+    return out
 
 
 def _covered_by_curve(points, curve: dict, band: float) -> bool:
@@ -153,6 +244,9 @@ def _covered_by_curve(points, curve: dict, band: float) -> bool:
 
 # Each round grows the seed along its rim by this much on either side, in degrees.
 GROW_STEPS_DEG = (10.0, 25.0, 50.0, 90.0, 180.0)
+# Refits on the stroke band alone, so a stroke that touches the rim (a tangent,
+# a chord's end) stops pulling the circle once the rim is found.
+TIGHTEN_STEPS = 3
 # Of a seed piece's pixels, this share must stay on the refined circle.
 SEED_KEPT_FRACTION = 0.8
 
@@ -186,6 +280,12 @@ def _refine(ink_xy: np.ndarray, seed, band: float, limit: float):
         if r < MIN_CURVE_RADIUS_PX:
             return None
         start, sweep = _angular_span(seed_xy, cx, cy)
+    for _ in range(TIGHTEN_STEPS):
+        distance = np.abs(np.hypot(ink_xy[:, 0] - cx, ink_xy[:, 1] - cy) - r)
+        near = ink_xy[distance <= band]
+        if len(near) < MIN_PIECE_PIXELS:
+            return None
+        cx, cy, r, _ = fit_circle(near)
     distance = np.abs(np.hypot(ink_xy[:, 0] - cx, ink_xy[:, 1] - cy) - r)
     on_rim = distance <= band
     error = float(np.median(distance[on_rim])) if on_rim.any() else float("inf")
@@ -202,9 +302,11 @@ def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, t
     curve explains them.
     """
     ink = binary > 0
+    limit = _fit_error_limit(stroke_half)
+    band = stroke_half + 1.5
+    shapes = _rounded_outlines(ink, shapes, band, limit)
     residual = ink & (explained_ink(binary.shape, shapes, stroke_half, text_boxes, angle_arcs) == 0)
     count, labels, stats, _ = cv2.connectedComponentsWithStats(residual.astype(np.uint8), 8)
-    limit = _fit_error_limit(stroke_half)
     pieces: list[tuple[float, float, float, np.ndarray]] = []
     for index in range(1, count):
         if stats[index, cv2.CC_STAT_AREA] < MIN_PIECE_PIXELS:
@@ -221,7 +323,6 @@ def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, t
         ):
             pieces.append((cx, cy, r, xy))
 
-    band = stroke_half + 1.5
     ink_xy = np.c_[np.nonzero(ink)[::-1]]
     candidates: list[tuple[float, float, float, float]] = []
     for seed in sorted(pieces, key=lambda p: -len(p[3])):
@@ -241,17 +342,27 @@ def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, t
         candidates.append(refined)
 
     curves: list[dict] = []
+    replaced: list[dict] = []
     for cx, cy, r, error in candidates:
-        rim = _drawn_rim(ink, cx, cy, r, band)
+        traced = _traced_outline(shapes, cx, cy, r, band)
+        if traced is not None and traced["type"] == "ellipse":
+            continue
+        start, sweep, inked = _drawn_rim(ink, cx, cy, r, band)
+        if inked < MIN_ARC_INKED_FRACTION:
+            continue
+        if traced is not None:
+            rim = ink_xy[np.abs(np.hypot(ink_xy[:, 0] - cx, ink_xy[:, 1] - cy) - r) <= band]
+            if sweep < 360.0 or _outline_error(rim, traced["points"]) <= error:
+                continue
+            replaced.append(traced)
         center = (round(cx), round(cy))
-        if rim is None:
+        if sweep >= 360.0:
             curves.append({
                 "type": "circle", "center": center, "radius": round(r, 1),
                 "points": _rim_points(cx, cy, r, 0.0, 360.0)[:-1],
                 "fit_error_px": round(error, 2),
             })
             continue
-        start, sweep = rim
         if sweep < MIN_ARC_SWEEP_DEG:
             continue
         curves.append({
@@ -264,7 +375,8 @@ def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, t
         return shapes
     kept = [
         shape for shape in shapes
-        if not (shape["type"] == "line" and shape.get("role") != "tick"
+        if not any(shape is outline for outline in replaced)
+        and not (shape["type"] == "line" and shape.get("role") != "tick"
                 and any(_covered_by_curve(shape["points"], curve, band + 1.0) for curve in curves))
     ]
     return kept + curves

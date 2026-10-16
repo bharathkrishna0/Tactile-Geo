@@ -242,7 +242,7 @@ def _analyze_curve(shape: dict, id: int) -> tuple[DetectedElement, list[ElementR
         described = f"arc of {shape['sweep_deg']:.0f} deg"
     else:
         gtype = GeometryType.CIRCLE
-        bbox = (cx - r, cy - r, 2 * r, 2 * r)
+        bbox = (cx - round(r), cy - round(r), 2 * round(r), 2 * round(r))
         described = "circle"
     element = DetectedElement(
         id=f"el_{id}",
