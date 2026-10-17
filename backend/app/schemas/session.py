@@ -11,11 +11,14 @@ class ProcessingParams(BaseModel):
     edge_sensitivity: int = Field(default=50, ge=0, le=100)
 
 class DetectedShape(BaseModel):
-    type: Literal["line", "contour", "ellipse"]
+    type: Literal["line", "contour", "ellipse", "circle", "arc"]
     points: list[tuple[int, int]] | None = None
     center: tuple[int, int] | None = None
     semi_axes: tuple[int, int] | None = None
     angle: float | None = None
+    radius: float | None = None
+    start_deg: float | None = None
+    sweep_deg: float | None = None
 
 class DetectedLabel(BaseModel):
     text: str

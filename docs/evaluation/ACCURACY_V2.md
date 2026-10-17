@@ -289,8 +289,96 @@ non-essential features are dropped to fit the page (no essential ones). The
 SVG check's `open_paths` count rises from 0 to 3 (dev15) and 7 (validation);
 those are the arcs, which are open by design.
 
+### Circles and arcs that share ink with other strokes (`curve3`)
+
+On a square-with-semicircle-and-circle figure, `main` embossed the square and
+construction lines but neither curve, and QA still passed: QA checks spacing,
+not missing geometry. The circle touches the square and the semicircle stands on
+`AB`, so neither has a closed outline of its own, and `extract_shapes` only fits
+circles to closed outlines.
+
+- **Residual curve recovery** (`curves.recover_curves`): ink that traced lines,
+  outlines, labels and angle markers do not explain is split into pieces; each
+  piece that fits a circle is grown along its rim through all ink, refitted, and
+  then refitted on the stroke band alone so a tangent or chord touching the rim
+  does not pull it. A rim drawn all the way round is a circle; otherwise an
+  arc of at least 45 degrees with at least 70 % of its sweep inked. Hough lines
+  lying along a recovered curve are dropped.
+- **Polygon or circle**: a traced outline is replaced by a circle only when the
+  circle fits its ink better than the outline with every edge refitted, so
+  regular polygons (octagons) stay polygons.
+- **Downstream**: arcs reach semantic geometry (`curve_fit`, with centre,
+  radius, start and sweep), the tactile SVG (`<path>` arcs, `<circle>`), QA
+  clearance and overlap, simplification (large arcs are essential), label
+  mapping, Braille clearance, and the session schemas.
+
+Benchmark (`main` -> `curve3`):
+
+| Metric | dev15 main | dev15 curve3 | val main | val curve3 |
+| --- | --- | --- | --- | --- |
+| Final object F1 (strict) | 0.574 | 0.597 | 0.475 | 0.511 |
+| Final object F1 (structural) | 0.600 | 0.623 | 0.537 | 0.575 |
+| Circle recall | 0.40 | 0.70 | 0.25 | 0.50 |
+| Circle precision (predicted) | 0.50 (4) | 0.78 (9) | 0.50 (2) | 0.67 (3) |
+| Object type accuracy | 0.779 | 0.815 | 0.679 | 0.684 |
+| Final relationship F1 (lower bound) | 0.475 | 0.527 | 0.372 | 0.412 |
+| Label association accuracy | 0.676 | 0.667 | 0.767 | 0.753 |
+| Line grouping missed rate | 0.220 | 0.231 | 0.176 | 0.176 |
+| QA pass rate | 0.800 | 0.867 | 0.867 | 0.867 |
+
+Worse: label association fell on both splits, and dev15 misses slightly more
+line groups. On validation `math_099`, two false arcs are fitted to a
+handwriting loop.
+
+Supplied image: the semicircle (radius 214 px, 180 degrees) and the circle
+(radius 115 px) are embossed; QA passes with score 80. Still wrong: OCR reads
+`O 2-r R` as one label `0 2-r R` plus a stray `0`, the OP line runs below `AB`
+with a false tick, and several labels link to the wrong element.
+
+### Line ends cut back at gaps; one reading per angle arc (`trim2`)
+
+On a right triangle with an inner circle and a semicircle on its base, Hough
+lines ran on across small gaps into dimension lines and labels, and short
+false ticks were kept on the recovered curves.
+
+- **Detached tails** (`vectorization._trim_detached_tails`): each line end is
+  cut back to where solid stroke resumes after a blank gap, when the part cut
+  off is at most two thirds ink and the stroke past it stays solid for four
+  times its length. End dashes of dashed lines are kept.
+- **Ticks along curves**: a short line lying along a recovered curve's rim is
+  dropped even when it was classified as a tick.
+- **Angle arcs on curves** (`curves.reconcile_angle_arcs`): when an angle arc
+  and a recovered curve share a vertex and radius, a curve sweeping no further
+  than the angle is the angle mark, so only the angle arc is kept; a curve
+  running well past the angle (a circle centred on the vertex) is kept and the
+  angle arc is dropped.
+
+Benchmark (`curve3` -> `trim2`):
+
+| Metric | dev15 curve3 | dev15 trim2 | val curve3 | val trim2 |
+| --- | --- | --- | --- | --- |
+| Final object F1 (strict) | 0.597 | 0.589 | 0.511 | 0.514 |
+| Final relationship F1 (lower bound) | 0.527 | 0.556 | 0.412 | 0.400 |
+| Line grouping missed rate | 0.231 | 0.226 | 0.176 | 0.183 |
+| Endpoint error, mean px | 9.70 | 7.20 | 5.81 | 4.63 |
+| Right-angle marker recall | 0.857 | 0.857 | 0.667 | 1.000 |
+| Point recall | 0.802 | 0.802 | 0.806 | 0.750 |
+| Label association accuracy | 0.667 | 0.667 | 0.753 | 0.753 |
+| QA pass rate | 0.867 | 0.933 | 0.867 | 0.867 |
+
+Worse: dev15 strict object F1 (`math_063` loses an arrow, `math_044` gains a
+false positive), validation relationship F1, line grouping and point recall.
+On `math_064` the angle arc is now emitted once, as an angle mark, instead of
+also as a generic arc; final-object scoring only matches generic arcs, so that
+image's object F1 drops although the embossed sheet still has the arc.
+
+Supplied right-triangle image: the small circle and the semicircle are
+embossed, false ticks on the curves are gone, QA passes with score 75. Still
+wrong: OCR merges `r` and `D`, misses `Q` and `O` as separate labels, reads `C`
+with low confidence, and several labels link to the wrong element.
+
 ### Verification
 
-Backend `pytest`: 780 passed, 10 skipped. Benchmark tests: 142 passed.
+Backend `pytest`: 793 passed, 10 skipped. Benchmark tests: 142 passed.
 Frontend: 118 tests, typecheck and build pass. New regression tests are in
-`backend/tests/test_line_art_marks.py`.
+`backend/tests/test_line_art_marks.py` and `backend/tests/test_curves.py`.
