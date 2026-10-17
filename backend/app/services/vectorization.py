@@ -121,6 +121,76 @@ def _collapse_stroke_edges(segments, band_px: float):
     return kept
 
 
+# A line end is never cut back further than this (twice Hough maxLineGap plus a stub).
+MAX_TAIL_TRIM_PX = 40
+
+
+def _ink_along(binary_image: np.ndarray, start, end, half: float) -> np.ndarray:
+    """Whether each 1 px step from ``start`` to ``end`` has ink within ``half`` of the line."""
+    length = max(1, int(round(math.dist(start, end))))
+    ux, uy = (end[0] - start[0]) / length, (end[1] - start[1]) / length
+    t = np.arange(length + 1)[:, None]
+    offsets = np.arange(-half, half + 0.25, 0.5)[None, :]
+    xs = np.clip(np.rint(start[0] + ux * t - uy * offsets).astype(int), 0, binary_image.shape[1] - 1)
+    ys = np.clip(np.rint(start[1] + uy * t + ux * offsets).astype(int), 0, binary_image.shape[0] - 1)
+    return (binary_image[ys, xs] > 0).any(axis=1)
+
+
+def _trimmed_end(inked: np.ndarray, min_gap: int) -> int:
+    """Steps to cut from the start of ``inked``: stray ink beyond a gap, before solid stroke.
+
+    Hough bridges gaps up to ``maxLineGap``, so a line can run on across blank
+    gaps into a crossing arrowhead, label or dimension line. The end is cut back
+    to where solid stroke resumes after a gap, when the part cut off holds at
+    least ``min_gap`` blank steps and at most two thirds ink, and the stroke past
+    it stays solid for four times its length. The end dash of a dashed line is
+    kept, because another gap soon follows it.
+    """
+    steps = len(inked)
+    for start in range(1, min(steps, MAX_TAIL_TRIM_PX + 1)):
+        if not inked[start] or inked[start - 1]:
+            continue
+        cut_ink = int(inked[:start].sum())
+        if cut_ink * 3 > start * 2 or start - cut_ink < min_gap:
+            continue
+        solid = inked[start:start + 4 * start]
+        if len(solid) == 4 * start and solid.all():
+            return start
+    return 0
+
+
+def _fill_short_gaps(inked: np.ndarray, min_gap: int) -> np.ndarray:
+    """``inked`` with blank runs shorter than ``min_gap`` between ink filled (anti-aliasing breaks)."""
+    filled = inked.copy()
+    ink = np.flatnonzero(inked)
+    for left, right in zip(ink[:-1], ink[1:]):
+        if 1 < right - left <= min_gap:
+            filled[left:right] = True
+    return filled
+
+
+def _trim_detached_tails(segments, binary_image: np.ndarray, stroke_half: float):
+    """Cut each line end back to where its own stroke ends (see ``_trimmed_end``)."""
+    half = stroke_half + 1.0
+    min_gap = max(3, int(math.ceil(2 * stroke_half)))
+    trimmed = []
+    for start, end in segments:
+        inked = _ink_along(binary_image, start, end, half)
+        closed = _fill_short_gaps(inked, min_gap)
+        head = _trimmed_end(closed, min_gap)
+        tail = _trimmed_end(closed[::-1], min_gap)
+        length = len(inked) - 1
+        if head + tail >= length - 1:
+            trimmed.append((start, end))
+            continue
+        ux, uy = (end[0] - start[0]) / max(length, 1), (end[1] - start[1]) / max(length, 1)
+        trimmed.append((
+            (int(round(start[0] + ux * head)), int(round(start[1] + uy * head))),
+            (int(round(end[0] - ux * tail)), int(round(end[1] - uy * tail))),
+        ))
+    return trimmed
+
+
 def _snap_shared_endpoints(segments, tolerance_px: float):
     """Join line ends that meet at one vertex so corners neither gap nor overshoot."""
     endpoints = [point for segment in segments for point in segment]
@@ -282,7 +352,11 @@ def extract_shapes(binary_image: np.ndarray, edge_sensitivity: int = 50, tick_ev
     """
     stroke_half = stroke_half_width(binary_image)
     segments = _snap_shared_endpoints(
-        _collapse_stroke_edges(_line_segments(binary_image, edge_sensitivity), 2 * stroke_half + STROKE_BAND_TOLERANCE_PX),
+        _trim_detached_tails(
+            _collapse_stroke_edges(_line_segments(binary_image, edge_sensitivity), 2 * stroke_half + STROKE_BAND_TOLERANCE_PX),
+            binary_image,
+            stroke_half,
+        ),
         2 * stroke_half + STROKE_BAND_TOLERANCE_PX,
     )
     contours, hierarchy = cv2.findContours(binary_image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)

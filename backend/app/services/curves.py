@@ -295,6 +295,36 @@ def _refine(ink_xy: np.ndarray, seed, band: float, limit: float):
     return cx, cy, r, error
 
 
+def reconcile_angle_arcs(angle_arcs: list[dict], shapes: list[dict], stroke_half: float) -> tuple[list[dict], list[dict]]:
+    """Keep one reading of each arc that is both an angle mark and a recovered curve on its vertex.
+
+    A curve sweeping no further than the angle (plus ``MIN_ARC_SWEEP_DEG``) is the
+    angle mark itself, so the curve is dropped. A curve that runs on well past the
+    angle, such as a circle centred on the vertex, is real geometry and the
+    angle mark is the part of it between the arms, so the angle mark is dropped.
+    """
+    band = 2 * stroke_half + 3
+    kept_arcs: list[dict] = []
+    curves_on_marks: list[dict] = []
+    for arc in angle_arcs:
+        curve = next(
+            (
+                shape for shape in shapes
+                if shape["type"] in ("circle", "arc")
+                and math.dist(arc["vertex"], shape["center"]) <= band
+                and abs(arc["radius"] - shape["radius"]) <= band
+            ),
+            None,
+        )
+        sweep = None if curve is None else (360.0 if curve["type"] == "circle" else curve["sweep_deg"])
+        if sweep is not None and sweep > arc["degrees"] + MIN_ARC_SWEEP_DEG:
+            continue
+        if curve is not None:
+            curves_on_marks.append(curve)
+        kept_arcs.append(arc)
+    return kept_arcs, [shape for shape in shapes if not any(shape is curve for curve in curves_on_marks)]
+
+
 def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, text_boxes=(), angle_arcs=()) -> list[dict]:
     """``shapes`` plus the circles and arcs among the ink they leave unexplained.
 
@@ -376,7 +406,7 @@ def recover_curves(binary: np.ndarray, shapes: list[dict], stroke_half: float, t
     kept = [
         shape for shape in shapes
         if not any(shape is outline for outline in replaced)
-        and not (shape["type"] == "line" and shape.get("role") != "tick"
+        and not (shape["type"] == "line"
                 and any(_covered_by_curve(shape["points"], curve, band + 1.0) for curve in curves))
     ]
     return kept + curves

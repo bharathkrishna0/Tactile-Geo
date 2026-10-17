@@ -8,7 +8,7 @@ import pytest
 from app.api.sessions import _semantic_to_dict
 from app.models.geometry import ConfidenceLevel, DetectedElement, GeometryType
 from app.schemas.session import DetectedShape, SemanticGeometrySchema
-from app.services.curves import recover_curves
+from app.services.curves import reconcile_angle_arcs, recover_curves
 from app.services.diagram_analysis import analyze_diagram
 from app.services.tactile_qa import outline_segments
 from app.services.tactile_simplification import essential_ids
@@ -153,3 +153,19 @@ def test_a_circle_traced_with_its_tangent_becomes_a_circle():
     assert abs(circles[0]["radius"] - 150) <= 3
     assert not any(s["type"] == "contour" for s in shapes)
     assert any(s["type"] == "line" for s in shapes)
+
+
+def test_angle_arc_on_a_recovered_circle_centred_at_its_vertex_is_dropped():
+    shapes = [{"type": "circle", "center": (300, 300), "radius": 93.0}]
+    on_circle = {"vertex": (301, 299), "arms": [(400, 300), (300, 200)], "radius": 92, "degrees": 90.0}
+    real_mark = {"vertex": (301, 299), "arms": [(400, 300), (300, 200)], "radius": 30, "degrees": 90.0}
+    arcs, kept = reconcile_angle_arcs([on_circle, real_mark], shapes, 1.0)
+    assert arcs == [real_mark] and kept == shapes
+
+
+def test_recovered_arc_that_is_an_angle_mark_is_left_to_the_angle():
+    mark = {"type": "arc", "center": (257, 390), "radius": 40.8, "start_deg": 214, "sweep_deg": 144}
+    line = {"type": "line", "points": [(258, 390), (477, 372)]}
+    angle = {"vertex": (258, 390), "arms": [(477, 372), (79, 259)], "radius": 40, "degrees": 139.1}
+    arcs, kept = reconcile_angle_arcs([angle], [line, mark], 1.0)
+    assert arcs == [angle] and kept == [line]

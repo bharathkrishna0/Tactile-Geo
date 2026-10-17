@@ -9,7 +9,7 @@ from app.services.vectorization import (
     shapes_to_svg,
     stroke_half_width,
 )
-from app.services.curves import recover_curves
+from app.services.curves import reconcile_angle_arcs, recover_curves
 from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
 from app.services.markers import detect_angle_arcs, detect_parallel_chevrons, drop_ticks_on_arcs
 from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
@@ -74,6 +74,7 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
     )
     shapes = drop_ticks_on_arcs(shapes, angle_arcs, stroke_half)
     shapes = recover_curves(stroke_mask, shapes, stroke_half, text_boxes, angle_arcs + right_angles)
+    angle_arcs, shapes = reconcile_angle_arcs(angle_arcs, shapes, stroke_half)
     parallel_marks = detect_parallel_chevrons(filtered, shapes, stroke_half, text_boxes)
     shapes = drop_marker_strokes(shapes, right_angles)
     mapped_labels = []
