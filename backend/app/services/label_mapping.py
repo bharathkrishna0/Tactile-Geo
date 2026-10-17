@@ -24,6 +24,8 @@ def _geometry_candidates(shapes: list[dict]) -> tuple[list[tuple[int, int]], lis
         vertices.extend(points)
         if shape["type"] == "line":
             edges.append((points[0], points[1]))
+        elif shape["type"] == "arc":
+            edges.extend(zip(points, points[1:]))
         elif len(points) > 1:
             edges.extend((points[index], points[(index + 1) % len(points)]) for index in range(len(points)))
     return vertices, edges

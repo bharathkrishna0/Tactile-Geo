@@ -46,8 +46,9 @@ OUTLINE_SAMPLES = 72
 def outline_points(element: DetectedElement) -> list[tuple[float, float]]:
     """Points on the drawn outline of ``element``, for distance checks.
 
-    Circles and ellipses are sampled along their rim: a label beside the rim is
-    close to the shape even though it is far from the centre.
+    Circles, ellipses and arcs are sampled along their rim: a label beside the
+    rim is close to the shape even though it is far from the centre, and a label
+    at an arc's centre is not on the arc.
     """
     geo = element.geometry
     if element.type is GeometryType.CIRCLE and geo.get("center") and geo.get("radius"):
@@ -58,6 +59,8 @@ def outline_points(element: DetectedElement) -> list[tuple[float, float]]:
         cx, cy = (float(v) for v in geo["center"])
         rx, ry = (float(v) for v in geo["semi_axes"])
         angle = math.radians(float(geo.get("angle") or 0.0))
+    elif element.type is GeometryType.ARC and len(geo.get("points") or []) >= 2:
+        return [(float(p[0]), float(p[1])) for p in geo["points"]]
     else:
         return _element_points(element)
     cos_a, sin_a = math.cos(angle), math.sin(angle)

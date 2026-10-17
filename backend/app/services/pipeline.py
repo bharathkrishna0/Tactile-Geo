@@ -9,6 +9,7 @@ from app.services.vectorization import (
     shapes_to_svg,
     stroke_half_width,
 )
+from app.services.curves import reconcile_angle_arcs, recover_curves
 from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
 from app.services.markers import detect_angle_arcs, detect_parallel_chevrons, drop_ticks_on_arcs
 from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
@@ -72,6 +73,8 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
         filtered, shapes, stroke_half, text_boxes, exclude_vertices=[marker["vertex"] for marker in right_angles],
     )
     shapes = drop_ticks_on_arcs(shapes, angle_arcs, stroke_half)
+    shapes = recover_curves(stroke_mask, shapes, stroke_half, text_boxes, angle_arcs + right_angles)
+    angle_arcs, shapes = reconcile_angle_arcs(angle_arcs, shapes, stroke_half)
     parallel_marks = detect_parallel_chevrons(filtered, shapes, stroke_half, text_boxes)
     shapes = drop_marker_strokes(shapes, right_angles)
     mapped_labels = []
@@ -123,6 +126,7 @@ def build_preview(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: 
     stroke_mask = mask_text_glyphs(filtered, [detection.bbox for detection in detections]) if mask_text else filtered
     shapes = extract_shapes(stroke_mask, edge_sensitivity, tick_evidence)
     shapes = drop_shapes_inside_text_regions(shapes, [detection.bbox for detection in detections])
+    shapes = recover_curves(stroke_mask, shapes, stroke_half_width(filtered), [detection.bbox for detection in detections])
     mapped_labels = []
     for detection in detections:
         label = map_label_to_geometry(detection, shapes)

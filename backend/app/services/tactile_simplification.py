@@ -188,6 +188,8 @@ CLOSED_FIGURES = frozenset({
     GeometryType.RECTANGLE,
     GeometryType.POLYGON,
 })
+# Figures that count as essential once they are large enough to be felt.
+FELT_FIGURES = CLOSED_FIGURES | {GeometryType.ARC}
 
 
 def essential_ids(
@@ -197,7 +199,7 @@ def essential_ids(
 ) -> set[str]:
     """Non-point features that carry mathematical meaning: markers, ticks, and figure structure.
 
-    With ``mm_per_px``, a closed figure large enough to be felt is a figure in its own
+    With ``mm_per_px``, a closed figure or arc large enough to be felt is a figure in its own
     right, even when nothing is related to it.
     """
     ids = {e.id for e in elements}
@@ -217,7 +219,7 @@ def essential_ids(
             or element.geometry.get("right_angle_marker")
             or (
                 mm_per_px is not None
-                and element.type in CLOSED_FIGURES
+                and element.type in FELT_FIGURES
                 and element_extent(element) * mm_per_px >= TACTILE_RULES.minimum_feature_size_mm
             )
         ):

@@ -30,6 +30,8 @@ def _line_segments(shapes: list[dict]) -> list[tuple[tuple[int, int], tuple[int,
             continue
         if shape["type"] == "line":
             segments.append((points[0], points[1]))
+        elif shape["type"] == "arc":
+            segments.extend(zip(points, points[1:]))
         elif len(points) > 1:
             segments.extend((points[index], points[(index + 1) % len(points)]) for index in range(len(points)))
     return segments
