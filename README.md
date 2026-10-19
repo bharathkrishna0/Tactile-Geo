@@ -26,6 +26,20 @@ and corrects the result before export.
 example. Photos, dense worksheets and small labels often need teacher correction
 (see <a href="#limitations">Limitations</a>).</sub>
 
+### Video: one figure end to end
+
+[![Screen recording: a chord-and-tangent figure uploaded, reviewed, previewed as a tactile graphic, checked by QA and exported as SVG](docs/media/chord-tangent-end-to-end.gif)](docs/media/chord-tangent-end-to-end.mp4)
+
+<sub>Click the animation for the full-speed MP4 (1 min 52 s). Recorded in Chrome on a
+Linux development machine running the web app from source with live Model A (Model B
+off), not on the Windows desktop app. The quarter circle, semicircle, chord, tangent
+lines, right-angle marks and the angle arc at K are recovered, and QA passes with 83,
+but both arcs run slightly past the base line at A. OCR reads the letters and the two
+horizontal `15 cm` labels, but turns the vertical `30 cm` into two `8`s and the slanted
+`15 cm` into `8`, splits the diagonal `30 cm`, reads `b` as `6` and misses `a`; many
+labels are linked to the wrong element. A teacher would need to correct these before
+export. QA passing does not mean the reconstruction is correct.</sub>
+
 **[Download for Windows](#windows-desktop-app)** ·
 **[How to use it](#how-to-use-tactilegeo)** ·
 **[Run from source](#run-from-source-development)** ·
