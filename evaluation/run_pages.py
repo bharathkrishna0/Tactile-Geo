@@ -50,7 +50,7 @@ def _iou(a, b) -> float:
 def match_figures(gt_figures: list[dict], found: list[dict]) -> list[tuple[int, int, float]]:
     """Greedy one-to-one matching by box IoU; returns (gt index, found index, IoU)."""
     gt_boxes = [(f["bbox"][0], f["bbox"][1], f["bbox"][0] + f["bbox"][2], f["bbox"][1] + f["bbox"][3]) for f in gt_figures]
-    found_boxes = [(f["x"], f["y"], f["x"] + f["width"], f["y"] + f["height"]) for f in found]
+    found_boxes = [tuple(f["box"]) for f in found]
     pairs = sorted(((_iou(g, p), i, j) for i, g in enumerate(gt_boxes) for j, p in enumerate(found_boxes)), reverse=True)
     used_g, used_p, out = set(), set(), []
     for iou, i, j in pairs:

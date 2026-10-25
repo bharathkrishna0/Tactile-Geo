@@ -44,6 +44,7 @@ FIGURE_MARGIN_FRACTION = 0.015
 MIN_SPECK_PX = 4
 KEEP_DILATE_PX = 3
 MIN_FIGURES = 2
+CROP_PAD_FRACTION = 0.15
 #: Small neighbouring shapes (a triangle beside a square, each with a caption) are one figure
 #: when they are this much closer than the usual stroke gap allows.
 SMALL_GROUP_FRACTION = 0.15
@@ -52,14 +53,18 @@ SMALL_GROUP_GAP_FACTOR = 2.0
 
 @dataclass(frozen=True)
 class Figure:
+    #: The figure's ink plus a small margin.
     box: Box
+    #: ``box`` grown with paper so Braille, which is larger than the printed text, still fits.
+    crop: Box
+    #: Which pixels of ``crop`` are this figure's ink.
     keep: np.ndarray
     page_size: tuple[int, int]
 
     def as_dict(self, number: int) -> dict:
-        x0, y0, x1, y1 = self.box
+        x0, y0, x1, y1 = self.crop
         return {"number": number, "x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0,
-                "page_width": self.page_size[0], "page_height": self.page_size[1]}
+                "page_width": self.page_size[0], "page_height": self.page_size[1], "box": list(self.box)}
 
 
 def _ink(image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -168,9 +173,11 @@ def find_figures(image: np.ndarray) -> list[Figure]:
     figures = []
     for members, (x0, y0, x1, y1) in _reading_order(groups):
         box = (max(0, x0 - margin), max(0, y0 - margin), min(width, x1 + margin), min(height, y1 + margin))
-        window = labels[box[1]:box[3], box[0]:box[2]]
+        pad = int(round(CROP_PAD_FRACTION * max(x1 - x0, y1 - y0)))
+        crop = (max(0, x0 - pad), max(0, y0 - pad), min(width, x1 + pad), min(height, y1 + pad))
+        window = labels[crop[1]:crop[3], crop[0]:crop[2]]
         keep = cv2.dilate(np.isin(window, members).astype(np.uint8), kernel) > 0
-        figures.append(Figure(box, keep, (width, height)))
+        figures.append(Figure(box, crop, keep, (width, height)))
     return figures
 
 
@@ -253,7 +260,7 @@ def _reading_order(groups):
 
 def figure_image(image: np.ndarray, figure: Figure) -> np.ndarray:
     """Crop one figure and paint everything that is not its ink as paper."""
-    x0, y0, x1, y1 = figure.box
+    x0, y0, x1, y1 = figure.crop
     crop = image[y0:y1, x0:x1].copy()
     darkest = image.min(axis=2) if image.ndim == 3 else image
     paper = np.percentile(image.reshape(-1, image.shape[2])[darkest.reshape(-1) >= np.percentile(darkest, 75)], 50, axis=0) \
