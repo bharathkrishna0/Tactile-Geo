@@ -27,6 +27,13 @@ STROKE_GAP_FRACTION = 0.045
 LABEL_GAP_FRACTION = 0.035
 EDGE_BAND_FRACTION = 0.035
 PAGE_RULE_FRACTION = 0.6
+#: A page rule or a writing line (``Name: ____``) is at most this thick.
+RULE_THICKNESS_FRACTION = 0.01
+WRITING_LINE_MIN_ASPECT = 8
+#: A word blurred into one blob (title text on a photo) is short, wide and dense, unlike a thin stroke.
+TEXT_BLOB_MAX_HEIGHT_FRACTION = 0.04
+TEXT_BLOB_MIN_ASPECT = 1.5
+TEXT_BLOB_MIN_FILL = 0.45
 SOLID_FILL_SHARE = 0.45
 FORM_BOX_MIN_ASPECT = 2.0
 FORM_BOX_MAX_HEIGHT_FRACTION = 0.06
@@ -37,6 +44,10 @@ FIGURE_MARGIN_FRACTION = 0.015
 MIN_SPECK_PX = 4
 KEEP_DILATE_PX = 3
 MIN_FIGURES = 2
+#: Small neighbouring shapes (a triangle beside a square, each with a caption) are one figure
+#: when they are this much closer than the usual stroke gap allows.
+SMALL_GROUP_FRACTION = 0.15
+SMALL_GROUP_GAP_FACTOR = 2.0
 
 
 @dataclass(frozen=True)
@@ -79,10 +90,30 @@ def _is_form_box(ink: np.ndarray, box: Box, page_height: int) -> bool:
     interior = ink[y0 + my:y1 - my, x0 + mx:x1 - mx]
     if interior.size == 0 or interior.mean() > FORM_BOX_INTERIOR_INK:
         return False
-    band = max(2, h // 6)
+    band = max(3, h // 3)
     edges = [ink[y0:y0 + band, x0:x1], ink[y1 - band:y1, x0:x1], ink[y0:y1, x0:x0 + band], ink[y0:y1, x1 - band:x1]]
     covered = sum(edge.any(axis=0 if k < 2 else 1).mean() > FORM_BOX_EDGE_COVER for k, edge in enumerate(edges))
     return covered >= 3
+
+
+def _is_writing_line(labels: np.ndarray, index: int, box: Box, short: int) -> bool:
+    """A long, evenly thin stroke with no ticks or arrowheads, like the line after ``Name:``."""
+    x0, y0, x1, y1 = box
+    if x1 - x0 < WRITING_LINE_MIN_ASPECT * (y1 - y0):
+        return False
+    columns = (labels[y0:y1, x0:x1] == index).sum(axis=0)
+    columns = columns[columns > 0]
+    typical = float(np.median(columns))
+    return typical <= RULE_THICKNESS_FRACTION * short and columns.max() <= 2 * typical + 1
+
+
+def _is_text_blob(labels: np.ndarray, index: int, box: Box, short: int) -> bool:
+    x0, y0, x1, y1 = box
+    w, h = x1 - x0, y1 - y0
+    if h > TEXT_BLOB_MAX_HEIGHT_FRACTION * short or w < TEXT_BLOB_MIN_ASPECT * h:
+        return False
+    columns = (labels[y0:y1, x0:x1] == index).sum(axis=0)
+    return float(np.median(columns[columns > 0])) >= TEXT_BLOB_MIN_FILL * h
 
 
 def _is_form_prompt(box: Box, form_boxes: list[Box], short: int) -> bool:
@@ -110,11 +141,12 @@ def find_figures(image: np.ndarray) -> list[Figure]:
         if area < MIN_SPECK_PX:
             continue
         box = (x, y, x + w, y + h)
-        if w >= PAGE_RULE_FRACTION * width or h >= PAGE_RULE_FRACTION * height:
+        thin = RULE_THICKNESS_FRACTION * short
+        if (w >= PAGE_RULE_FRACTION * width and h <= thin) or (h >= PAGE_RULE_FRACTION * height and w <= thin):
             continue
         if x < edge or y < edge or x + w > width - edge or y + h > height - edge:
             continue
-        if max(w, h) >= STROKE_EXTENT_FRACTION * short:
+        if max(w, h) >= STROKE_EXTENT_FRACTION * short and not _is_text_blob(labels, index, box, short):
             if _is_form_box(ink, box, height):
                 form_boxes.append(box)
                 continue
@@ -122,9 +154,12 @@ def find_figures(image: np.ndarray) -> list[Figure]:
         else:
             marks.append((index, box))
     marks = [(index, box) for index, box in marks if not _is_form_prompt(box, form_boxes, short)]
+    writing_lines = {index for index, box in strokes if _is_writing_line(labels, index, box, short)}
     groups = _merge([[i] for i, _ in strokes], [b for _, b in strokes], STROKE_GAP_FRACTION * short)
     groups = [(members, box) for members, box in groups
-              if stats[members, cv2.CC_STAT_AREA].sum() < SOLID_FILL_SHARE * (box[2] - box[0]) * (box[3] - box[1])]
+              if stats[members, cv2.CC_STAT_AREA].sum() < SOLID_FILL_SHARE * (box[2] - box[0]) * (box[3] - box[1])
+              and not all(m in writing_lines for m in members)]
+    groups = _merge_small(groups, STROKE_GAP_FRACTION * short, SMALL_GROUP_FRACTION * short)
     if len(groups) < MIN_FIGURES:
         return []
     groups = _attach(groups, marks, LABEL_GAP_FRACTION * short)
@@ -148,6 +183,27 @@ def _merge(members: list[list[int]], boxes: list[Box], gap: float) -> list[tuple
             for b in range(a + 1, len(groups)):
                 if _gap(groups[a][1], groups[b][1]) <= gap:
                     groups[a] = (groups[a][0] + groups[b][0], _union(groups[a][1], groups[b][1]))
+                    del groups[b]
+                    merged = True
+                    break
+            if merged:
+                break
+    return groups
+
+
+def _merge_small(groups, gap: float, small: float):
+    def size(box: Box) -> int:
+        return max(box[2] - box[0], box[3] - box[1])
+
+    groups = list(groups)
+    merged = True
+    while merged:
+        merged = False
+        for a in range(len(groups)):
+            for b in range(a + 1, len(groups)):
+                box_a, box_b = groups[a][1], groups[b][1]
+                if size(box_a) < small and size(box_b) < small and _gap(box_a, box_b) <= SMALL_GROUP_GAP_FACTOR * gap:
+                    groups[a] = (groups[a][0] + groups[b][0], _union(box_a, box_b))
                     del groups[b]
                     merged = True
                     break
