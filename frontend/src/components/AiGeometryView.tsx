@@ -1,5 +1,5 @@
 import { KeyboardEvent, MouseEvent } from 'react'
-import type { DetectedElement } from '../types'
+import type { DetectedElement, PageFigure } from '../types'
 
 interface AiGeometryViewProps {
   src: string
@@ -9,6 +9,8 @@ interface AiGeometryViewProps {
   height: number
   selectedId: string | null
   onSelect: (id: string) => void
+  /** When only one figure of the page was analysed, show just that part of the image. */
+  figure?: PageFigure | null
 }
 
 const asNumber = (value: unknown): number => typeof value === 'number' ? value : Number(value ?? 0)
@@ -63,11 +65,26 @@ function renderGeometry(element: DetectedElement) {
   return null
 }
 
-export default function AiGeometryView({ src, fileName, elements, width, height, selectedId, onSelect }: AiGeometryViewProps) {
+export default function AiGeometryView({ src, fileName, elements, width, height, selectedId, onSelect, figure }: AiGeometryViewProps) {
   if (width <= 0 || height <= 0) return null
+  const alt = figure ? `Figure ${figure.number} of uploaded worksheet image: ${fileName}` : `Uploaded worksheet image: ${fileName}`
   return (
     <div className="view-panel overlay-stage" role="tabpanel" id="panel-ai" aria-labelledby="tab-ai">
-      <img className="overlay-image" src={src} alt={`Uploaded worksheet image: ${fileName}`} />
+      {figure ? (
+        <div className="overlay-image figure-crop" style={{ aspectRatio: `${figure.width} / ${figure.height}` }}>
+          <img
+            src={src}
+            alt={alt}
+            style={{
+              width: `${(figure.page_width / figure.width) * 100}%`,
+              marginLeft: `${(-figure.x / figure.width) * 100}%`,
+              marginTop: `${(-figure.y / figure.width) * 100}%`,
+            }}
+          />
+        </div>
+      ) : (
+        <img className="overlay-image" src={src} alt={alt} />
+      )}
       <svg
         className="overlay-svg"
         viewBox={`0 0 ${width} ${height}`}

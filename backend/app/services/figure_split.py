@@ -43,10 +43,12 @@ MIN_FIGURES = 2
 class Figure:
     box: Box
     keep: np.ndarray
+    page_size: tuple[int, int]
 
     def as_dict(self, number: int) -> dict:
         x0, y0, x1, y1 = self.box
-        return {"number": number, "x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0}
+        return {"number": number, "x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0,
+                "page_width": self.page_size[0], "page_height": self.page_size[1]}
 
 
 def _ink(image: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -133,7 +135,7 @@ def find_figures(image: np.ndarray) -> list[Figure]:
         box = (max(0, x0 - margin), max(0, y0 - margin), min(width, x1 + margin), min(height, y1 + margin))
         window = labels[box[1]:box[3], box[0]:box[2]]
         keep = cv2.dilate(np.isin(window, members).astype(np.uint8), kernel) > 0
-        figures.append(Figure(box, keep))
+        figures.append(Figure(box, keep, (width, height)))
     return figures
 
 

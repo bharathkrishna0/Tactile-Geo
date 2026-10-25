@@ -14,6 +14,7 @@ from app.schemas.session import (
     DetectedElementSchema,
     DetectedLabel,
     DetectedShape,
+    PageFigure,
     ElementRelationshipSchema,
     EnhancedProcessedSession,
     ProcessingParams,
@@ -30,7 +31,7 @@ from app.schemas.session import (
 from app.services.braille import LouisBrailleTranslator
 from app.services.editing import ElementNotFoundError, InvalidEditError, apply_batch_edits, apply_edit, refresh_semantic_fields, regenerate, semantic_from_dict
 from app.services.image_quality import QualityReport
-from app.services.pipeline import build_full_analysis
+from app.services.pipeline import build_full_analysis, list_figures
 from app.services.object_storage import ObjectStorageError, source_image_key
 from app.services.rate_limiter import upload_rate_limiter
 from app.services.session_store import object_storage, read_source_image, session_store
@@ -61,6 +62,7 @@ def _session_response(session: ConversionSession) -> EnhancedProcessedSession:
         simplified_geometry=SimplifiedGeometrySchema(**session.simplified_geometry) if session.simplified_geometry else None,
         qa_report=QAReportSchema(**session.qa_report) if session.qa_report else None,
         tactile_svg=session.tactile_svg,
+        figures=[PageFigure(**item) for item in (session.processing_params or {}).get("page_figures", [])],
     )
 
 
@@ -311,14 +313,20 @@ async def process_session(session_id: str, params: ProcessingParams | None = Non
     except ObjectStorageError as error:
         raise HTTPException(status_code=410, detail="The uploaded image is no longer available. Upload it again.") from error
     try:
-        result = build_full_analysis(image_bytes, processing_params.edge_sensitivity)
+        figure = processing_params.figure
+        if figure is None and not processing_params.whole_page and len(list_figures(image_bytes)) >= 2:
+            figure = 0
+        if processing_params.whole_page:
+            figure = None
+        processing_params = processing_params.model_copy(update={"figure": figure})
+        result = build_full_analysis(image_bytes, processing_params.edge_sensitivity, figure=figure)
     except ValueError as error:
         logger.warning("Model A process failed for session %s after %.0fms: %s", session_id, (time.perf_counter() - started) * 1000, error)
         raise HTTPException(status_code=422, detail=str(error)) from error
     except Exception as error:
         logger.exception("Unexpected Model A failure for session %s after %.0fms", session_id, (time.perf_counter() - started) * 1000)
         raise HTTPException(status_code=500, detail="Processing failed. Try a different image.") from error
-    session.processing_params = processing_params.model_dump()
+    session.processing_params = {**processing_params.model_dump(), "page_figures": result.figures}
     session.detected_shapes = result.shapes
     session.detected_labels = result.labels
     session.preview_svg = result.preview_svg

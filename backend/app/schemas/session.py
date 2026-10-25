@@ -9,6 +9,19 @@ class SessionCreated(BaseModel):
 
 class ProcessingParams(BaseModel):
     edge_sensitivity: int = Field(default=50, ge=0, le=100)
+    #: 0-based figure of a multi-figure page; None picks the first figure when the page has several.
+    figure: int | None = Field(default=None, ge=0)
+    #: Process every figure as one drawing, as before figure splitting.
+    whole_page: bool = False
+
+class PageFigure(BaseModel):
+    number: int
+    x: int
+    y: int
+    width: int
+    height: int
+    page_width: int
+    page_height: int
 
 class DetectedShape(BaseModel):
     type: Literal["line", "contour", "ellipse", "circle", "arc"]
@@ -121,3 +134,5 @@ class EnhancedProcessedSession(ProcessedSession):
     simplified_geometry: SimplifiedGeometrySchema | None = None
     qa_report: QAReportSchema | None = None
     tactile_svg: str | None = None
+    #: Separate figures found on the page, in reading order; empty for a single-figure image.
+    figures: list[PageFigure] = Field(default_factory=list)

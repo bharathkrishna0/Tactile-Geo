@@ -108,13 +108,30 @@ export interface AnalysisResult {
   preview_svg: string
   detected_shapes: DetectedShape[]
   detected_labels: DetectedLabel[]
-  processing_params: { edge_sensitivity: number }
+  processing_params: { edge_sensitivity: number; figure?: number | null; whole_page?: boolean }
   quality_report?: QualityReport | null
   semantic_geometry?: SemanticGeometry | null
   simplified_geometry?: SimplifiedGeometry | null
   qa_report?: QAReport | null
   tactile_svg?: string | null
+  figures?: PageFigure[]
   detail?: string
+}
+
+/** One separate figure of a multi-figure page, in source-image pixels. */
+export interface PageFigure {
+  number: number
+  x: number
+  y: number
+  width: number
+  height: number
+  page_width: number
+  page_height: number
+}
+
+export interface ProcessOptions {
+  figure?: number
+  whole_page?: boolean
 }
 
 export interface SessionCreated {

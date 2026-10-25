@@ -50,6 +50,11 @@ class FigureNotFound(ValueError):
     pass
 
 
+def list_figures(image_bytes: bytes) -> list[dict]:
+    """The separate figures of a page in reading order, or [] for a single-figure image."""
+    return [item.as_dict(number) for number, item in enumerate(find_figures(decode_image(image_bytes)), 1)]
+
+
 def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: OcrProvider | None = None, braille_translator: LouisBrailleTranslator | None = None, mask_text: bool = False, figure: int | None = None) -> PipelineResult:
     """Analyse the whole image, or with ``figure`` (0-based, reading order) only that figure of a multi-figure page."""
     image = decode_image(image_bytes)
