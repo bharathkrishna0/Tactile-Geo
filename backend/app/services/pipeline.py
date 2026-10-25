@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from app.models.geometry import SemanticGeometry
 from app.services.image_preprocessing import decode_image, preprocess_image, tick_ink_mask
@@ -11,6 +11,7 @@ from app.services.vectorization import (
 )
 from app.services.curves import reconcile_angle_arcs, recover_curves
 from app.services.diagram_region import find_diagram_regions, inside_regions, mask_to_regions
+from app.services.figure_split import figure_image, find_figures
 from app.services.markers import detect_angle_arcs, detect_parallel_chevrons, drop_ticks_on_arcs
 from app.services.right_angles import detect_right_angle_markers, drop_marker_strokes
 from app.services.ocr import EasyOcrProvider, OcrProvider
@@ -41,10 +42,22 @@ class PipelineResult:
     simplified_geometry: SimplifiedGeometry
     qa_report: QAReport
     quality_report: QualityReport
+    figures: list[dict] = field(default_factory=list)
+    figure: int | None = None
 
 
-def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: OcrProvider | None = None, braille_translator: LouisBrailleTranslator | None = None, mask_text: bool = False) -> PipelineResult:
+class FigureNotFound(ValueError):
+    pass
+
+
+def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_provider: OcrProvider | None = None, braille_translator: LouisBrailleTranslator | None = None, mask_text: bool = False, figure: int | None = None) -> PipelineResult:
+    """Analyse the whole image, or with ``figure`` (0-based, reading order) only that figure of a multi-figure page."""
     image = decode_image(image_bytes)
+    page_figures = find_figures(image)
+    if figure is not None:
+        if not 0 <= figure < len(page_figures):
+            raise FigureNotFound(f"Figure {figure + 1} not found; this image has {len(page_figures)} separate figures.")
+        image = figure_image(image, page_figures[figure])
     quality_report = assess_image_quality(image)
     # Enhance a working copy for CV/OCR; the original image is never modified.
     processing_image = enhance_copy(image)
@@ -103,6 +116,8 @@ def build_full_analysis(image_bytes: bytes, edge_sensitivity: int = 50, ocr_prov
         simplified_geometry=simplified,
         qa_report=qa_report,
         quality_report=quality_report,
+        figures=[item.as_dict(number) for number, item in enumerate(page_figures, 1)],
+        figure=figure,
     )
 
 
