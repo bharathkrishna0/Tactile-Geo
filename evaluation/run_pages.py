@@ -87,6 +87,8 @@ def figure_annotation(gt: dict, figure: dict, dx: float = 0.0, dy: float = 0.0) 
         for key in ("center", "vertex"):
             if geom.get(key) is not None:
                 geom[key] = _shift(geom[key], dx, dy)
+        if obj.get("outline"):
+            obj["outline"] = [_shift(p, dx, dy) for p in obj["outline"]]
     for point in sub["points"]:
         point["x"], point["y"] = point["x"] - dx, point["y"] - dy
     for label in sub["labels"]:
@@ -115,6 +117,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--output-dir", type=Path, default=ROOT / "evaluation" / "results")
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--rescore", action="store_true",
+                        help="score the Model A output saved by an earlier run with this run id instead of rerunning it")
     args = parser.parse_args(argv)
 
     from app.services.braille import LouisBrailleTranslator
@@ -124,7 +128,8 @@ def main(argv: list[str] | None = None) -> int:
     ids = load_split(args.dataset, args.split)[: args.limit]
     out = args.output_dir / args.run_id
     (out / "per_image").mkdir(parents=True, exist_ok=True)
-    ocr, translator = EasyOcrProvider(), LouisBrailleTranslator()
+    translator = LouisBrailleTranslator()
+    ocr = None if args.rescore else EasyOcrProvider()
     rows, pages = [], []
     for k, image_id in enumerate(ids, 1):
         gt = load_annotation(args.dataset, image_id)
@@ -134,9 +139,19 @@ def main(argv: list[str] | None = None) -> int:
         pairs = match_figures(gt["figures"], found)
         page = {"image_id": image_id, "gt_figures": len(gt["figures"]), "found_figures": len(found),
                 "matched": len(pairs), "pairs": pairs, "figure_qa": []}
+        saved = {}
+        if args.rescore:
+            earlier = json.loads((out / "per_image" / f"{image_id}.json").read_text())
+            saved = {r["image_id"]: r["captured"] for r in earlier["rows"]}
+
+        def model_a(row_id: str, figure: int | None = None) -> dict:
+            if args.rescore:
+                return saved[row_id]
+            return run_model_a(data, ocr, translator, figure=figure)[0]
+
         start = time.perf_counter()
         if args.mode == "page":
-            captured, _ = run_model_a(data, ocr, translator)
+            captured = model_a(image_id)
             score = _score(gt, captured, translator)
             rows.append({"image_id": image_id, "score": score, "captured": captured})
             page["qa_passes"] = score.get("qa", {}).get("passes")
@@ -145,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
             for i, fig in enumerate(gt["figures"]):
                 if i in by_gt:
                     box = found[by_gt[i]]
-                    captured, _ = run_model_a(data, ocr, translator, figure=by_gt[i])
+                    captured = model_a(f"{image_id}/{fig['id']}", by_gt[i])
                     sub = figure_annotation(gt, fig, box["x"], box["y"])
                 else:
                     captured, sub = EMPTY_CAPTURE, figure_annotation(gt, fig)
