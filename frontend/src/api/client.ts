@@ -1,4 +1,4 @@
-import type { AnalysisResult, BatchItem, ElementEdit, SessionCreated } from '../types'
+import type { AnalysisResult, ProcessOptions, BatchItem, ElementEdit, SessionCreated } from '../types'
 import { API_BASE } from '../lib/apiBase'
 
 async function readJson(response: Response): Promise<Record<string, unknown>> {
@@ -20,8 +20,11 @@ export async function uploadImage(file: File): Promise<SessionCreated> {
   return payload as unknown as SessionCreated
 }
 
-export async function processSession(sessionId: string): Promise<AnalysisResult> {
-  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/process`, { method: 'POST' })
+export async function processSession(sessionId: string, options?: ProcessOptions): Promise<AnalysisResult> {
+  const init: RequestInit = options
+    ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(options) }
+    : { method: 'POST' }
+  const response = await fetch(`${API_BASE}/api/sessions/${sessionId}/process`, init)
   const payload = await readJson(response)
   if (!response.ok) throw errorFrom(payload, 'Processing failed.')
   return payload as unknown as AnalysisResult

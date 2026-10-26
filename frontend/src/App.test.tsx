@@ -154,3 +154,38 @@ describe('accessibility', () => {
     expect(results.violations).toEqual([])
   })
 })
+
+describe('multi-figure pages', () => {
+  beforeEach(() => {
+    vi.stubGlobal('URL', { ...URL, createObjectURL: vi.fn(() => 'blob:mock'), revokeObjectURL: vi.fn() })
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+    vi.unstubAllGlobals()
+  })
+
+  const figure = (number: number) => ({ number, x: 0, y: 0, width: 100, height: 100, page_width: 1000, page_height: 1400 })
+
+  it('offers each figure and the whole page, and reprocesses the chosen one', async () => {
+    const first = { ...result([]), figures: [figure(1), figure(2)], processing_params: { edge_sensitivity: 50, figure: 0 } } as AnalysisResult
+    const user = await runAnalysis(first)
+    const picker = screen.getByLabelText(/2 separate figures/i)
+    expect(picker).toHaveValue('0')
+    expect(screen.getByRole('option', { name: /whole page/i })).toBeInTheDocument()
+
+    processSession.mockResolvedValue({ ...first, processing_params: { edge_sensitivity: 50, figure: 1 } })
+    await user.selectOptions(picker, '1')
+    await waitFor(() => expect(processSession).toHaveBeenLastCalledWith('sess-1', { figure: 1 }))
+    await waitFor(() => expect(screen.getByLabelText(/2 separate figures/i)).toHaveValue('1'))
+
+    processSession.mockResolvedValue({ ...first, processing_params: { edge_sensitivity: 50, figure: null } })
+    await user.selectOptions(screen.getByLabelText(/2 separate figures/i), 'page')
+    await waitFor(() => expect(processSession).toHaveBeenLastCalledWith('sess-1', { whole_page: true }))
+  })
+
+  it('shows no picker for a single-figure image', async () => {
+    await runAnalysis(result([]))
+    expect(screen.queryByLabelText(/separate figures/i)).not.toBeInTheDocument()
+  })
+})

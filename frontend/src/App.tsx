@@ -45,6 +45,14 @@ function readinessScore(result: AnalysisResult | null): number {
   return result.qa_report.score_0_100 ?? Math.round(result.qa_report.overall_score * 100)
 }
 
+function readyMessage(result: AnalysisResult): string {
+  const count = result.semantic_geometry?.element_count ?? 0
+  const figures = result.figures ?? []
+  const figure = result.processing_params?.figure
+  const where = figure != null && figures[figure] ? ` in figure ${figures[figure].number} of ${figures.length}` : ''
+  return `Ready: ${count} elements detected${where}. Review and correct as needed.`
+}
+
 function defaultSelection(result: AnalysisResult | null): string | null {
   const elements = result?.semantic_geometry?.elements ?? []
   if (elements.length === 0) return null
@@ -105,10 +113,27 @@ export default function App() {
       const result = await processSession(session.session_id)
       setAnalysis(result)
       setSelectedId(defaultSelection(result))
-      setStatus(`Ready: ${result.semantic_geometry?.element_count ?? 0} elements detected. Review and correct as needed.`)
+      setStatus(readyMessage(result))
     } catch (requestError) {
       setStatus('')
       setError(requestError instanceof Error ? requestError.message : 'An unexpected error occurred.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function chooseFigure(value: string) {
+    if (!analysis?.session_id) return
+    try {
+      setError(''); setBusy(true)
+      setStatus(value === 'page' ? 'Analyzing the whole page…' : `Analyzing figure ${Number(value) + 1}…`)
+      const next = await processSession(analysis.session_id, value === 'page' ? { whole_page: true } : { figure: Number(value) })
+      setAnalysis(next)
+      setSelectedId(defaultSelection(next))
+      setStatus(readyMessage(next))
+    } catch (requestError) {
+      setStatus('')
+      setError(requestError instanceof Error ? requestError.message : 'That figure could not be analysed.')
     } finally {
       setBusy(false)
     }
@@ -142,7 +167,8 @@ export default function App() {
       return
     }
     setError('')
-    const fileName = `tactile-${analysis.session_id || 'diagram'}.svg`
+    const figureNumber = currentFigure ? `-figure-${currentFigure.number}` : ''
+    const fileName = `tactile-${analysis.session_id || 'diagram'}${figureNumber}.svg`
     if (desktop) {
       desktopShell.saveSvg(svg, fileName)
         .then(path => setStatus(path ? `Saved ${path}` : 'Export cancelled.'))
@@ -165,6 +191,9 @@ export default function App() {
   const reviewCount = semantic?.low_confidence_count ?? 0
   const score = readinessScore(analysis)
   const exportBlock = exportBlockReason(analysis?.qa_report)
+  const figures = analysis?.figures ?? []
+  const figureIndex = analysis?.processing_params?.figure
+  const currentFigure = figureIndex != null ? figures[figureIndex] ?? null : null
   const explanations = [
     ...(semantic?.explanations ?? []),
     ...(analysis?.simplified_geometry?.explanations ?? []).map(message => ({ stage: 'simplification', message })),
@@ -247,6 +276,23 @@ export default function App() {
             </div>
           )}
 
+          {figures.length >= 2 && (
+            <div className="figure-picker">
+              <label htmlFor="figure-select">This page has {figures.length} separate figures. Tactile sheet for:</label>
+              <select
+                id="figure-select"
+                value={currentFigure ? String(figureIndex) : 'page'}
+                disabled={busy}
+                onChange={event => chooseFigure(event.target.value)}
+              >
+                {figures.map((figure, index) => (
+                  <option key={figure.number} value={String(index)}>Figure {figure.number}</option>
+                ))}
+                <option value="page">Whole page (all figures on one sheet)</option>
+              </select>
+            </div>
+          )}
+
           <ViewTabs active={activeView} onSelect={setActiveView} />
 
           <div className="stage-layout">
@@ -263,6 +309,7 @@ export default function App() {
                   height={semantic.image_height || analysis.quality_report?.image_height || 0}
                   selectedId={selectedId}
                   onSelect={setSelectedId}
+                  figure={currentFigure}
                 />
               )}
               {activeView === 'tactile' && (

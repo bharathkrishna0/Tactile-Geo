@@ -63,6 +63,10 @@ h1 { margin: 0; font-size: clamp(26px, 4vw, 40px); line-height: 1.12; }
 
 .overlay-stage { position: relative; }
 .overlay-image { display: block; width: 100%; height: auto; border: 1px solid #e9e9e7; border-radius: 8px; }
+.figure-crop { overflow: hidden; }
+.figure-crop img { display: block; max-width: none; height: auto; }
+.figure-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 12px; }
+.figure-picker select { font: inherit; padding: 4px 8px; }
 .overlay-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; }
 .overlay-svg .el { fill: none; stroke: #10507f; stroke-width: 2; }
 .overlay-svg .el.selected { stroke: #d0451c; stroke-width: 3.5; }

@@ -144,7 +144,7 @@ def capture_result(result, timer_ms: dict, total_ms: float) -> dict:
 
 
 def run_model_a(image_bytes: bytes, ocr_provider, translator, overrides: dict | None = None,
-                mask_text: bool = False) -> tuple[dict, object | None]:
+                mask_text: bool = False, figure: int | None = None) -> tuple[dict, object | None]:
     """Return (captured JSON, PipelineResult or None on failure)."""
     timer = _Timer()
     provider = _TimedProvider(ocr_provider, timer, "ocr", "detect")
@@ -153,7 +153,7 @@ def run_model_a(image_bytes: bytes, ocr_provider, translator, overrides: dict | 
     with timed_pipeline(timer, overrides) as pipeline:
         try:
             result = pipeline.build_full_analysis(image_bytes, ocr_provider=provider, braille_translator=tr,
-                                                  mask_text=mask_text)
+                                                  mask_text=mask_text, figure=figure)
         except Exception as error:  # a failed analysis is a scored outcome
             total = (time.perf_counter() - start) * 1000
             return ({"error": f"{type(error).__name__}: {error}",

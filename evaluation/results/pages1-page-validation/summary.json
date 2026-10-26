@@ -1,0 +1,1070 @@
+{
+ "manifest": {
+  "run_id": "pages1-page-validation",
+  "mode": "page",
+  "split": "validation",
+  "pages": 9,
+  "git_commit": "001a527c63708055f46f747cb41520cd5a877f13",
+  "match_iou": 0.3
+ },
+ "segmentation": {
+  "gt_figures": 50,
+  "found_figures": 50,
+  "matched": 50,
+  "precision": 1.0,
+  "recall": 1.0,
+  "mean_iou": 0.747
+ },
+ "qa": {
+  "pages_all_exportable": 0.8889,
+  "figures_exportable": null
+ },
+ "overall": {
+  "images": 9,
+  "failed": 0,
+  "failure_rate": 0.0,
+  "objects_semantic": {
+   "strict": {
+    "tp": 84,
+    "fp": 146,
+    "fn": 28,
+    "precision": 0.3652,
+    "recall": 0.75,
+    "f1": 0.4912
+   },
+   "structural": {
+    "tp": 89,
+    "fp": 146,
+    "fn": 23,
+    "precision": 0.3787,
+    "recall": 0.7946,
+    "f1": 0.5129
+   },
+   "essential_recall_structural": 0.7946,
+   "essential_recall_strict": 0.75,
+   "found_as_parts": 5,
+   "fragmented_linear": 0,
+   "closed_as_sides": 5,
+   "fp_reasons": {
+    "other": 77,
+    "on_text": 35,
+    "on_distractor": 34
+   },
+   "on_omittable": 0,
+   "note": "failed images are excluded from precision/recall but included in essential recall denominators"
+  },
+  "objects_final": {
+   "strict": {
+    "tp": 81,
+    "fp": 117,
+    "fn": 31,
+    "precision": 0.4091,
+    "recall": 0.7232,
+    "f1": 0.5226
+   },
+   "structural": {
+    "tp": 86,
+    "fp": 117,
+    "fn": 26,
+    "precision": 0.4236,
+    "recall": 0.7679,
+    "f1": 0.546
+   },
+   "essential_recall_structural": 0.7679,
+   "essential_recall_strict": 0.7232,
+   "found_as_parts": 5,
+   "fragmented_linear": 0,
+   "closed_as_sides": 5,
+   "fp_reasons": {
+    "other": 63,
+    "on_text": 21,
+    "on_distractor": 33
+   },
+   "on_omittable": 0,
+   "note": "failed images are excluded from precision/recall but included in essential recall denominators"
+  },
+  "per_gt_type": {
+   "angle_marker": {
+    "gt": 3,
+    "found_strict": 0,
+    "found_structural": 0,
+    "recall_strict": 0.0,
+    "recall_structural": 0.0
+   },
+   "circle": {
+    "gt": 10,
+    "found_strict": 7,
+    "found_structural": 7,
+    "recall_strict": 0.7,
+    "recall_structural": 0.7
+   },
+   "dimension_line": {
+    "gt": 15,
+    "found_strict": 15,
+    "found_structural": 15,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "line_segment": {
+    "gt": 39,
+    "found_strict": 31,
+    "found_structural": 31,
+    "recall_strict": 0.7949,
+    "recall_structural": 0.7949
+   },
+   "polygon": {
+    "gt": 11,
+    "found_strict": 4,
+    "found_structural": 6,
+    "recall_strict": 0.3636,
+    "recall_structural": 0.5455
+   },
+   "ray": {
+    "gt": 6,
+    "found_strict": 6,
+    "found_structural": 6,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "rectangle": {
+    "gt": 13,
+    "found_strict": 13,
+    "found_structural": 13,
+    "recall_strict": 1.0,
+    "recall_structural": 1.0
+   },
+   "triangle": {
+    "gt": 15,
+    "found_strict": 8,
+    "found_structural": 11,
+    "recall_strict": 0.5333,
+    "recall_structural": 0.7333
+   }
+  },
+  "per_pred_type": {
+   "arc": {
+    "predicted": 2,
+    "true_positive": 1,
+    "precision": 0.5
+   },
+   "circle": {
+    "predicted": 7,
+    "true_positive": 7,
+    "precision": 1.0
+   },
+   "line_segment": {
+    "predicted": 156,
+    "true_positive": 52,
+    "precision": 0.3333
+   },
+   "polygon": {
+    "predicted": 24,
+    "true_positive": 4,
+    "precision": 0.1667
+   },
+   "rectangle": {
+    "predicted": 52,
+    "true_positive": 13,
+    "precision": 0.25
+   },
+   "triangle": {
+    "predicted": 7,
+    "true_positive": 7,
+    "precision": 1.0
+   }
+  },
+  "classification": {
+   "object_type_accuracy": 0.7262,
+   "matched_with_supported_type": 84,
+   "confusion": {
+    "line_segment->line_segment": 31,
+    "arrow->line_segment": 15,
+    "rectangle->rectangle": 13,
+    "triangle->triangle": 7,
+    "circle->circle": 7,
+    "ray->line_segment": 6,
+    "polygon->polygon": 3,
+    "triangle->polygon": 1,
+    "polygon->arc": 1
+   },
+   "diagram_type_accuracy": "NOT MEASURED (Model A produces no diagram-level type)"
+  },
+  "right_angle_markers": {
+   "gt": 2,
+   "found": 2,
+   "predicted": 2,
+   "recall": 1.0
+  },
+  "angle_markers": {
+   "gt": 3,
+   "found": 0,
+   "predicted": 7,
+   "recall": 0.0
+  },
+  "geometry": {
+   "chamfer_px": {
+    "n": 84,
+    "p25": 0.866,
+    "p50": 1.087,
+    "p75": 1.345,
+    "p95": 5.702,
+    "mean": 1.979
+   },
+   "endpoint_px": {
+    "n": 52,
+    "p25": 0.922,
+    "p50": 1.326,
+    "p75": 3.337,
+    "p95": 41.338,
+    "mean": 6.895
+   },
+   "angle_deg": {
+    "n": 52,
+    "p25": 0.051,
+    "p50": 0.155,
+    "p75": 0.327,
+    "p95": 1.347,
+    "mean": 0.332
+   },
+   "length_rel": {
+    "n": 52,
+    "p25": 0.004,
+    "p50": 0.008,
+    "p75": 0.042,
+    "p95": 0.625,
+    "mean": 0.089
+   },
+   "polygon_iou": {
+    "n": 25,
+    "p25": 0.96,
+    "p50": 0.978,
+    "p75": 0.985,
+    "p95": 0.988,
+    "mean": 0.937
+   },
+   "vertex_count_match": {
+    "n": 25,
+    "p25": 1.0,
+    "p50": 1.0,
+    "p75": 1.0,
+    "p95": 1.0,
+    "mean": 0.92
+   },
+   "circle_center_px": {
+    "n": 7,
+    "p25": 1.031,
+    "p50": 4.384,
+    "p75": 5.261,
+    "p95": 5.729,
+    "mean": 3.358
+   },
+   "circle_radius_rel": {
+    "n": 7,
+    "p25": 0.01,
+    "p50": 0.014,
+    "p75": 0.017,
+    "p95": 0.018,
+    "mean": 0.014
+   },
+   "point_localization_px": {
+    "n": 102,
+    "p25": 0.817,
+    "p50": 1.302,
+    "p75": 2.091,
+    "p95": 3.947,
+    "mean": 2.254
+   },
+   "point_recall": 0.7846
+  },
+  "ocr": {
+   "label_detection_recall": 0.5729,
+   "label_detection_precision": 0.9213,
+   "cer": 0.4564,
+   "cer_detected_only": 0.1422,
+   "wer": 0.5182,
+   "exact_match_rate_detected": 0.8091,
+   "exact_match_rate_normalized_detected": 0.8273,
+   "label_association_accuracy": 0.7909,
+   "label_association_target_missing": 11,
+   "association_evaluated": 110
+  },
+  "ocr_by_engine": {
+   "easyocr": {
+    "predicted": 51,
+    "on_label": 42,
+    "read_exact": 27,
+    "precision": 0.8235,
+    "read_exact_rate": 0.5294
+   },
+   "easyocr+tesseract": {
+    "predicted": 72,
+    "on_label": 71,
+    "read_exact": 58,
+    "precision": 0.9861,
+    "read_exact_rate": 0.8056
+   },
+   "tesseract": {
+    "predicted": 4,
+    "on_label": 4,
+    "read_exact": 4,
+    "precision": 1.0,
+    "read_exact_rate": 1.0
+   }
+  },
+  "braille": {
+   "evaluated_labels": 107,
+   "end_to_end_exact": 0.8131,
+   "translation_consistency": 1.0,
+   "cell_error_rate": 0.123,
+   "reading_order_concordance": 0.9581,
+   "collision_violations": 0,
+   "on_line_violations": 1
+  },
+  "relationships_semantic": {
+   "recall": 0.4203,
+   "precision_lower_bound": 0.4198,
+   "f1_lower_bound": 0.42,
+   "gt_supported": 207,
+   "gt_unsupported_by_type": {
+    "LABELS": 192,
+    "DIMENSION_OF": 31,
+    "INSIDE": 10
+   },
+   "by_type": {
+    "VERTEX_OF": {
+     "gt": 82,
+     "found": 25,
+     "predicted": 74,
+     "predicted_mappable": 25,
+     "predicted_correct": 25,
+     "recall": 0.3049,
+     "precision": 1.0,
+     "f1": 0.4673
+    },
+    "CENTER_OF": {
+     "gt": 10,
+     "found": 7,
+     "predicted": 7,
+     "predicted_mappable": 7,
+     "predicted_correct": 7,
+     "recall": 0.7,
+     "precision": 1.0,
+     "f1": 0.8235
+    },
+    "ON": {
+     "gt": 46,
+     "found": 19,
+     "predicted": 130,
+     "predicted_mappable": 78,
+     "predicted_correct": 20,
+     "recall": 0.413,
+     "precision": 0.2564,
+     "f1": 0.3164
+    },
+    "ENDPOINT_OF": {
+     "gt": 46,
+     "found": 23,
+     "predicted": 90,
+     "predicted_mappable": 57,
+     "predicted_correct": 24,
+     "recall": 0.5,
+     "precision": 0.4211,
+     "f1": 0.4572
+    },
+    "PARALLEL": {
+     "gt": 6,
+     "found": 4,
+     "predicted": 36,
+     "predicted_mappable": 6,
+     "predicted_correct": 4,
+     "recall": 0.6667,
+     "precision": 0.6667,
+     "f1": 0.6667
+    },
+    "PERPENDICULAR": {
+     "gt": 2,
+     "found": 0,
+     "predicted": 6,
+     "predicted_mappable": 2,
+     "predicted_correct": 0,
+     "recall": 0.0,
+     "precision": 0.0,
+     "f1": null
+    },
+    "INTERSECTS": {
+     "gt": 12,
+     "found": 9,
+     "predicted": 53,
+     "predicted_mappable": 37,
+     "predicted_correct": 9,
+     "recall": 0.75,
+     "precision": 0.2432,
+     "f1": 0.3673
+    },
+    "ANGLE_AT": {
+     "gt": 3,
+     "found": 0,
+     "predicted": 5,
+     "predicted_mappable": 0,
+     "predicted_correct": 0,
+     "recall": 0.0,
+     "precision": null,
+     "f1": null
+    }
+   }
+  },
+  "relationships_final": {
+   "recall": 0.3333,
+   "precision_lower_bound": 0.451,
+   "f1_lower_bound": 0.3833,
+   "gt_supported": 207,
+   "gt_unsupported_by_type": {
+    "LABELS": 192,
+    "DIMENSION_OF": 31,
+    "INSIDE": 10
+   },
+   "by_type": {
+    "VERTEX_OF": {
+     "gt": 82,
+     "found": 25,
+     "predicted": 41,
+     "predicted_mappable": 25,
+     "predicted_correct": 25,
+     "recall": 0.3049,
+     "precision": 1.0,
+     "f1": 0.4673
+    },
+    "CENTER_OF": {
+     "gt": 10,
+     "found": 6,
+     "predicted": 6,
+     "predicted_mappable": 6,
+     "predicted_correct": 6,
+     "recall": 0.6,
+     "precision": 1.0,
+     "f1": 0.75
+    },
+    "ON": {
+     "gt": 46,
+     "found": 15,
+     "predicted": 64,
+     "predicted_mappable": 48,
+     "predicted_correct": 15,
+     "recall": 0.3261,
+     "precision": 0.3125,
+     "f1": 0.3192
+    },
+    "ENDPOINT_OF": {
+     "gt": 46,
+     "found": 14,
+     "predicted": 44,
+     "predicted_mappable": 33,
+     "predicted_correct": 14,
+     "recall": 0.3043,
+     "precision": 0.4242,
+     "f1": 0.3544
+    },
+    "PERPENDICULAR": {
+     "gt": 2,
+     "found": 0,
+     "predicted": 6,
+     "predicted_mappable": 2,
+     "predicted_correct": 0,
+     "recall": 0.0,
+     "precision": 0.0,
+     "f1": null
+    },
+    "PARALLEL": {
+     "gt": 6,
+     "found": 4,
+     "predicted": 28,
+     "predicted_mappable": 6,
+     "predicted_correct": 4,
+     "recall": 0.6667,
+     "precision": 0.6667,
+     "f1": 0.6667
+    },
+    "INTERSECTS": {
+     "gt": 12,
+     "found": 5,
+     "predicted": 45,
+     "predicted_mappable": 33,
+     "predicted_correct": 5,
+     "recall": 0.4167,
+     "precision": 0.1515,
+     "f1": 0.2222
+    },
+    "ANGLE_AT": {
+     "gt": 3,
+     "found": 0,
+     "predicted": 0,
+     "predicted_mappable": 0,
+     "predicted_correct": 0,
+     "recall": 0.0,
+     "precision": null,
+     "f1": null
+    }
+   }
+  },
+  "simplification": {
+   "actions": {
+    "merged_collinear": 7,
+    "simplified_contour": 20,
+    "removed_below_tactile_size": 10,
+    "removed_density_budget": 64
+   },
+   "removed": 74,
+   "merged": 7,
+   "modified": 20,
+   "newly_inferred": 0,
+   "essential_found_before": 89,
+   "essential_found_after": 86,
+   "essential_removed_by_simplification": 3,
+   "semantic_preservation_rate": 0.9663
+  },
+  "final_preservation": {
+   "essential_elements": 0.7679,
+   "relationships": 0.3333,
+   "labels": 0.5729,
+   "quantitative_labels_exact": 0.4
+  },
+  "line_grouping": {
+   "edges": 213,
+   "correct": 166,
+   "partial": 2,
+   "fragmented": 2,
+   "duplicated": 1,
+   "missed": 42,
+   "correct_grouping_rate": 0.7793,
+   "over_segmentation_rate": 0.0117,
+   "duplicate_rate": 0.0058,
+   "missed_rate": 0.1972
+  },
+  "line_grouping_final": {
+   "edges": 213,
+   "correct": 165,
+   "partial": 2,
+   "fragmented": 1,
+   "duplicated": 0,
+   "missed": 45,
+   "correct_grouping_rate": 0.7746,
+   "over_segmentation_rate": 0.006,
+   "duplicate_rate": 0.0,
+   "missed_rate": 0.2113
+  },
+  "semantic_preservation": {
+   "rate": 0.4513,
+   "preserved": 343,
+   "total": 760,
+   "components": {
+    "objects": {
+     "preserved": 86,
+     "total": 112,
+     "rate": 0.7679
+    },
+    "labels": {
+     "preserved": 91,
+     "total": 192,
+     "rate": 0.474
+    },
+    "associations": {
+     "preserved": 87,
+     "total": 192,
+     "rate": 0.4531
+    },
+    "relationships": {
+     "preserved": 69,
+     "total": 248,
+     "rate": 0.2782
+    },
+    "dimensions": {
+     "preserved": 10,
+     "total": 16,
+     "rate": 0.625
+    }
+   },
+   "note": "failed images add their essential objects to the denominator only"
+  },
+  "qa_gate": {
+   "status": {
+    "WARNING": 8,
+    "BLOCKED": 1
+   },
+   "images_with_critical_problem": 2,
+   "critical_unblocked_images": 1,
+   "critical_unblocked": {
+    "essential_removed_by_simplification": 1
+   }
+  },
+  "tactile_qa": {
+   "pass_rate_all_images": 0.8889,
+   "export_blocked_rate": 0.1111,
+   "issues": {
+    "overlap": 144,
+    "spacing": 70,
+    "isolated_element": 9,
+    "duplicate_geometry": 6,
+    "density_reduced": 4,
+    "overlap_summary": 3,
+    "complexity": 2,
+    "spacing_summary": 1,
+    "braille_on_line": 1
+   },
+   "blocking_images": {
+    "braille_on_line": 1
+   }
+  },
+  "svg": {
+   "svg_rate_all_images": 1.0,
+   "valid_rate_of_present": 1.0,
+   "out_of_bounds": 0,
+   "duplicates": 0,
+   "self_intersecting_polygons": 1,
+   "open_paths": 9,
+   "near_duplicate_geometry": 1,
+   "images_over_40_features": 2,
+   "images_over_60_features": 0,
+   "embossed_features": {
+    "n": 9,
+    "p25": 27.0,
+    "p50": 36.0,
+    "p75": 40.0,
+    "p95": 45.8,
+    "mean": 32.333
+   }
+  },
+  "latency_ms": {
+   "labels_braille": {
+    "n": 9,
+    "p25": 83.1,
+    "p50": 136.9,
+    "p75": 274.6,
+    "p95": 459.56,
+    "mean": 199.267
+   },
+   "ocr": {
+    "n": 9,
+    "p25": 13851.4,
+    "p50": 14911.8,
+    "p75": 15155.5,
+    "p95": 21370.22,
+    "mean": 15334.822
+   },
+   "preprocessing": {
+    "n": 9,
+    "p25": 255.4,
+    "p50": 263.1,
+    "p75": 296.1,
+    "p95": 417.5,
+    "mean": 279.156
+   },
+   "preview_svg": {
+    "n": 9,
+    "p25": 0.0,
+    "p50": 0.1,
+    "p75": 0.1,
+    "p95": 0.16,
+    "mean": 0.078
+   },
+   "semantic_analysis": {
+    "n": 9,
+    "p25": 4.4,
+    "p50": 4.8,
+    "p75": 15.5,
+    "p95": 34.86,
+    "mean": 12.178
+   },
+   "simplification": {
+    "n": 9,
+    "p25": 0.3,
+    "p50": 0.4,
+    "p75": 1.0,
+    "p95": 7.02,
+    "mean": 1.856
+   },
+   "tactile_qa": {
+    "n": 9,
+    "p25": 14.3,
+    "p50": 20.2,
+    "p75": 26.1,
+    "p95": 67.18,
+    "mean": 25.467
+   },
+   "tactile_svg": {
+    "n": 9,
+    "p25": 0.5,
+    "p50": 0.6,
+    "p75": 0.8,
+    "p95": 0.9,
+    "mean": 0.611
+   },
+   "total": {
+    "n": 9,
+    "p25": 15368.1,
+    "p50": 16501.1,
+    "p75": 17388.3,
+    "p95": 24052.2,
+    "mean": 17239.678
+   },
+   "vectorization": {
+    "n": 9,
+    "p25": 369.5,
+    "p50": 963.8,
+    "p75": 1554.0,
+    "p95": 1795.96,
+    "mean": 956.478
+   }
+  }
+ },
+ "pages": [
+  {
+   "image_id": "page_001",
+   "gt_figures": 4,
+   "found_figures": 4,
+   "matched": 4,
+   "pairs": [
+    [
+     0,
+     0,
+     0.755
+    ],
+    [
+     1,
+     1,
+     0.851
+    ],
+    [
+     2,
+     2,
+     0.846
+    ],
+    [
+     3,
+     3,
+     0.756
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 15.9
+  },
+  {
+   "image_id": "page_002",
+   "gt_figures": 4,
+   "found_figures": 4,
+   "matched": 4,
+   "pairs": [
+    [
+     0,
+     0,
+     0.848
+    ],
+    [
+     1,
+     1,
+     0.731
+    ],
+    [
+     2,
+     2,
+     0.753
+    ],
+    [
+     3,
+     3,
+     0.762
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 12.7
+  },
+  {
+   "image_id": "page_012",
+   "gt_figures": 10,
+   "found_figures": 10,
+   "matched": 10,
+   "pairs": [
+    [
+     0,
+     0,
+     0.685
+    ],
+    [
+     1,
+     1,
+     0.588
+    ],
+    [
+     2,
+     2,
+     0.637
+    ],
+    [
+     3,
+     3,
+     0.596
+    ],
+    [
+     4,
+     4,
+     0.629
+    ],
+    [
+     5,
+     5,
+     0.705
+    ],
+    [
+     6,
+     6,
+     0.575
+    ],
+    [
+     7,
+     7,
+     0.645
+    ],
+    [
+     8,
+     8,
+     0.656
+    ],
+    [
+     9,
+     9,
+     0.461
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 23.3
+  },
+  {
+   "image_id": "page_015",
+   "gt_figures": 4,
+   "found_figures": 4,
+   "matched": 4,
+   "pairs": [
+    [
+     0,
+     0,
+     0.749
+    ],
+    [
+     1,
+     1,
+     0.843
+    ],
+    [
+     2,
+     2,
+     0.793
+    ],
+    [
+     3,
+     3,
+     0.831
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 24.8
+  },
+  {
+   "image_id": "page_020",
+   "gt_figures": 8,
+   "found_figures": 8,
+   "matched": 8,
+   "pairs": [
+    [
+     0,
+     0,
+     0.767
+    ],
+    [
+     1,
+     1,
+     0.721
+    ],
+    [
+     2,
+     2,
+     0.771
+    ],
+    [
+     3,
+     3,
+     0.728
+    ],
+    [
+     4,
+     4,
+     0.75
+    ],
+    [
+     5,
+     5,
+     0.764
+    ],
+    [
+     6,
+     6,
+     0.778
+    ],
+    [
+     7,
+     7,
+     0.718
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 17.1
+  },
+  {
+   "image_id": "page_025",
+   "gt_figures": 4,
+   "found_figures": 4,
+   "matched": 4,
+   "pairs": [
+    [
+     0,
+     0,
+     0.853
+    ],
+    [
+     1,
+     1,
+     0.845
+    ],
+    [
+     2,
+     2,
+     0.843
+    ],
+    [
+     3,
+     3,
+     0.749
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 16.6
+  },
+  {
+   "image_id": "page_026",
+   "gt_figures": 4,
+   "found_figures": 4,
+   "matched": 4,
+   "pairs": [
+    [
+     0,
+     0,
+     0.698
+    ],
+    [
+     1,
+     1,
+     0.68
+    ],
+    [
+     2,
+     2,
+     0.745
+    ],
+    [
+     3,
+     3,
+     0.825
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 15.4
+  },
+  {
+   "image_id": "page_028",
+   "gt_figures": 6,
+   "found_figures": 6,
+   "matched": 6,
+   "pairs": [
+    [
+     0,
+     0,
+     0.82
+    ],
+    [
+     1,
+     1,
+     0.649
+    ],
+    [
+     2,
+     2,
+     0.815
+    ],
+    [
+     3,
+     3,
+     0.803
+    ],
+    [
+     4,
+     4,
+     0.803
+    ],
+    [
+     5,
+     5,
+     0.807
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": true,
+   "seconds": 12.9
+  },
+  {
+   "image_id": "page_029",
+   "gt_figures": 6,
+   "found_figures": 6,
+   "matched": 6,
+   "pairs": [
+    [
+     0,
+     0,
+     0.829
+    ],
+    [
+     1,
+     1,
+     0.76
+    ],
+    [
+     2,
+     2,
+     0.781
+    ],
+    [
+     3,
+     3,
+     0.82
+    ],
+    [
+     4,
+     4,
+     0.76
+    ],
+    [
+     5,
+     5,
+     0.755
+    ]
+   ],
+   "figure_qa": [],
+   "qa_passes": false,
+   "seconds": 17.5
+  }
+ ]
+}
